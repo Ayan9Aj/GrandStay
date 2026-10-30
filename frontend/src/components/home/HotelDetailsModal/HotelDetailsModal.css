@@ -280,6 +280,9 @@
 
 .hotel-modal__footer-actions {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: var(--space-3);
 }
 
@@ -301,6 +304,8 @@
 
   .hotel-modal__footer-actions {
     width: 100%;
+    align-items: stretch;
+    flex-direction: column;
   }
 
   .hotel-modal__footer-actions button {

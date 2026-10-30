@@ -60,6 +60,52 @@
   padding-left: 2.5rem;
 }
 
+.form-field__control--with-suffix {
+  padding-right: 2.6rem;
+}
+
+.form-field__control--with-double-suffix {
+  padding-right: 4.8rem;
+}
+
+.form-field__suffix-actions {
+  position: absolute;
+  right: 0.65rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  z-index: 2;
+}
+
+.form-field__clear-btn,
+.form-field__suffix-action-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  border-radius: 9999px;
+  color: var(--color-text-light);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.form-field__clear-btn:hover,
+.form-field__suffix-action-btn:hover {
+  color: var(--color-text-heading);
+  background-color: var(--color-bg-subtle);
+}
+
+.form-field__clear-btn:focus-visible,
+.form-field__suffix-action-btn:focus-visible {
+  outline: 2px solid var(--color-primary-600);
+  outline-offset: 1px;
+}
+
 /* Hover & Focus States */
 .form-field__control:hover:not(:disabled) {
   border-color: var(--color-border-strong);

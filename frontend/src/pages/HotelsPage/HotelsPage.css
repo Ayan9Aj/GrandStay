@@ -1,0 +1,319 @@
+/* ==============================================================================
+   HOTELS PAGE — STYLES
+   Project: GrandStay - Multi-Hotel Booking Platform
+   Stage 3: Hotel Catalog & Filtering
+   ============================================================================== */
+
+.hotels-page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background);
+}
+
+.hotels-page-main {
+  flex: 1;
+  padding-top: var(--space-6);
+  padding-bottom: var(--space-12);
+}
+
+/* ─── Breadcrumb ───────────────────────────────────────────────────────────── */
+.hotels-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  font-size: var(--font-size-sm);
+}
+
+.hotels-breadcrumb__link {
+  color: var(--color-gold);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+.hotels-breadcrumb__link:hover {
+  color: var(--color-navy);
+}
+
+.hotels-breadcrumb__sep {
+  color: var(--color-text-muted);
+}
+
+.hotels-breadcrumb__current {
+  color: var(--color-text-secondary);
+}
+
+/* ─── Page Title Row ───────────────────────────────────────────────────────── */
+.hotels-page-title-row {
+  margin-bottom: var(--space-5);
+}
+
+.hotels-page-title {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-navy);
+  margin: 0 0 var(--space-1) 0;
+  font-family: var(--font-serif);
+}
+
+.hotels-page-subtitle {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* ─── Search Context Pill Bar ──────────────────────────────────────────────── */
+.hotels-search-context {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+
+.hotels-search-context__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+.hotels-search-context__pill {
+  font-size: var(--font-size-sm);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  color: var(--color-text-primary);
+}
+
+.hotels-search-context__modify {
+  margin-left: auto;
+  font-size: var(--font-size-sm);
+  color: var(--color-gold);
+  text-decoration: none;
+  font-weight: var(--font-weight-medium);
+  transition: color var(--transition-fast);
+}
+.hotels-search-context__modify:hover {
+  color: var(--color-navy);
+}
+
+/* ─── Active Filter Chips ──────────────────────────────────────────────────── */
+.hotels-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.hotels-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  background: var(--color-navy);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  white-space: nowrap;
+}
+.hotels-chip:hover {
+  background: var(--color-navy-dark, #0f1f3d);
+}
+
+/* "Clear All" chip has a different style */
+.hotels-chip--clear {
+  background: transparent;
+  color: var(--color-gold);
+  border: 1px solid var(--color-gold);
+}
+.hotels-chip--clear:hover {
+  background: var(--color-gold);
+  color: var(--color-navy);
+}
+
+/* ─── Sort Bar ─────────────────────────────────────────────────────────────── */
+.hotels-sort-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-5);
+  gap: var(--space-4);
+}
+
+.hotels-sort-bar__count {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+.hotels-sort-bar__count strong {
+  color: var(--color-navy);
+}
+
+.hotels-sort-bar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.hotels-sort-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.hotels-sort-select {
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition-fast);
+}
+.hotels-sort-select:focus {
+  border-color: var(--color-gold);
+}
+
+/* ─── Two-column catalog layout ────────────────────────────────────────────── */
+.hotels-catalog-layout {
+  display: flex;
+  gap: var(--space-6);
+  align-items: flex-start;
+}
+
+/* Results area takes remaining width */
+.hotels-results {
+  flex: 1;
+  min-width: 0; /* prevents overflow in flex children */
+}
+
+/* Hotel cards responsive grid */
+.hotels-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-5);
+}
+
+/* ─── Mobile Floating Filters Button ───────────────────────────────────────── */
+.hotels-filter-fab {
+  display: none; /* hidden on desktop */
+  position: fixed;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: calc(var(--z-modal) - 2);
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-6);
+  background: var(--color-navy);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+.hotels-filter-fab:hover {
+  background: var(--color-navy-dark, #0f1f3d);
+  transform: translateX(-50%) translateY(-2px);
+}
+
+/* Badge on the FAB showing active filter count */
+.hotels-filter-fab__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-gold);
+  color: var(--color-navy);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+}
+
+/* ─── Toast ─────────────────────────────────────────────────────────────────── */
+.hotels-toast {
+  position: fixed;
+  bottom: var(--space-6);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: var(--z-toast, 9999);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-navy);
+  color: #fff;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  box-shadow: var(--shadow-lg);
+  white-space: nowrap;
+  animation: slideUpFadeIn 0.3s ease;
+  pointer-events: none;
+}
+
+.hotels-toast__icon {
+  color: var(--color-gold);
+  flex-shrink: 0;
+}
+
+/* ─── Mobile overrides ─────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .hotels-page-main {
+    padding-top: var(--space-4);
+  }
+
+  .hotels-page-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .hotels-catalog-layout {
+    display: block; /* stacks to single column */
+  }
+
+  /* Show the floating FAB button on mobile */
+  .hotels-filter-fab {
+    display: inline-flex;
+    /* Add bottom padding so it doesn't cover the last hotel card */
+    margin-bottom: var(--space-10);
+  }
+
+  /* Push the toast above the FAB */
+  .hotels-toast {
+    bottom: calc(var(--space-6) + 56px);
+  }
+
+  .hotels-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hotels-sort-bar {
+    flex-wrap: wrap;
+  }
+}
+
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}

@@ -1,0 +1,289 @@
+/* ==============================================================================
+   HOTEL FILTER SIDEBAR — STYLES
+   Project: GrandStay - Multi-Hotel Booking Platform
+   Stage 3: Hotel Catalog & Filtering
+
+   Approach:
+   - Desktop: .filter-sidebar is a sticky left column (280px)
+   - Mobile (≤ 768px): .filter-sidebar is hidden; .filter-drawer slides in from left
+   ============================================================================== */
+
+/* ─── Desktop Sidebar Wrapper ──────────────────────────────────────────────── */
+.filter-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  position: sticky;
+  /* Stick below the fixed header (approx 72px) + academic bar (42px) */
+  top: 120px;
+  /* Limit the sticky height so it doesn't exceed the viewport */
+  max-height: calc(100vh - 130px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
+}
+
+/* ─── Shared Panel Styles ──────────────────────────────────────────────────── */
+.filter-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Panel Header */
+.filter-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-background);
+}
+
+.filter-panel__title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-navy);
+}
+
+.filter-panel__title {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  margin: 0;
+  color: var(--color-navy);
+}
+
+/* Badge showing how many filters are active */
+.filter-panel__count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-gold);
+  color: var(--color-navy);
+  font-size: 11px;
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+.filter-panel__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.filter-panel__results-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* Close button — only visible in the mobile drawer */
+.filter-panel__close-btn {
+  display: none; /* hidden on desktop */
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: var(--space-1);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.filter-panel__close-btn:hover {
+  color: var(--color-navy);
+  background: var(--color-border);
+}
+
+/* ─── Filter Sections ──────────────────────────────────────────────────────── */
+.filter-section {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.filter-section:last-child {
+  border-bottom: none;
+}
+
+.filter-section__title {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-navy);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 var(--space-3) 0;
+}
+
+/* Destination select dropdown */
+.filter-select {
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  outline: none;
+  transition: border-color var(--transition-fast);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 36px;
+}
+.filter-select:focus {
+  border-color: var(--color-gold);
+}
+
+/* Price range row */
+.filter-price-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.filter-price-field {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex: 1;
+  background: var(--color-background);
+  transition: border-color var(--transition-fast);
+}
+.filter-price-field:focus-within {
+  border-color: var(--color-gold);
+}
+
+.filter-price-prefix {
+  padding: 0 var(--space-2);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  background: var(--color-background);
+  user-select: none;
+}
+
+.filter-price-input {
+  border: none;
+  outline: none;
+  padding: var(--space-2) var(--space-2) var(--space-2) 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  background: transparent;
+  width: 100%;
+  /* Hide number spinners */
+  -moz-appearance: textfield;
+}
+.filter-price-input::-webkit-outer-spin-button,
+.filter-price-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.filter-price-separator {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.filter-price-error {
+  margin: var(--space-2) 0 0 0;
+  font-size: var(--font-size-xs);
+  color: var(--color-error, #dc2626);
+}
+
+/* Checkboxes */
+.filter-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  padding: var(--space-1) 0;
+  user-select: none;
+}
+.filter-checkbox-label:hover .filter-checkbox-text {
+  color: var(--color-navy);
+}
+
+.filter-checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  accent-color: var(--color-navy);
+  flex-shrink: 0;
+}
+
+.filter-checkbox-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  transition: color var(--transition-fast);
+}
+
+/* Clear All button at bottom */
+.filter-panel__clear {
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
+  background: var(--color-background);
+}
+
+/* ─── Mobile Drawer ────────────────────────────────────────────────────────── */
+
+/* Semi-transparent backdrop behind the drawer */
+.filter-drawer-backdrop {
+  display: none; /* shown only on mobile */
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: calc(var(--z-modal) - 1);
+  animation: fadeIn 0.2s ease;
+}
+
+/* The slide-in panel itself */
+.filter-drawer {
+  display: none; /* shown only on mobile */
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(320px, 90vw);
+  z-index: var(--z-modal);
+  overflow-y: auto;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xl);
+}
+
+.filter-drawer--open {
+  transform: translateX(0);
+}
+
+/* ─── Mobile overrides (≤ 768 px) ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Hide the desktop sidebar column entirely */
+  .filter-sidebar {
+    display: none;
+  }
+
+  /* Show the backdrop and drawer on mobile */
+  .filter-drawer-backdrop,
+  .filter-drawer {
+    display: block;
+  }
+
+  /* Show the close button inside the mobile drawer */
+  .filter-panel__close-btn {
+    display: flex;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}

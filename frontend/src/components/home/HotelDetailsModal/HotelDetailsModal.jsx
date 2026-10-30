@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Badge from '../../common/Badge/Badge';
 import Button from '../../common/Button/Button';
 import {
@@ -30,8 +30,10 @@ import './HotelDetailsModal.css';
 export default function HotelDetailsModal({
   hotel,
   onClose,
-  onBookNow
+  onBookNow,
+  onViewFullDetails
 }) {
+  const [selectedRoom, setSelectedRoom] = useState(null);
   // Close on Escape key
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -42,6 +44,8 @@ export default function HotelDetailsModal({
   }, [onClose]);
 
   if (!hotel) return null;
+
+  const selectedRoomIndex = selectedRoom?.hotelId === hotel.id ? selectedRoom.index : null;
 
   const renderAmenityIcon = (name) => {
     const lower = name.toLowerCase();
@@ -137,11 +141,12 @@ export default function HotelDetailsModal({
                       <span className="room-per"> / night</span>
                     </div>
                     <Button
-                      variant="primary"
+                      variant={selectedRoomIndex === idx ? 'secondary' : 'outline'}
                       size="sm"
-                      onClick={() => onBookNow && onBookNow(hotel, room)}
+                      aria-pressed={selectedRoomIndex === idx}
+                      onClick={() => setSelectedRoom({ hotelId: hotel.id, index: idx })}
                     >
-                      Select Room
+                      {selectedRoomIndex === idx ? 'Selected' : 'Select this room'}
                     </Button>
                   </div>
                 </div>
@@ -160,7 +165,7 @@ export default function HotelDetailsModal({
 
             <div className="hotel-modal__academic-alert">
               <span>
-                * <strong>Demonstration Preview:</strong> Selecting a room simulates the booking reservation flow planned for Stage 4 &amp; 5. No financial transactions are performed.
+                * <strong>Demonstration Preview:</strong> Choose a room to review that exact option at checkout. No room is reserved and no payment is processed.
               </span>
             </div>
           </div>
@@ -169,24 +174,28 @@ export default function HotelDetailsModal({
         {/* Modal Sticky Footer */}
         <div className="hotel-modal__footer">
           <div className="hotel-modal__footer-price">
-            <span className="footer-price-label">Starting from</span>
-            <div className="footer-price-val">
-              <span>{hotel.currency}</span>
-              <strong>{hotel.pricePerNight.toLocaleString()}</strong>
-              <span> / night</span>
-            </div>
+            {Number.isInteger(selectedRoomIndex) && hotel.rooms?.[selectedRoomIndex] ? (
+              <>
+                <span className="footer-price-label">Selected room · {hotel.rooms[selectedRoomIndex].type}</span>
+                <div className="footer-price-val"><span>{hotel.currency}</span><strong>{typeof hotel.rooms[selectedRoomIndex].price === 'number' ? hotel.rooms[selectedRoomIndex].price.toLocaleString() : 'Price unavailable'}</strong><span> / night · {typeof hotel.rooms[selectedRoomIndex].maxGuests === 'number' ? `up to ${hotel.rooms[selectedRoomIndex].maxGuests} guests` : 'capacity not listed'}</span></div>
+              </>
+            ) : <span className="footer-price-label">Select a room above to continue</span>}
           </div>
 
           <div className="hotel-modal__footer-actions">
             <Button variant="outline" size="md" onClick={onClose}>
               Close Preview
             </Button>
+            <Button variant="text" size="md" onClick={() => onViewFullDetails?.(hotel)}>
+              View Full Details
+            </Button>
             <Button
               variant="accent"
               size="md"
-              onClick={() => onBookNow && onBookNow(hotel, hotel.rooms?.[0])}
+              disabled={!Number.isInteger(selectedRoomIndex) || !hotel.rooms?.[selectedRoomIndex]}
+              onClick={() => onBookNow && onBookNow(hotel, hotel.rooms[selectedRoomIndex])}
             >
-              Book This Stay
+              Continue with selected room
             </Button>
           </div>
         </div>

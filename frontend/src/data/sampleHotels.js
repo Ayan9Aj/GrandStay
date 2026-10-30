@@ -2,12 +2,16 @@
  * ==============================================================================
  * SAMPLE HOTEL DATA
  * Project: GrandStay - Multi-Hotel Booking Platform
- * Stage 2: Homepage Implementation
+ * Stage 3: Hotel Catalog & Filtering
  * ==============================================================================
- * 
+ *
  * Mock dataset representing commercial luxury hotels and resorts across India.
  * Used for component rendering, search filtering, and detail modal previews.
  * Later, this will be connected to the Django REST Framework API.
+ *
+ * Stage 3 additions (additive only — no existing field values were changed):
+ *   starRating    : integer (5 = Luxury 5-Star, 4 = Premium 4-Star)
+ *   propertyType  : string label used by the Property Type filter
  */
 
 export const SAMPLE_HOTELS = [
@@ -22,6 +26,8 @@ export const SAMPLE_HOTELS = [
     pricePerNight: 7499,
     currency: '₹',
     badge: 'Luxury Beachfront',
+    starRating: 5,
+    propertyType: 'Luxury Resort',
     amenities: ['Free WiFi', 'Infinity Pool', 'Free Breakfast', 'Ocean View', 'Spa'],
     description: 'An idyllic beachfront sanctuary featuring oceanfront cabanas, award-winning spa treatments, and signature coastal fine dining.',
     rooms: [
@@ -46,6 +52,8 @@ export const SAMPLE_HOTELS = [
     pricePerNight: 9999,
     currency: '₹',
     badge: 'Royal Heritage',
+    starRating: 5,
+    propertyType: 'Heritage Palace',
     amenities: ['Free WiFi', 'Royal Courtyard', 'Butler Service', 'Pool', 'High Tea'],
     description: 'Experience aristocratic Rajasthani royalty overlooking serene lake waters with authentic 18th-century palace architecture and royal hospitality.',
     rooms: [
@@ -70,6 +78,8 @@ export const SAMPLE_HOTELS = [
     pricePerNight: 5299,
     currency: '₹',
     badge: 'Mountain View',
+    starRating: 4,
+    propertyType: 'Alpine Retreat',
     amenities: ['Free WiFi', 'Heated Rooms', 'Free Breakfast', 'Trekking Desk', 'Fireplace'],
     description: 'Nestled among towering cedar pines with breathtaking panoramic snow-capped Himalayan mountain vistas and warm wooden chalet architecture.',
     rooms: [
@@ -93,6 +103,8 @@ export const SAMPLE_HOTELS = [
     pricePerNight: 6199,
     currency: '₹',
     badge: 'Cultural Oasis',
+    starRating: 4,
+    propertyType: 'Boutique Haveli',
     amenities: ['Free WiFi', 'Courtyard Pool', 'Rooftop Dining', 'Folk Performances'],
     description: 'A restored boutique haveli blending timeless Rajput craftsmanship, arched corridors, handcrafted jharokhas, and authentic Rajasthani gastronomy.',
     rooms: [
@@ -116,6 +128,8 @@ export const SAMPLE_HOTELS = [
     pricePerNight: 8299,
     currency: '₹',
     badge: 'Eco Luxury',
+    starRating: 5,
+    propertyType: 'Eco Sanctuary',
     amenities: ['Free WiFi', 'Ayurvedic Spa', 'Private Boat Jetty', 'Infinity Pool'],
     description: 'Set on the banks of emerald backwaters, offering heritage villas with open-to-sky shower gardens, traditional snake-boat cruises, and holistic wellness.',
     rooms: [
@@ -139,6 +153,8 @@ export const SAMPLE_HOTELS = [
     pricePerNight: 4699,
     currency: '₹',
     badge: 'Beachfront Cottages',
+    starRating: 4,
+    propertyType: 'Beachfront Resort',
     amenities: ['Free WiFi', 'Beach Shack Bar', 'Yoga Pavilion', 'Kayaking'],
     description: 'Rustic luxury wooden cottages nestled directly on the soft white sands of South Goa, surrounded by coconut groves and gentle Arabian Sea breezes.',
     rooms: [

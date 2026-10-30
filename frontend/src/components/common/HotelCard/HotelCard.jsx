@@ -30,6 +30,7 @@ import './HotelCard.css';
 export default function HotelCard({
   hotel,
   onBook,
+  onPreview,
   onFavoriteToggle
 }) {
   const [isFavorite, setIsFavorite] = useState(false);
@@ -146,14 +147,21 @@ export default function HotelCard({
             <span className="hotel-card__tax-note">+ taxes &amp; fees</span>
           </div>
 
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => onBook && onBook(hotel)}
-            ariaLabel={`View details for ${name}`}
-          >
-            View Details
-          </Button>
+          <div className="hotel-card__actions">
+            {onPreview && (
+              <Button variant="outline" size="sm" onClick={() => onPreview(hotel)}>
+                Quick Preview
+              </Button>
+            )}
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => onBook && onBook(hotel)}
+              ariaLabel={`View details for ${name}`}
+            >
+              View Details
+            </Button>
+          </div>
         </div>
       </div>
     </article>

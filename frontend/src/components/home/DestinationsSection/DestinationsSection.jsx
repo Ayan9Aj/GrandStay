@@ -62,6 +62,10 @@ export default function DestinationsSection({ onSelectDestination, activeDestina
                     alt={`Scenic view of ${dest.name}, ${dest.state}`}
                     className="destination-card__image"
                     loading="lazy"
+                    onError={(e) => {
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1597848212624-a19eb35e2651?auto=format&fit=crop&w=800&q=80';
+                    }}
                   />
                   <div className="destination-card__overlay" />
                 </div>

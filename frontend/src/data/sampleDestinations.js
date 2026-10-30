@@ -25,7 +25,7 @@ export const SAMPLE_DESTINATIONS = [
     name: 'Jaipur',
     state: 'Rajasthan',
     tagline: 'The vibrant Pink City of majestic forts, royal havelis & bazaars',
-    image: 'https://images.unsplash.com/photo-1603262110263-fb010d6e75dc?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=800&q=80',
     hotelCount: 18,
     startingPrice: 4299,
     highlights: ['Amber Fort', 'Hawa Mahal', 'Handicraft Bazaars']

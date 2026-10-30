@@ -6,6 +6,8 @@ import Badge from '../../common/Badge/Badge';
 import { SearchIcon, MapPinIcon, CalendarIcon, UsersIcon, AlertCircleIcon } from '../../common/Icons';
 import './HeroSection.css';
 
+const TODAY_STR = new Date().toISOString().split('T')[0];
+
 // Helper to compute pure default dates outside component render
 const getDefaultDates = () => {
   const today = new Date();
@@ -34,42 +36,48 @@ const getDefaultDates = () => {
  */
 export default function HeroSection({
   onSearch,
-  selectedDestination,
-  onQuickDestinationSelect
+  selectedDestination = 'All'
 }) {
   const [dates, setDates] = useState(() => getDefaultDates());
-  const [userSelectedCity, setUserSelectedCity] = useState(null);
+  const [destination, setDestination] = useState(selectedDestination || 'All');
+  const [prevPropDestination, setPrevPropDestination] = useState(selectedDestination);
   const [guests, setGuests] = useState('2');
   const [dateError, setDateError] = useState('');
 
-  // Destination to display is user's explicit selection, or parent prop, or 'Goa'
-  const activeDestination = userSelectedCity !== null
-    ? userSelectedCity
-    : (selectedDestination || 'Goa');
+  // Sync internal destination when parent prop changes (e.g. from Destination card click or reset)
+  if (selectedDestination !== prevPropDestination) {
+    setPrevPropDestination(selectedDestination);
+    setDestination(selectedDestination || 'All');
+  }
 
   const handleDateChange = (field, value) => {
     const updated = { ...dates, [field]: value };
     setDates(updated);
 
-    const checkInDate = new Date(updated.checkIn);
-    const checkOutDate = new Date(updated.checkOut);
+    if (updated.checkIn && updated.checkOut) {
+      const checkInDate = new Date(updated.checkIn);
+      const checkOutDate = new Date(updated.checkOut);
 
-    if (checkOutDate <= checkInDate) {
-      setDateError('Check-out date must be after check-in date.');
-    } else {
-      setDateError('');
+      if (checkOutDate <= checkInDate) {
+        setDateError('Check-out date must be after check-in date.');
+      } else {
+        setDateError('');
+      }
     }
   };
 
   const handleCitySelect = (city) => {
-    setUserSelectedCity(city);
-    if (onQuickDestinationSelect) {
-      onQuickDestinationSelect(city);
-    }
+    // Only update local search criteria - DO NOT trigger page navigation or scroll
+    setDestination(city);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+
+    if (!dates.checkIn || !dates.checkOut) {
+      setDateError('Please select both check-in and check-out dates.');
+      return;
+    }
 
     const checkInDate = new Date(dates.checkIn);
     const checkOutDate = new Date(dates.checkOut);
@@ -82,7 +90,7 @@ export default function HeroSection({
     setDateError('');
     if (onSearch) {
       onSearch({
-        destination: activeDestination,
+        destination,
         checkIn: dates.checkIn,
         checkOut: dates.checkOut,
         guests
@@ -124,7 +132,7 @@ export default function HeroSection({
                     id="hero-destination"
                     name="destination"
                     type="select"
-                    value={activeDestination}
+                    value={destination}
                     onChange={(e) => handleCitySelect(e.target.value)}
                     icon={<MapPinIcon size={16} />}
                     options={[
@@ -148,6 +156,7 @@ export default function HeroSection({
                     type="date"
                     value={dates.checkIn}
                     onChange={(e) => handleDateChange('checkIn', e.target.value)}
+                    min={TODAY_STR}
                     icon={<CalendarIcon size={16} />}
                     required
                   />
@@ -162,6 +171,7 @@ export default function HeroSection({
                     type="date"
                     value={dates.checkOut}
                     onChange={(e) => handleDateChange('checkOut', e.target.value)}
+                    min={dates.checkIn || TODAY_STR}
                     icon={<CalendarIcon size={16} />}
                     required
                   />
@@ -205,7 +215,7 @@ export default function HeroSection({
                     <button
                       key={city}
                       type="button"
-                      className={`hero-search-quick__pill ${activeDestination === city ? 'active' : ''}`}
+                      className={`hero-search-quick__pill ${destination === city ? 'active' : ''}`}
                       onClick={() => handleCitySelect(city)}
                     >
                       {city}

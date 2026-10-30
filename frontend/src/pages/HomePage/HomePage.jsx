@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Header from '../../components/layout/Header/Header';
 import Footer from '../../components/layout/Footer/Footer';
 import HeroSection from '../../components/home/HeroSection/HeroSection';
@@ -10,7 +11,9 @@ import TrustSection from '../../components/home/TrustSection/TrustSection';
 import HotelDetailsModal from '../../components/home/HotelDetailsModal/HotelDetailsModal';
 import SignInModal from '../../components/home/SignInModal/SignInModal';
 import { CheckCircleIcon } from '../../components/common/Icons';
+import { getActiveUserSession, clearActiveUserSession } from '../../data/authSession';
 import './HomePage.css';
+
 
 /**
  * ==============================================================================
@@ -30,14 +33,17 @@ import './HomePage.css';
  * 8. Comprehensive Academic Footer
  */
 export default function HomePage() {
-  // Search and filter state
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Search and filter state (kept for homepage FeaturedHotels section compatibility)
   const [searchFilter, setSearchFilter] = useState(null);
   const [activeDestination, setActiveDestination] = useState('All');
 
   // Modal states
   const [selectedHotelForDetails, setSelectedHotelForDetails] = useState(null);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => getActiveUserSession());
 
   // Global toast feedback
   const [toastMessage, setToastMessage] = useState(null);
@@ -53,23 +59,19 @@ export default function HomePage() {
     }, 4000);
   };
 
-  // 1. Handle search form submission
+  // 1. Handle search form submission — navigates to /hotels with query params
   const handleSearch = (formData) => {
-    setSearchFilter(formData);
-    setActiveDestination(formData.destination);
-
-    showToast(
-      `Filtered stays for ${formData.destination === 'All' ? 'all destinations' : formData.destination} (${formData.guests} guest${formData.guests > 1 ? 's' : ''})`
-    );
-
-    // Scroll smoothly to hotel results
-    const hotelsElement = document.getElementById('hotels');
-    if (hotelsElement) {
-      hotelsElement.scrollIntoView({ behavior: 'smooth' });
-    }
+    const params = new URLSearchParams({
+      destination: formData.destination || 'All',
+      checkIn:     formData.checkIn    || '',
+      checkOut:    formData.checkOut   || '',
+      guests:      formData.guests     || '2',
+    });
+    // Navigate to the Hotel Catalog page (Stage 3)
+    navigate(`/hotels?${params.toString()}`);
   };
 
-  // 2. Handle clicking a destination card
+  // 2. Handle clicking a destination card — navigates to /hotels?destination=...
   const handleDestinationSelect = (destinationName) => {
     setActiveDestination(destinationName);
     setSearchFilter({
@@ -81,26 +83,33 @@ export default function HomePage() {
 
     showToast(`Showing accommodations in ${destinationName}`);
 
-    const hotelsElement = document.getElementById('hotels');
-    if (hotelsElement) {
-      hotelsElement.scrollIntoView({ behavior: 'smooth' });
-    }
+    navigate(`/hotels?destination=${encodeURIComponent(destinationName)}`);
   };
 
-  // 3. Clear active search filter
+  // 3. Clear active search filter (for the Featured Hotels section on the homepage)
   const handleResetSearch = () => {
     setSearchFilter(null);
     setActiveDestination('All');
     showToast('Showing all featured hotels across India');
   };
 
-  // 4. Booking simulation from Hotel Details Modal
+
+  // 4. Start guest checkout from the hotel preview modal
   const handleBookNow = (hotel, room) => {
     setSelectedHotelForDetails(null);
-    const roomTitle = room ? room.type : 'Selected Room';
-    showToast(
-      `Selected "${roomTitle}" at "${hotel.name}" for checkout (Stage 4 Reservation Preview)`
-    );
+    const roomIndex = hotel?.rooms?.indexOf(room) ?? -1;
+    if (!hotel?.id || roomIndex < 0) {
+      if (hotel?.id) navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}${location.hash}` } });
+      return;
+    }
+    const params = new URLSearchParams(location.search);
+    navigate('/booking', {
+      state: {
+        booking: { hotelId: hotel.id, roomIndex, checkIn: params.get('checkIn') || '', checkOut: params.get('checkOut') || '', guests: params.get('guests') || '', tourIds: [] },
+        returnTo: `${location.pathname}${location.search}${location.hash}`,
+        browseTo: '/hotels',
+      },
+    });
   };
 
   // 5. Wishlist toggle
@@ -116,9 +125,16 @@ export default function HomePage() {
   };
 
   // 7. Sign in prototype
-  const handleLoginSuccess = (name) => {
-    setCurrentUser(name);
-    showToast(`Welcome to GrandStay, ${name}!`);
+  const handleLoginSuccess = (user) => {
+    setCurrentUser(user);
+    const greetingName = typeof user === 'object' && user !== null ? user.name : user;
+    showToast(`Welcome to GrandStay, ${greetingName}!`);
+  };
+
+  const handleSignOut = () => {
+    clearActiveUserSession();
+    setCurrentUser(null);
+    showToast('Signed out of guest session.');
   };
 
   return (
@@ -131,10 +147,7 @@ export default function HomePage() {
           if (heroEl) heroEl.scrollIntoView({ behavior: 'smooth' });
         }}
         currentUser={currentUser}
-        onSignOut={() => {
-          setCurrentUser(null);
-          showToast('Signed out of guest session.');
-        }}
+        onSignOut={handleSignOut}
       />
 
       <main id="main-content">
@@ -142,7 +155,6 @@ export default function HomePage() {
         <HeroSection
           onSearch={handleSearch}
           selectedDestination={activeDestination}
-          onQuickDestinationSelect={handleDestinationSelect}
         />
 
         {/* 3. Popular Indian Destinations */}
@@ -155,7 +167,8 @@ export default function HomePage() {
         <FeaturedHotelsSection
           searchFilter={searchFilter}
           onResetSearchFilter={handleResetSearch}
-          onViewHotelDetails={(hotel) => setSelectedHotelForDetails(hotel)}
+          onViewHotelDetails={(hotel) => navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}` } })}
+          onQuickPreview={(hotel) => setSelectedHotelForDetails(hotel)}
           onFavoriteToggle={handleFavoriteToggle}
         />
 
@@ -182,6 +195,10 @@ export default function HomePage() {
           hotel={selectedHotelForDetails}
           onClose={() => setSelectedHotelForDetails(null)}
           onBookNow={handleBookNow}
+          onViewFullDetails={(hotel) => {
+            setSelectedHotelForDetails(null);
+            navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}` } });
+          }}
         />
       )}
 

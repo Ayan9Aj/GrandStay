@@ -1,3 +1,4 @@
+import { CloseIcon } from '../Icons';
 import './Input.css';
 
 /**
@@ -6,7 +7,8 @@ import './Input.css';
  * ==============================================================================
  * 
  * Accessible form field supporting standard text, email, dates, numbers,
- * select dropdowns, prefix icons, and real-time error states.
+ * select dropdowns, prefix icons, suffix actions (e.g. password eye),
+ * clear buttons (x), and real-time error states.
  * 
  * Props:
  * - label: Text label shown above input
@@ -23,6 +25,10 @@ import './Input.css';
  * - icon: Optional prefix icon element
  * - options: Array of { value, label } for type='select'
  * - className: Additional container CSS class
+ * - isClearable: Boolean - shows subtle clear button when field has text
+ * - onClear: Optional custom clear handler (defaults to onChange with empty string)
+ * - clearAriaLabel: Accessible description for clear button
+ * - suffixAction: Optional suffix action element (e.g. password toggle eye)
  */
 export default function Input({
   label,
@@ -39,10 +45,29 @@ export default function Input({
   icon = null,
   options = [],
   className = '',
+  isClearable = false,
+  onClear = null,
+  clearAriaLabel = '',
+  suffixAction = null,
   ...rest
 }) {
   const inputId = id || name;
   const isSelect = type === 'select';
+  const hasValue = value !== undefined && value !== null && String(value).length > 0;
+  const showClearButton = !isSelect && !disabled && isClearable && hasValue;
+
+  const handleClear = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onClear) {
+      onClear();
+    } else if (onChange) {
+      onChange({ target: { name, value: '' } });
+    }
+  };
+
+  const hasSuffixControls = showClearButton || Boolean(suffixAction);
+  const hasDoubleSuffix = showClearButton && Boolean(suffixAction);
 
   const containerClasses = [
     'form-field',
@@ -55,7 +80,12 @@ export default function Input({
 
   const controlClasses = [
     'form-field__control',
-    icon ? 'form-field__control--with-icon' : ''
+    icon ? 'form-field__control--with-icon' : '',
+    hasDoubleSuffix
+      ? 'form-field__control--with-double-suffix'
+      : hasSuffixControls
+      ? 'form-field__control--with-suffix'
+      : ''
   ]
     .filter(Boolean)
     .join(' ');
@@ -115,6 +145,24 @@ export default function Input({
             aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-help` : undefined}
             {...rest}
           />
+        )}
+
+        {hasSuffixControls && (
+          <div className="form-field__suffix-actions">
+            {showClearButton && (
+              <button
+                type="button"
+                className="form-field__clear-btn"
+                onClick={handleClear}
+                aria-label={clearAriaLabel || `Clear ${label || name || 'input'}`}
+                title={clearAriaLabel || `Clear ${label || name || 'input'}`}
+                tabIndex={0}
+              >
+                <CloseIcon size={14} />
+              </button>
+            )}
+            {suffixAction}
+          </div>
         )}
       </div>
 

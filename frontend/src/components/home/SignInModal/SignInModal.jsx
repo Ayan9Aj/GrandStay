@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Input from '../../common/Input/Input';
 import Button from '../../common/Button/Button';
 import Badge from '../../common/Badge/Badge';
-import { CloseIcon, BuildingIcon, CheckCircleIcon } from '../../common/Icons';
+import { CloseIcon, BuildingIcon, CheckCircleIcon, EyeIcon, EyeOffIcon } from '../../common/Icons';
+import { registerPrototypeUser, loginPrototypeUser } from '../../../data/authSession';
 import './SignInModal.css';
 
 /**
@@ -13,7 +14,11 @@ import './SignInModal.css';
  * ==============================================================================
  * 
  * Provides an accessible login & registration dialog prototype.
- * Honest disclaimer that real authentication will be connected with Django DRF.
+ * Features:
+ * - Full Name, Email, Password inputs with clear (x) buttons
+ * - Password visibility eye toggle with 5-second auto-hide timer
+ * - Prototype user registry with persistent session support
+ * - Accessible close button optimized for mobile touch targets
  */
 export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
   const [isRegister, setIsRegister] = useState(false);
@@ -21,16 +26,57 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const passwordTimerRef = useRef(null);
+
+  const clearPasswordTimer = () => {
+    if (passwordTimerRef.current) {
+      clearTimeout(passwordTimerRef.current);
+      passwordTimerRef.current = null;
+    }
+  };
+
+  const handleTogglePassword = () => {
+    if (showPassword) {
+      clearPasswordTimer();
+      setShowPassword(false);
+    } else {
+      setShowPassword(true);
+      clearPasswordTimer();
+      passwordTimerRef.current = setTimeout(() => {
+        setShowPassword(false);
+        passwordTimerRef.current = null;
+      }, 5000);
+    }
+  };
+
+  const handleClose = useCallback(() => {
+    clearPasswordTimer();
+    setShowPassword(false);
+    onClose();
+  }, [onClose]);
+
+  const handleToggleMode = () => {
+    clearPasswordTimer();
+    setShowPassword(false);
+    setIsRegister((prev) => !prev);
+  };
+
+  // Clear auto-hide timer on unmount
+  useEffect(() => {
+    return () => clearPasswordTimer();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') handleClose();
     };
     if (isOpen) {
       window.addEventListener('keydown', handleKeyDown);
     }
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, handleClose]);
 
   if (!isOpen) return null;
 
@@ -38,23 +84,27 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
     e.preventDefault();
     setSubmitted(true);
 
+    const userObj = isRegister
+      ? registerPrototypeUser(fullName, email)
+      : loginPrototypeUser(email);
+
     setTimeout(() => {
       if (onLoginSuccess) {
-        onLoginSuccess(isRegister ? fullName || 'New Guest' : email || 'Guest User');
+        onLoginSuccess(userObj);
       }
       setSubmitted(false);
       onClose();
-    }, 1200);
+    }, 1000);
   };
 
   return (
-    <div className="signin-modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="signin-modal-title">
+    <div className="signin-modal-backdrop" onClick={handleClose} role="dialog" aria-modal="true" aria-labelledby="signin-modal-title">
       <div className="signin-modal" onClick={(e) => e.stopPropagation()}>
         {/* Close Button */}
         <button
           type="button"
           className="signin-modal__close-btn"
-          onClick={onClose}
+          onClick={handleClose}
           aria-label="Close authentication modal"
         >
           <CloseIcon size={20} />
@@ -96,6 +146,9 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="e.g. Rahul Sharma"
                 required
+                isClearable
+                onClear={() => setFullName('')}
+                clearAriaLabel="Clear full name field"
               />
             )}
 
@@ -108,17 +161,35 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="guest@example.com"
               required
+              isClearable
+              onClear={() => setEmail('')}
+              clearAriaLabel="Clear email field"
             />
 
             <Input
               label="Password"
               id="auth-password"
               name="password"
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
+              isClearable
+              onClear={() => setPassword('')}
+              clearAriaLabel="Clear password field"
+              suffixAction={
+                <button
+                  type="button"
+                  className="form-field__suffix-action-btn"
+                  onClick={handleTogglePassword}
+                  aria-label={showPassword ? 'Hide password' : 'Show password for 5 seconds'}
+                  title={showPassword ? 'Hide password' : 'Show password for 5 seconds'}
+                  tabIndex={0}
+                >
+                  {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
+                </button>
+              }
             />
 
             <div className="signin-modal__options">
@@ -150,7 +221,7 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
               <button
                 type="button"
                 className="toggle-link-btn"
-                onClick={() => setIsRegister(!isRegister)}
+                onClick={handleToggleMode}
               >
                 {isRegister ? 'Sign In' : 'Register Here'}
               </button>

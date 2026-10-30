@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Container from '../Container/Container';
 import Button from '../../common/Button/Button';
 import { BuildingIcon } from '../../common/Icons';
 import './Header.css';
+
 
 /**
  * ==============================================================================
@@ -16,28 +18,46 @@ import './Header.css';
  */
 export default function Header({ onOpenSignIn, onBookStayClick, currentUser, onSignOut }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const displayName = typeof currentUser === 'object' && currentUser !== null
+    ? currentUser.name
+    : currentUser;
 
   const handleNavClick = (sectionId) => {
     setMobileMenuOpen(false);
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    if (sectionId === 'hotels') {
+      // Navigate to the Hotel Catalog page (Stage 3 route)
+      navigate('/hotels');
+    } else {
+      // Smooth-scroll to homepage sections (Destinations, Tours, Offers, Hero)
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        // If not on homepage, navigate to homepage section
+        navigate(`/#${sectionId}`);
+        setTimeout(() => {
+          const target = document.getElementById(sectionId);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      }
     }
   };
+
 
   return (
     <header className="site-header">
       <Container size="lg">
         <div className="site-header__inner">
-          {/* Brand Logo */}
-          <a
-            href="#hero"
+          {/* Brand Logo — clicking navigates to homepage (/) */}
+          <Link
+            to="/"
             className="site-header__brand"
-            onClick={(e) => {
-              e.preventDefault();
-              handleNavClick('hero');
-            }}
           >
+
             <div className="site-header__logo-icon">
               <BuildingIcon size={22} />
             </div>
@@ -45,7 +65,7 @@ export default function Header({ onOpenSignIn, onBookStayClick, currentUser, onS
               <span className="site-header__brand-title">GrandStay</span>
               <span className="site-header__brand-tagline">Hotels &amp; Resorts</span>
             </div>
-          </a>
+          </Link>
 
           {/* Desktop Navigation Links */}
           <nav className="site-header__nav" aria-label="Main Navigation">
@@ -93,7 +113,7 @@ export default function Header({ onOpenSignIn, onBookStayClick, currentUser, onS
           <div className="site-header__actions">
             {currentUser ? (
               <div className="site-header__user-pill">
-                <span className="user-greeting">Hi, {currentUser}</span>
+                <span className="user-greeting">Hi, {displayName}</span>
                 <Button variant="text" size="sm" onClick={onSignOut}>
                   Sign Out
                 </Button>
@@ -178,7 +198,7 @@ export default function Header({ onOpenSignIn, onBookStayClick, currentUser, onS
               <li className="site-header__mobile-actions">
                 {currentUser ? (
                   <Button variant="outline" size="sm" fullWidth onClick={onSignOut}>
-                    Sign Out ({currentUser})
+                    Sign Out ({displayName})
                   </Button>
                 ) : (
                   <Button

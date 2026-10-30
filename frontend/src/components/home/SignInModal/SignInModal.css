@@ -20,6 +20,8 @@
   border-radius: var(--radius-xl);
   max-width: 460px;
   width: 100%;
+  max-height: 92vh;
+  overflow-y: auto;
   padding: var(--space-8);
   box-shadow: var(--shadow-lg);
   position: relative;
@@ -31,20 +33,31 @@
 
 .signin-modal__close-btn {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  background: none;
-  border: none;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background-color: var(--color-bg-subtle);
+  border: 1px solid var(--color-border-subtle);
   cursor: pointer;
   color: var(--color-text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
+  transition: all var(--transition-fast);
+  z-index: 10;
 }
 
 .signin-modal__close-btn:hover {
   color: var(--color-danger);
+  background-color: var(--color-danger-bg);
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+.signin-modal__close-btn:focus-visible {
+  outline: 2px solid var(--color-primary-600);
+  outline-offset: 2px;
 }
 
 .signin-modal__brand {
@@ -150,4 +163,39 @@
   color: var(--color-text-muted);
   line-height: 1.4;
   border: 1px solid var(--color-border-subtle);
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 480px) {
+  .signin-modal-backdrop {
+    padding: var(--space-3);
+    align-items: center;
+  }
+
+  .signin-modal {
+    padding: var(--space-6) var(--space-4) var(--space-5);
+    max-height: 94vh;
+    border-radius: var(--radius-lg);
+    gap: var(--space-4);
+  }
+
+  .signin-modal__close-btn {
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+  }
+
+  .signin-modal__title {
+    font-size: 1.25rem;
+  }
+
+  .signin-modal__subtitle {
+    font-size: var(--font-size-xs);
+  }
+
+  .signin-modal__logo-box {
+    width: 40px;
+    height: 40px;
+  }
 }

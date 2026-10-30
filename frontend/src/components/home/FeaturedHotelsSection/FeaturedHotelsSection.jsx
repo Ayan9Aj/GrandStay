@@ -22,13 +22,14 @@ export default function FeaturedHotelsSection({
   searchFilter,
   onResetSearchFilter,
   onViewHotelDetails,
+  onQuickPreview,
   onFavoriteToggle
 }) {
   const [selectedCity, setSelectedCity] = useState('All');
   const [sortBy, setSortBy] = useState('recommended');
 
   // Destination filter synced with parent search filter if active
-  const effectiveCity = searchFilter?.destination && searchFilter.destination !== 'All'
+  const effectiveCity = searchFilter?.destination
     ? searchFilter.destination
     : selectedCity;
 
@@ -76,10 +77,17 @@ export default function FeaturedHotelsSection({
           </div>
 
           {/* Active Search Filter Badge */}
-          {searchFilter?.destination && searchFilter.destination !== 'All' && (
+          {searchFilter && (
             <div className="search-filter-active-pill">
               <span className="filter-pill-label">
-                Filtered by: <strong>{searchFilter.destination}</strong> ({filteredHotels.length} found)
+                {searchFilter.destination === 'All' ? (
+                  <>Showing: <strong>All Destinations</strong> ({filteredHotels.length} found)</>
+                ) : (
+                  <>Filtered by: <strong>{searchFilter.destination}</strong> ({filteredHotels.length} found)</>
+                )}
+                {searchFilter.checkIn && searchFilter.checkOut && (
+                  <span className="filter-pill-dates"> • {searchFilter.checkIn} to {searchFilter.checkOut}</span>
+                )}
               </span>
               <Button
                 variant="outline"
@@ -133,6 +141,7 @@ export default function FeaturedHotelsSection({
                 key={hotel.id}
                 hotel={hotel}
                 onBook={() => onViewHotelDetails && onViewHotelDetails(hotel)}
+                onPreview={onQuickPreview}
                 onFavoriteToggle={onFavoriteToggle}
               />
             ))}
