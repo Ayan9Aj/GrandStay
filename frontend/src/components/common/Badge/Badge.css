@@ -37,6 +37,12 @@
   border: 1px solid var(--color-accent-400);
 }
 
+.badge--info {
+  background-color: #eaf4fb;
+  color: #234c6b;
+  border: 1px solid #c8dfef;
+}
+
 .badge--success {
   background-color: var(--color-success-bg);
   color: var(--color-success);

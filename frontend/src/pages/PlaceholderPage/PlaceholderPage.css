@@ -1,0 +1,102 @@
+.placeholder-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-page);
+}
+
+.placeholder-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-12) 0 var(--space-16);
+}
+
+.placeholder-card {
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  padding: var(--space-10) var(--space-8);
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.placeholder-tag {
+  display: inline-block;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent-700);
+  background-color: var(--color-accent-50);
+  border: 1px solid var(--color-accent-100);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-4);
+}
+
+.placeholder-title {
+  font-family: var(--font-family-sans);
+  font-size: 2.25rem;
+  color: var(--color-primary-900);
+  margin-bottom: var(--space-2);
+  line-height: 1.2;
+}
+
+.placeholder-subtitle {
+  font-size: 1.1rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent-800);
+  margin-bottom: var(--space-4);
+}
+
+.placeholder-description {
+  font-size: var(--font-size-base);
+  color: var(--color-text-body);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--space-8);
+}
+
+.placeholder-auth-prompt {
+  background-color: var(--color-bg-subtle);
+  border: 1px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  margin-bottom: var(--space-4);
+}
+
+.placeholder-auth-note {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.placeholder-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .placeholder-card {
+    padding: var(--space-8) var(--space-4);
+  }
+
+  .placeholder-title {
+    font-size: 1.75rem;
+  }
+
+  .placeholder-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .placeholder-actions button {
+    width: 100%;
+  }
+}

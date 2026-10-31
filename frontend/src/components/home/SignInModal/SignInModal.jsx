@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Input from '../../common/Input/Input';
 import Button from '../../common/Button/Button';
-import Badge from '../../common/Badge/Badge';
-import { CloseIcon, BuildingIcon, CheckCircleIcon, EyeIcon, EyeOffIcon } from '../../common/Icons';
+import { CloseIcon, CheckCircleIcon, EyeIcon, EyeOffIcon } from '../../common/Icons';
+import Logo from '../../common/Logo/Logo';
 import { registerPrototypeUser, loginPrototypeUser } from '../../../data/authSession';
 import './SignInModal.css';
 
@@ -20,8 +20,8 @@ import './SignInModal.css';
  * - Prototype user registry with persistent session support
  * - Accessible close button optimized for mobile touch targets
  */
-export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
-  const [isRegister, setIsRegister] = useState(false);
+export default function SignInModal({ isOpen, onClose, onLoginSuccess, initialMode = 'signin' }) {
+  const [isRegister, setIsRegister] = useState(initialMode === 'register');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -99,7 +99,7 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
 
   return (
     <div className="signin-modal-backdrop" onClick={handleClose} role="dialog" aria-modal="true" aria-labelledby="signin-modal-title">
-      <div className="signin-modal" onClick={(e) => e.stopPropagation()}>
+      <div className={`signin-modal ${isRegister ? 'signin-modal--register' : ''}`} onClick={(e) => e.stopPropagation()}>
         {/* Close Button */}
         <button
           type="button"
@@ -111,21 +111,16 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
         </button>
 
         {/* Modal Brand Header */}
-        <div className="signin-modal__brand">
-          <div className="signin-modal__logo-box">
-            <BuildingIcon size={24} />
-          </div>
-          <Badge variant="accent" size="sm">
-            Prototype Portal
-          </Badge>
+        <div className={`signin-modal__brand ${isRegister ? 'signin-modal__brand--register' : ''}`}>
+          {!isRegister && (
+            <div className="signin-modal__logo-box">
+              <Logo variant="badge" showWordmark={false} alt="GrandStay official brand emblem" />
+            </div>
+          )}
           <h2 id="signin-modal-title" className="signin-modal__title">
-            {isRegister ? 'Create Your GrandStay Account' : 'Welcome Back to GrandStay'}
+            {isRegister ? 'Create Account' : 'Welcome Back to GrandStay'}
           </h2>
-          <p className="signin-modal__subtitle">
-            {isRegister
-              ? 'Join to unlock exclusive member rates and manage stays.'
-              : 'Sign in to access your hotel bookings and saved wishlists.'}
-          </p>
+          {!isRegister && <p className="signin-modal__subtitle">Welcome back. Sign in to continue to your account.</p>}
         </div>
 
         {/* Form Body */}
@@ -133,18 +128,18 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
           <div className="signin-modal__success">
             <CheckCircleIcon size={36} className="signin-success-icon" />
             <h3>{isRegister ? 'Account Registered!' : 'Successfully Signed In!'}</h3>
-            <p>Welcome back! Connecting session prototype...</p>
+            <p>Your account is saved on this device.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="signin-modal__form">
             {isRegister && (
               <Input
-                label="Full Name"
+                label="Name"
                 id="reg-name"
                 name="fullName"
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                placeholder="e.g. Rahul Sharma"
+                placeholder="Name"
                 required
                 isClearable
                 onClear={() => setFullName('')}
@@ -159,7 +154,7 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="guest@example.com"
+              placeholder={isRegister ? 'Email' : 'guest@example.com'}
               required
               isClearable
               onClear={() => setEmail('')}
@@ -173,7 +168,7 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder={isRegister ? 'Password' : '••••••••'}
               required
               isClearable
               onClear={() => setPassword('')}
@@ -192,19 +187,21 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
               }
             />
 
-            <div className="signin-modal__options">
-              <label className="remember-me-checkbox">
-                <input type="checkbox" defaultChecked />
-                <span>Remember me</span>
-              </label>
-              <button
-                type="button"
-                className="forgot-pass-btn"
-                onClick={() => alert('Password reset flow planned for Django backend integration stage.')}
-              >
-                Forgot password?
-              </button>
-            </div>
+            {!isRegister && (
+              <div className="signin-modal__options">
+                <label className="remember-me-checkbox">
+                  <input type="checkbox" defaultChecked />
+                  <span>Remember me</span>
+                </label>
+                <button
+                  type="button"
+                  className="forgot-pass-btn"
+                  onClick={() => alert('Password reset is not available yet.')}
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
 
             <Button
               type="submit"
@@ -212,8 +209,18 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
               size="lg"
               fullWidth
             >
-              {isRegister ? 'Create Account' : 'Sign In to GrandStay'}
+              {isRegister ? <>Sign Up <span aria-hidden="true">↗</span></> : 'Sign In to GrandStay'}
             </Button>
+
+            {isRegister && (
+              <div className="signin-modal__alternative-signup">
+                <div className="signin-modal__divider" aria-hidden="true"><span>or</span></div>
+                <button type="button" className="signin-modal__social-button" disabled>
+                  <span className="signin-modal__social-mark" aria-hidden="true">G</span>
+                  Continue with Google
+                </button>
+              </div>
+            )}
 
             {/* Toggle Sign In / Register */}
             <div className="signin-modal__toggle">
@@ -223,18 +230,12 @@ export default function SignInModal({ isOpen, onClose, onLoginSuccess }) {
                 className="toggle-link-btn"
                 onClick={handleToggleMode}
               >
-                {isRegister ? 'Sign In' : 'Register Here'}
+                {isRegister ? 'Login' : 'Register Here'}
               </button>
             </div>
           </form>
         )}
 
-        {/* Academic Project Disclaimer */}
-        <div className="signin-modal__academic-note">
-          <span>
-            * <strong>Backend Architecture Preview:</strong> Real user authentication with hashed MySQL passwords and JWT tokens will be deployed when Django REST Framework is configured in later stages.
-          </span>
-        </div>
       </div>
     </div>
   );

@@ -43,6 +43,7 @@ export default function HomePage() {
   // Modal states
   const [selectedHotelForDetails, setSelectedHotelForDetails] = useState(null);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('signin');
   const [currentUser, setCurrentUser] = useState(() => getActiveUserSession());
 
   // Global toast feedback
@@ -84,6 +85,16 @@ export default function HomePage() {
     showToast(`Showing accommodations in ${destinationName}`);
 
     navigate(`/hotels?destination=${encodeURIComponent(destinationName)}`);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  };
+
+  const handleViewHotelDetails = (hotel) => {
+    if (!hotel?.id) return;
+    setSelectedHotelForDetails(null);
+    navigate(`/hotels/${hotel.id}`, {
+      state: { from: `${location.pathname}${location.search}${location.hash}` },
+    });
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   };
 
   // 3. Clear active search filter (for the Featured Hotels section on the homepage)
@@ -99,7 +110,7 @@ export default function HomePage() {
     setSelectedHotelForDetails(null);
     const roomIndex = hotel?.rooms?.indexOf(room) ?? -1;
     if (!hotel?.id || roomIndex < 0) {
-      if (hotel?.id) navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}${location.hash}` } });
+      if (hotel?.id) handleViewHotelDetails(hotel);
       return;
     }
     const params = new URLSearchParams(location.search);
@@ -141,7 +152,8 @@ export default function HomePage() {
     <div className="homepage-wrapper">
       {/* 1. Global Navigation Header */}
       <Header
-        onOpenSignIn={() => setIsSignInOpen(true)}
+        onOpenSignIn={() => { setAuthMode('signin'); setIsSignInOpen(true); }}
+        onOpenRegister={() => { setAuthMode('register'); setIsSignInOpen(true); }}
         onBookStayClick={() => {
           const heroEl = document.getElementById('hero');
           if (heroEl) heroEl.scrollIntoView({ behavior: 'smooth' });
@@ -167,7 +179,7 @@ export default function HomePage() {
         <FeaturedHotelsSection
           searchFilter={searchFilter}
           onResetSearchFilter={handleResetSearch}
-          onViewHotelDetails={(hotel) => navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}` } })}
+          onViewHotelDetails={handleViewHotelDetails}
           onQuickPreview={(hotel) => setSelectedHotelForDetails(hotel)}
           onFavoriteToggle={handleFavoriteToggle}
         />
@@ -195,18 +207,17 @@ export default function HomePage() {
           hotel={selectedHotelForDetails}
           onClose={() => setSelectedHotelForDetails(null)}
           onBookNow={handleBookNow}
-          onViewFullDetails={(hotel) => {
-            setSelectedHotelForDetails(null);
-            navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}` } });
-          }}
+          onViewFullDetails={handleViewHotelDetails}
         />
       )}
 
       {/* Sign In & Account Portal Prototype Modal */}
       <SignInModal
+        key={authMode}
         isOpen={isSignInOpen}
         onClose={() => setIsSignInOpen(false)}
         onLoginSuccess={handleLoginSuccess}
+        initialMode={authMode}
       />
 
       {/* Feedback Toast Notification */}

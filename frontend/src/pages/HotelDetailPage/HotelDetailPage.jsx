@@ -31,6 +31,9 @@ export default function HotelDetailPage() {
   const [imageErrors, setImageErrors] = useState([]);
   const [currentUser, setCurrentUser] = useState(() => getActiveUserSession());
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('signin');
+  const openSignIn = () => { setAuthMode('signin'); setIsSignInOpen(true); };
+  const openRegister = () => { setAuthMode('register'); setIsSignInOpen(true); };
 
   const backTo = location.state?.from?.startsWith('/') ? location.state.from : '/hotels';
   const sourceParams = new URLSearchParams(location.search);
@@ -44,7 +47,7 @@ export default function HotelDetailPage() {
   if (!hotel) {
     return (
       <div className="hotel-detail-page">
-        <Header currentUser={currentUser} onSignOut={() => { clearActiveUserSession(); setCurrentUser(null); }} onOpenSignIn={() => setIsSignInOpen(true)} />
+        <Header currentUser={currentUser} onSignOut={() => { clearActiveUserSession(); setCurrentUser(null); }} onOpenSignIn={openSignIn} onOpenRegister={openRegister} />
         <main className="hotel-detail-main">
           <Container size="lg">
             <nav className="hotel-detail-breadcrumb" aria-label="Breadcrumb">
@@ -52,14 +55,14 @@ export default function HotelDetailPage() {
             </nav>
             <EmptyState
               title="Hotel not found"
-              description="This hotel ID does not match a property in the current sample catalog. Return to the catalog to choose a listed hotel."
+              description="This hotel ID does not match a property in the current catalog. Return to the catalog to choose a listed hotel."
               actionText="Back to Hotel Catalog"
               onAction={() => navigate(backTo)}
             />
           </Container>
         </main>
         <Footer />
-        <SignInModal isOpen={isSignInOpen} onClose={() => setIsSignInOpen(false)} onLoginSuccess={setCurrentUser} />
+        <SignInModal key={authMode} isOpen={isSignInOpen} onClose={() => setIsSignInOpen(false)} onLoginSuccess={setCurrentUser} initialMode={authMode} />
       </div>
     );
   }
@@ -97,7 +100,8 @@ export default function HotelDetailPage() {
     <div className="hotel-detail-page">
       <Header
         currentUser={currentUser}
-        onOpenSignIn={() => setIsSignInOpen(true)}
+        onOpenSignIn={openSignIn}
+        onOpenRegister={openRegister}
         onSignOut={() => { clearActiveUserSession(); setCurrentUser(null); }}
       />
       <main id="main-content" className="hotel-detail-main">
@@ -120,7 +124,7 @@ export default function HotelDetailPage() {
           <section className="hotel-detail-section" aria-labelledby="gallery-title">
             <div className="hotel-detail-section__heading">
               <div><span className="hotel-detail-eyebrow">Discover the property</span><h2 id="gallery-title">Photo gallery</h2></div>
-              <span className="hotel-detail-muted">{gallery.length} {gallery.length === 1 ? 'photo' : 'photos'} in sample data</span>
+              <span className="hotel-detail-muted">{gallery.length} {gallery.length === 1 ? 'photo' : 'photos'}</span>
             </div>
             {gallery.length ? (
               <div className={`hotel-gallery ${gallery.length === 1 ? 'hotel-gallery--single' : ''}`}>
@@ -141,7 +145,7 @@ export default function HotelDetailPage() {
                   </div>
                 ))}
               </div>
-            ) : <p className="hotel-detail-empty-note">No property photos are available in the sample data.</p>}
+            ) : <p className="hotel-detail-empty-note">No property photos are available.</p>}
           </section>
 
           <section className="hotel-detail-section hotel-overview" aria-labelledby="overview-title">
@@ -149,7 +153,7 @@ export default function HotelDetailPage() {
               <div><span className="hotel-detail-eyebrow">About this stay</span><h2 id="overview-title">Property overview</h2></div>
               <span className="hotel-detail-muted">{hotel.destination}</span>
             </div>
-            <p>{hotel.description || 'No description is available in the sample data.'}</p>
+            <p>{hotel.description || 'No description is available.'}</p>
             <ul className="hotel-amenities" aria-label="Hotel amenities">
               {(hotel.amenities || []).map((amenity) => <li key={amenity}>{amenity}</li>)}
             </ul>
@@ -157,13 +161,13 @@ export default function HotelDetailPage() {
 
           <section className="hotel-detail-section" aria-labelledby="rooms-title">
             <div className="hotel-detail-section__heading">
-              <div><span className="hotel-detail-eyebrow">Compare sample options</span><h2 id="rooms-title">Room comparison</h2></div>
-              <span className="hotel-detail-muted">Demonstration room data · availability is not verified</span>
+              <div><span className="hotel-detail-eyebrow">Compare room options</span><h2 id="rooms-title">Room comparison</h2></div>
+              <span className="hotel-detail-muted">Availability has not been confirmed</span>
             </div>
             {hotel.rooms?.length ? (
               <div className="room-table-scroll" role="region" aria-label="Room comparison table" tabIndex="0">
                 <table className="room-comparison-table">
-                  <caption>Room details and listed sample nightly prices for {hotel.name}</caption>
+                  <caption>Room details and listed nightly prices for {hotel.name}</caption>
                   <thead><tr><th scope="col">Room</th><th scope="col">Price</th><th scope="col">Guest capacity</th><th scope="col">Bed / features</th><th scope="col">Next step</th></tr></thead>
                   <tbody>{hotel.rooms.map((room, index) => (
                     <tr key={`${room.type || 'room'}-${index}`} className={selectedRoomIndex === index ? 'room-comparison-row--selected' : ''}>
@@ -176,7 +180,7 @@ export default function HotelDetailPage() {
                   ))}</tbody>
                 </table>
               </div>
-            ) : <p className="hotel-detail-empty-note">There are no room records for this property in the sample data.</p>}
+            ) : <p className="hotel-detail-empty-note">No room options are listed for this property.</p>}
           </section>
 
           <section className="hotel-detail-section" aria-labelledby="tours-title">
@@ -209,7 +213,7 @@ export default function HotelDetailPage() {
                 })}
               </div>
             ) : (
-              <p className="hotel-detail-empty-note">No sample sightseeing tours are listed for {hotel.destination}. Browse the hotel’s room details without an add-on.</p>
+              <p className="hotel-detail-empty-note">No sightseeing tours are listed for {hotel.destination}. Browse the hotel’s room details without an add-on.</p>
             )}
             {selectedTours.length > 0 && <p className="hotel-tour-selection" role="status">{selectedTours.length} optional {selectedTours.length === 1 ? 'tour' : 'tours'} selected for this page preview. Prices are shown individually; no combined total is calculated.</p>}
             <div className="hotel-detail-checkout-next">
@@ -229,7 +233,7 @@ export default function HotelDetailPage() {
         </Container>
       </main>
       <Footer />
-      <SignInModal isOpen={isSignInOpen} onClose={() => setIsSignInOpen(false)} onLoginSuccess={setCurrentUser} />
+      <SignInModal key={authMode} isOpen={isSignInOpen} onClose={() => setIsSignInOpen(false)} onLoginSuccess={setCurrentUser} initialMode={authMode} />
     </div>
   );
 }

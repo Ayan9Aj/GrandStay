@@ -121,7 +121,7 @@
 }
 
 .hotel-modal__title {
-  font-family: var(--font-family-serif);
+  font-family: var(--font-family-sans);
   font-size: 1.65rem;
   color: var(--color-text-heading);
   margin-bottom: 4px;
@@ -239,7 +239,7 @@
   color: var(--color-text-body);
 }
 
-.hotel-modal__academic-alert {
+.hotel-modal__availability-note {
   padding: var(--space-3);
   background-color: var(--color-bg-subtle);
   border-radius: var(--radius-sm);

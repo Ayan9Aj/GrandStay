@@ -3,7 +3,7 @@
 .hotel-detail-breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-6); color: var(--color-text-muted); font-size: var(--font-size-sm); }
 .hotel-detail-breadcrumb a { color: var(--color-primary-600); }
 .hotel-detail-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-6); margin-bottom: var(--space-8); }
-.hotel-detail-heading h1 { margin-top: var(--space-3); font-family: var(--font-family-serif); }
+.hotel-detail-heading h1 { margin-top: var(--space-3); font-family: var(--font-family-sans); }
 .hotel-detail-heading p { margin-top: var(--space-2); color: var(--color-text-muted); }
 .hotel-detail-heading__actions { display: flex; gap: var(--space-3); align-items: center; flex-shrink: 0; }
 .hotel-detail-back-link { display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--space-4); border: 1px solid var(--color-border-strong); border-radius: var(--radius-md); font-weight: var(--font-weight-semibold); }

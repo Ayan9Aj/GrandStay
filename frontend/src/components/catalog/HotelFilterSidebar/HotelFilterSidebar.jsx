@@ -1,5 +1,7 @@
 import { CloseIcon, FilterIcon } from '../../common/Icons';
 import Button from '../../common/Button/Button';
+import SelectDropdown from '../../common/SelectDropdown/SelectDropdown';
+import DateRangePicker from '../../common/DateRangePicker/DateRangePicker';
 import './HotelFilterSidebar.css';
 
 /**
@@ -30,8 +32,13 @@ export default function HotelFilterSidebar({
   isDrawerOpen,
   onCloseDrawer,
   destinations,
-  amenitiesList,
-  propertyTypesList,
+  amenityFilterOptions,
+  propertyTypeOptions,
+  popularFilterOptions,
+  travelDates,
+  onTravelDateChange,
+  popularFilters,
+  onPopularToggle,
 }) {
   // Count how many filters are currently active (for the badge)
   const activeCount = [
@@ -41,6 +48,7 @@ export default function HotelFilterSidebar({
     filters.starRatings.length,
     filters.amenities.length,
     filters.propertyTypes.length,
+    filters.popularFilters.length,
   ].reduce((a, b) => a + b, 0);
 
   // Handle star rating checkbox toggles
@@ -52,27 +60,37 @@ export default function HotelFilterSidebar({
     onFilterChange('starRatings', updated);
   };
 
-  // Handle amenity checkbox toggles
-  const handleAmenityToggle = (amenity) => {
-    const current = filters.amenities;
-    const updated = current.includes(amenity)
-      ? current.filter((a) => a !== amenity)
-      : [...current, amenity];
-    onFilterChange('amenities', updated);
+  const toggleFilterValues = (key, values) => {
+    if (!values.length) return;
+    const current = filters[key];
+    const anySelected = values.some((value) => current.includes(value));
+    const updated = anySelected
+      ? current.filter((value) => !values.includes(value))
+      : [...new Set([...current, ...values])];
+    onFilterChange(key, updated);
   };
 
-  // Handle property type checkbox toggles
-  const handlePropertyTypeToggle = (type) => {
-    const current = filters.propertyTypes;
-    const updated = current.includes(type)
-      ? current.filter((t) => t !== type)
-      : [...current, type];
-    onFilterChange('propertyTypes', updated);
-  };
+  const handleAmenityToggle = (values) => toggleFilterValues('amenities', values);
+  const handlePropertyTypeToggle = (values) => toggleFilterValues('propertyTypes', values);
 
   // The panel content is the same for both desktop sidebar and mobile drawer
   const panelContent = (
     <div className="filter-panel">
+      <section className="filter-travel-dates" aria-label="Travel dates">
+        <div className="filter-travel-dates__header">
+          <h2>TRAVEL DATES</h2>
+        </div>
+        <div className="filter-travel-dates__body">
+          <DateRangePicker
+            dates={travelDates}
+            onChange={onTravelDateChange}
+            label="Travel dates"
+            triggerClassName="filter-travel-dates__trigger"
+            valueClassName="filter-travel-dates__value"
+          />
+        </div>
+      </section>
+
       {/* Panel Header */}
       <div className="filter-panel__header">
         <div className="filter-panel__title-row">
@@ -101,24 +119,41 @@ export default function HotelFilterSidebar({
       {/* ── 1. Destination ───────────────────────────────────────────── */}
       <div className="filter-section">
         <h3 className="filter-section__title">Destination</h3>
-        <select
+        <SelectDropdown
+          id="filter-destination"
           className="filter-select"
           value={filters.destination}
-          onChange={(e) => onFilterChange('destination', e.target.value)}
-          aria-label="Select destination"
-        >
-          <option value="All">All Destinations</option>
-          {destinations.map((dest) => (
-            <option key={dest} value={dest}>
-              {dest}
-            </option>
-          ))}
-        </select>
+          onChange={(value) => onFilterChange('destination', value)}
+          ariaLabel="Select destination"
+          options={[
+            { value: 'All', label: 'All Destinations' },
+            ...destinations.map((dest) => ({ value: dest, label: dest }))
+          ]}
+        />
+      </div>
+
+      <div className="filter-section">
+        <h3 className="filter-section__title">Popular</h3>
+        {popularFilterOptions.map((option) => (
+          <label key={option.value} className={`filter-checkbox-label ${option.available ? '' : 'filter-checkbox-label--unavailable'}`} title={option.available ? undefined : 'Not listed for the current hotel data'}>
+            <input
+              type="checkbox"
+              className="filter-checkbox"
+              checked={popularFilters.includes(option.value)}
+              disabled={!option.available}
+              onChange={() => onPopularToggle(option.value)}
+            />
+            <span className="filter-checkbox-text">{option.label}</span>
+          </label>
+        ))}
+        {popularFilterOptions.some((option) => !option.available) && (
+          <p className="filter-section__note">Some options are unavailable for these listings.</p>
+        )}
       </div>
 
       {/* ── 2. Price Range ───────────────────────────────────────────── */}
       <div className="filter-section">
-        <h3 className="filter-section__title">Price per Night</h3>
+        <h3 className="filter-section__title">Your Budget Per Night</h3>
         <div className="filter-price-row">
           <div className="filter-price-field">
             <span className="filter-price-prefix">₹</span>
@@ -161,7 +196,7 @@ export default function HotelFilterSidebar({
       {/* ── 3. Star Rating ───────────────────────────────────────────── */}
       <div className="filter-section">
         <h3 className="filter-section__title">Star Rating</h3>
-        {[5, 4, 3].map((star) => (
+        {[5, 4, 3, 2, 1].map((star) => (
           <label key={star} className="filter-checkbox-label">
             <input
               type="checkbox"
@@ -170,9 +205,7 @@ export default function HotelFilterSidebar({
               onChange={() => handleStarToggle(star)}
             />
             <span className="filter-checkbox-text">
-              {'★'.repeat(star)}
-              {'☆'.repeat(5 - star)}{' '}
-              {star === 5 ? 'Luxury' : star === 4 ? 'Premium' : 'Comfort'}
+              {star} {star === 1 ? 'Star' : 'Stars'}
             </span>
           </label>
         ))}
@@ -180,34 +213,42 @@ export default function HotelFilterSidebar({
 
       {/* ── 4. Amenities ─────────────────────────────────────────────── */}
       <div className="filter-section">
-        <h3 className="filter-section__title">Amenities</h3>
-        {amenitiesList.map((amenity) => (
-          <label key={amenity} className="filter-checkbox-label">
+        <h3 className="filter-section__title">Property Type</h3>
+        {propertyTypeOptions.map((option) => (
+          <label key={option.label} className={`filter-checkbox-label ${option.values.length ? '' : 'filter-checkbox-label--unavailable'}`} title={option.values.length ? undefined : 'Not listed for the current hotel data'}>
             <input
               type="checkbox"
               className="filter-checkbox"
-              checked={filters.amenities.includes(amenity)}
-              onChange={() => handleAmenityToggle(amenity)}
+              checked={option.values.some((value) => filters.propertyTypes.includes(value))}
+              disabled={!option.values.length}
+              onChange={() => handlePropertyTypeToggle(option.values)}
             />
-            <span className="filter-checkbox-text">{amenity}</span>
+            <span className="filter-checkbox-text">{option.label}</span>
           </label>
         ))}
+        {propertyTypeOptions.some((option) => !option.values.length) && (
+          <p className="filter-section__note">Some property types are unavailable for these listings.</p>
+        )}
       </div>
 
       {/* ── 5. Property Type ─────────────────────────────────────────── */}
       <div className="filter-section">
-        <h3 className="filter-section__title">Property Type</h3>
-        {propertyTypesList.map((type) => (
-          <label key={type} className="filter-checkbox-label">
+        <h3 className="filter-section__title">Amenities</h3>
+        {amenityFilterOptions.map((option) => (
+          <label key={option.label} className={`filter-checkbox-label ${option.values.length ? '' : 'filter-checkbox-label--unavailable'}`} title={option.values.length ? undefined : 'Not listed for the current hotel data'}>
             <input
               type="checkbox"
               className="filter-checkbox"
-              checked={filters.propertyTypes.includes(type)}
-              onChange={() => handlePropertyTypeToggle(type)}
+              checked={option.values.some((value) => filters.amenities.includes(value))}
+              disabled={!option.values.length}
+              onChange={() => handleAmenityToggle(option.values)}
             />
-            <span className="filter-checkbox-text">{type}</span>
+            <span className="filter-checkbox-text">{option.label}</span>
           </label>
         ))}
+        {amenityFilterOptions.some((option) => !option.values.length) && (
+          <p className="filter-section__note">Some amenities are unavailable for these listings.</p>
+        )}
       </div>
 
       {/* ── Clear All Button ─────────────────────────────────────────── */}

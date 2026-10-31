@@ -23,7 +23,7 @@ import './ToursSection.css';
  * Introduces optional sightseeing excursions that guests can combine with
  * their hotel bookings.
  * 
- * ARCHITECTURAL CLARITY: Tours are 100% optional add-ons, not compulsory.
+ * Tours are optional additions to a hotel stay.
  */
 export default function ToursSection({ onSelectTour }) {
   const [selectedTourForPreview, setSelectedTourForPreview] = useState(null);
@@ -34,16 +34,14 @@ export default function ToursSection({ onSelectTour }) {
         {/* Section Header */}
         <div className="section-header">
           <div className="section-header__text">
-            <span className="section-header__eyebrow">Optional Guest Add-Ons</span>
-            <h2 className="section-header__title">Curated Sightseeing &amp; Day Tours</h2>
+            <h2 className="section-header__title">Sightseeing Add-ons</h2>
             <p className="section-header__subtitle">
-              Elevate your vacation with vetted local guides and seamless private transport.
-              Tours can be added to your hotel reservation during checkout.
+              Explore local experiences and choose any tours you would like to add during checkout.
             </p>
           </div>
           <div className="tours-badge-container">
-            <Badge variant="accent" size="md">
-              100% Optional Add-ons
+            <Badge variant="info" size="md">
+              Add-ons
             </Badge>
           </div>
         </div>
@@ -126,6 +124,7 @@ export default function ToursSection({ onSelectTour }) {
                   <Button
                     variant="primary"
                     size="sm"
+                    className="tour-card__preview-btn"
                     onClick={() => {
                       setSelectedTourForPreview(tour);
                       if (onSelectTour) onSelectTour(tour);

@@ -109,7 +109,7 @@
 }
 
 .stage-hero__title {
-  font-family: var(--font-family-serif);
+  font-family: var(--font-family-sans);
   font-size: 2.25rem;
   font-weight: var(--font-weight-bold);
   color: var(--color-text-inverse);

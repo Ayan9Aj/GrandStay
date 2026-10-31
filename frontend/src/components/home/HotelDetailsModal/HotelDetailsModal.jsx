@@ -121,9 +121,8 @@ export default function HotelDetailsModal({
             </div>
           </div>
 
-          {/* Sample Rooms Selection */}
           <div className="hotel-modal__section">
-            <h3 className="hotel-modal__section-title">Available Room Categories (Sample Options)</h3>
+            <h3 className="hotel-modal__section-title">Room Categories</h3>
             <div className="hotel-modal__rooms-list">
               {hotel.rooms?.map((room, idx) => (
                 <div key={idx} className="room-card-preview">
@@ -154,7 +153,7 @@ export default function HotelDetailsModal({
             </div>
           </div>
 
-          {/* Policies & Academic Notice */}
+          {/* Policies and reservation status */}
           <div className="hotel-modal__section">
             <h3 className="hotel-modal__section-title">Check-in &amp; Cancellation Policies</h3>
             <ul className="hotel-modal__policies">
@@ -163,10 +162,8 @@ export default function HotelDetailsModal({
               <li><strong>Cancellation:</strong> {hotel.policies?.cancellation || 'Free cancellation up to 48 hours before check-in'}</li>
             </ul>
 
-            <div className="hotel-modal__academic-alert">
-              <span>
-                * <strong>Demonstration Preview:</strong> Choose a room to review that exact option at checkout. No room is reserved and no payment is processed.
-              </span>
+            <div className="hotel-modal__availability-note">
+              Choose a room to review it at checkout. This does not reserve the room or process payment.
             </div>
           </div>
         </div>

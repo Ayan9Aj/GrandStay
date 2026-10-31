@@ -1,0 +1,101 @@
+/**
+ * GrandStay Brand Logo Styles
+ * Integrates the official Grand Stay Luxury Hotel logo asset cleanly
+ * while respecting existing navbar, footer, and modal constraints.
+ */
+
+.grandstay-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  text-decoration: none;
+  user-select: none;
+}
+
+/* Image container with rounded luxury dark teal frame matching the asset */
+.grandstay-brand__image-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+  background-color: #011519; /* Exact dark teal background of the logo asset */
+  border: 1px solid rgba(212, 145, 40, 0.35); /* Subtle gold accent border */
+  border-radius: var(--radius-md);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform var(--transition-fast), border-color var(--transition-fast);
+}
+
+.grandstay-brand:hover .grandstay-brand__image-wrapper {
+  border-color: var(--color-accent-400);
+}
+
+/* The logo image itself */
+.grandstay-brand__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ── Variant Sizes ─────────────────────────────────────────────────────────── */
+
+/* 1. Icon variant (Navbar default: 42px) */
+.grandstay-brand--icon .grandstay-brand__image-wrapper {
+  width: var(--brand-custom-size, 42px);
+  height: var(--brand-custom-size, 42px);
+  border-radius: var(--radius-md);
+}
+
+/* 2. Badge variant (Modal & medium displays: 56px) */
+.grandstay-brand--badge .grandstay-brand__image-wrapper {
+  width: var(--brand-custom-size, 56px);
+  height: var(--brand-custom-size, 56px);
+  border-radius: var(--radius-lg);
+  border-width: 1.5px;
+}
+
+/* 3. Full / prominent variant (Footer & academic showcases: 64px) */
+.grandstay-brand--full .grandstay-brand__image-wrapper {
+  width: var(--brand-custom-size, 64px);
+  height: var(--brand-custom-size, 64px);
+  border-radius: var(--radius-lg);
+  border-width: 1.5px;
+}
+
+/* ── Typography Section ────────────────────────────────────────────────────── */
+.grandstay-brand__text {
+  display: flex;
+  flex-direction: column;
+}
+
+.grandstay-brand__title {
+  font-family: var(--font-family-serif);
+  font-size: 1.35rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-800);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.grandstay-brand__tagline {
+  font-size: 0.68rem;
+  color: var(--color-accent-700);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Light / Inverted typography for dark backgrounds (Footer) */
+.grandstay-brand--inverse .grandstay-brand__title {
+  color: var(--color-text-inverse);
+}
+
+.grandstay-brand--inverse .grandstay-brand__tagline {
+  color: var(--color-accent-400);
+}
+
+.grandstay-brand--inverse .grandstay-brand__image-wrapper {
+  border-color: rgba(232, 168, 56, 0.4);
+}

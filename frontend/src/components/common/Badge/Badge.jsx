@@ -8,7 +8,7 @@ import './Badge.css';
  * Used for hotel ratings, amenity tags, promo badges, and status labels.
  * 
  * Props:
- * - variant: 'primary' | 'accent' | 'success' | 'warning' | 'neutral' (default: 'primary')
+ * - variant: 'primary' | 'accent' | 'info' | 'success' | 'warning' | 'neutral' (default: 'primary')
  * - size: 'sm' | 'md' (default: 'md')
  * - icon: Optional icon element
  * - children: Badge text

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Container from '../../layout/Container/Container';
-import Badge from '../../common/Badge/Badge';
 import { SAMPLE_OFFERS } from '../../../data/sampleOffers';
 import { TagIcon, CopyIcon, CheckCircleIcon } from '../../common/Icons';
 import './OffersSection.css';
@@ -12,7 +11,7 @@ import './OffersSection.css';
  * Stage 2: Homepage Implementation
  * ==============================================================================
  * 
- * Showcases demonstration discount coupons and promotional offers.
+ * Shows promotional offers and supports copying offer codes.
  * Includes interactive "Copy Code" button with instant feedback.
  */
 export default function OffersSection({ onCopyOffer }) {
@@ -34,15 +33,9 @@ export default function OffersSection({ onCopyOffer }) {
         {/* Section Header */}
         <div className="section-header">
           <div className="section-header__text">
-            <span className="section-header__eyebrow">Exclusive Savings</span>
+            <span className="section-header__eyebrow offers-section__eyebrow">Exclusive Savings</span>
             <h2 className="section-header__title">Seasonal Offers &amp; Member Deals</h2>
-            <p className="section-header__subtitle">
-              Take advantage of limited-time vacation promotions for advance reservations and luxury resort stays.
-            </p>
           </div>
-          <Badge variant="accent" size="md">
-            Demo Promo Codes
-          </Badge>
         </div>
 
         {/* Offers Grid */}
@@ -53,9 +46,6 @@ export default function OffersSection({ onCopyOffer }) {
             return (
               <div key={offer.id} className="offer-card">
                 <div className="offer-card__badge-row">
-                  <Badge variant="accent" size="sm">
-                    {offer.badge}
-                  </Badge>
                   <span className="offer-category">{offer.category}</span>
                 </div>
 
@@ -103,12 +93,7 @@ export default function OffersSection({ onCopyOffer }) {
           })}
         </div>
 
-        {/* Demonstration Disclaimer */}
-        <div className="offers-disclaimer">
-          <span className="offers-disclaimer__text">
-            * <strong>Academic Demonstration Note:</strong> Coupons and promotional vouchers displayed here are mock values intended to showcase promotion engine UI integration. No real discounts are processed in this stage.
-          </span>
-        </div>
+        <p className="offers-section__note">Offer codes can be copied, but redemption is not available yet.</p>
       </Container>
     </section>
   );

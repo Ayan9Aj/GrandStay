@@ -61,6 +61,7 @@ export default function BookingPage() {
   const [submitted, setSubmitted] = useState(false);
   const [currentUser, setCurrentUser] = useState(() => getActiveUserSession());
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('signin');
 
   useLayoutEffect(() => {
     if (location.pathname === '/booking' && previousPath.current !== '/booking') {
@@ -156,7 +157,8 @@ export default function BookingPage() {
     <div className="booking-page">
       <Header
         currentUser={currentUser}
-        onOpenSignIn={() => setIsSignInOpen(true)}
+        onOpenSignIn={() => { setAuthMode('signin'); setIsSignInOpen(true); }}
+        onOpenRegister={() => { setAuthMode('register'); setIsSignInOpen(true); }}
         onSignOut={() => { clearActiveUserSession(); setCurrentUser(null); }}
       />
       <main id="main-content" className="booking-main">
@@ -169,37 +171,37 @@ export default function BookingPage() {
             <section className="booking-missing-context">
               <EmptyState
                 title="Choose a hotel room first"
-                description="Checkout needs a selected hotel and room. Browse the sample hotels, open a property, and choose a room to continue. No booking details have been invented."
+                description="Choose a property and room before continuing to checkout. No booking details have been entered."
                 actionText="Browse hotels"
                 onAction={() => navigate('/hotels')}
               />
             </section>
           ) : submitted ? (
             <section className="booking-confirmation" aria-labelledby="booking-confirmation-title" role="status">
-              <Badge variant="accent" size="sm">Demo only</Badge>
+              <Badge variant="accent" size="sm">Request summary</Badge>
               {extraGuestsRequested > 0 ? (
                 <>
                   <Badge variant="neutral" size="sm">Approval required</Badge>
                   <h1 ref={confirmationHeading} tabIndex="-1" id="booking-confirmation-title">Extra guest request prepared for review</h1>
                   <p>Your request includes {extraGuestsRequested} guest{extraGuestsRequested === 1 ? '' : 's'} above the room’s standard capacity. Hotel approval is required, and additional charges may apply.</p>
-                  <p>This demo has not sent the request to the hotel. The extra guests are not approved, no room was reserved, no booking record was saved, and no payment was taken.</p>
+                  <p>Your request has not been sent to the hotel. The additional guests are not approved, no room was reserved, no booking record was saved, and no payment was taken.</p>
                 </>
               ) : (
                 <>
-                  <h1 ref={confirmationHeading} tabIndex="-1" id="booking-confirmation-title">Demo booking request complete</h1>
-                  <p>Your details were checked in this page preview. No real reservation was created, no room was reserved, no booking or guest details were saved to a real booking database, and no payment was taken.</p>
+                  <h1 ref={confirmationHeading} tabIndex="-1" id="booking-confirmation-title">Checkout review complete</h1>
+                  <p>Your details were reviewed on this page. No reservation was created, no room was reserved, no booking or guest details were saved, and no payment was taken.</p>
                 </>
               )}
-              <p>Real availability checks and reservation records will require a future backend.</p>
+              <p>Room availability has not been checked, and your stay is not confirmed.</p>
               <Link className="booking-return-link" to={returnTo} state={{ selectedTourIds: booking.tourIds || [], selectedRoomIndex: booking.roomIndex, from: browseTo }}>Return to hotel details</Link>
             </section>
           ) : (
             <>
               <header className="booking-heading">
                 <div>
-                  <span className="booking-eyebrow">Guest checkout · prototype</span>
+                  <span className="booking-eyebrow">Guest checkout</span>
                   <h1>Review your stay</h1>
-                  <p>Continue as a guest. This demonstration does not reserve a room or process a payment.</p>
+                  <p>Review your stay and guest details. Submitting this page does not reserve a room or take payment.</p>
                 </div>
                 <Link className="booking-back-link" to={returnTo} state={{ selectedTourIds: booking.tourIds || [], selectedRoomIndex: booking.roomIndex, from: browseTo }}>{returnLabel}</Link>
               </header>
@@ -208,7 +210,7 @@ export default function BookingPage() {
                 <section className="booking-card booking-stay-card" aria-labelledby="stay-summary-title">
                   <div className="booking-card-heading">
                     <div><span className="booking-eyebrow">Your selection</span><h2 id="stay-summary-title">Stay summary</h2></div>
-                    <Badge variant="neutral" size="sm">Sample data</Badge>
+                    <Badge variant="neutral" size="sm">Stay details</Badge>
                   </div>
                   <h3 className="booking-hotel-name">{hotel.name}</h3>
                   <p className="booking-hotel-location">{hotel.location}</p>
@@ -252,7 +254,7 @@ export default function BookingPage() {
                         <span>Request extra guest accommodation</span>
                       </label>
                       <dl className="extra-guest-counts">
-                        <div><dt>Standard room capacity</dt><dd>{maximumGuests !== null ? `Up to ${maximumGuests} guests` : 'Not listed in sample data'}</dd></div>
+                        <div><dt>Standard room capacity</dt><dd>{maximumGuests !== null ? `Up to ${maximumGuests} guests` : 'Not listed'}</dd></div>
                         <div><dt>Current guest count</dt><dd>{isValidGuestCount ? parsedGuestCount : 'Enter a valid whole number'}</dd></div>
                         <div><dt>Extra guests requested</dt><dd>{maximumGuests !== null && isValidGuestCount ? extraGuestsRequested : 'Cannot calculate'}</dd></div>
                       </dl>
@@ -282,7 +284,7 @@ export default function BookingPage() {
                         {extraGuestsRequested > 0 && extraGuestEnabled && <div className="extra-guest-price-line"><dt>Extra guest charge</dt><dd>To be confirmed by the hotel</dd></div>}
                         <div className="booking-price-total"><dt>Estimated total</dt><dd>{estimatedTotal === null ? 'To be confirmed' : money(hotel.currency, estimatedTotal)}</dd></div>
                       </dl>
-                    ) : <p className="booking-inline-note">A room rate is missing from the sample data, so no subtotal or total is shown.</p>}
+                    ) : <p className="booking-inline-note">A room rate is not listed, so no subtotal or total is shown.</p>}
                     <div className="booking-tour-summary">
                       <div className="booking-card-heading"><div><span className="booking-eyebrow">Optional</span><h3>Selected sightseeing tours</h3></div></div>
                       {selectedTours.length ? (
@@ -312,8 +314,8 @@ export default function BookingPage() {
                     <Input label="Email address" id="guest-email" name="email" type="email" autoComplete="email" value={guest.email} onChange={updateGuest} error={errors.email} required />
                     <Input label="Phone number" id="guest-phone" name="phone" type="tel" autoComplete="tel" value={guest.phone} onChange={updateGuest} error={errors.phone} required />
                     {Object.values(errors).some(Boolean) && <p className="booking-form-error-summary" role="alert">Please correct the highlighted fields before continuing.</p>}
-                    <Button type="submit" variant="accent" size="lg" fullWidth>Review demo booking request</Button>
-                    <p className="booking-submit-note">Submitting shows a demo confirmation only. It does not create a reservation or request payment.</p>
+                    <Button type="submit" variant="accent" size="lg" fullWidth>Review booking request</Button>
+                    <p className="booking-submit-note">This review does not create a reservation or request payment.</p>
                   </form>
                 </aside>
               </div>
@@ -322,7 +324,7 @@ export default function BookingPage() {
         </Container>
       </main>
       <Footer />
-      <SignInModal isOpen={isSignInOpen} onClose={() => setIsSignInOpen(false)} onLoginSuccess={setCurrentUser} />
+      <SignInModal key={authMode} isOpen={isSignInOpen} onClose={() => setIsSignInOpen(false)} onLoginSuccess={setCurrentUser} initialMode={authMode} />
     </div>
   );
 }

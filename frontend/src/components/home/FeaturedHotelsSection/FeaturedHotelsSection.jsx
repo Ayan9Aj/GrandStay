@@ -1,9 +1,9 @@
 import { useState, useMemo } from 'react';
 import Container from '../../layout/Container/Container';
 import HotelCard from '../../common/HotelCard/HotelCard';
-import Badge from '../../common/Badge/Badge';
 import Button from '../../common/Button/Button';
 import EmptyState from '../../common/EmptyState/EmptyState';
+import SelectDropdown from '../../common/SelectDropdown/SelectDropdown';
 import { SAMPLE_HOTELS } from '../../../data/sampleHotels';
 import './FeaturedHotelsSection.css';
 
@@ -71,9 +71,6 @@ export default function FeaturedHotelsSection({
           <div className="section-header__text">
             <span className="section-header__eyebrow">Handpicked Accommodations</span>
             <h2 className="section-header__title">Featured Luxury Resorts &amp; Hotels</h2>
-            <p className="section-header__subtitle">
-              Every property is curated for authentic architecture, exceptional hospitality, and breathtaking surroundings.
-            </p>
           </div>
 
           {/* Active Search Filter Badge */}
@@ -119,17 +116,19 @@ export default function FeaturedHotelsSection({
           {/* Sort Dropdown */}
           <div className="hotels-sort-box">
             <label htmlFor="sort-hotels" className="hotels-sort-label">Sort by:</label>
-            <select
+            <SelectDropdown
               id="sort-hotels"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
               className="hotels-sort-select"
-            >
-              <option value="recommended">Recommended &amp; Featured</option>
-              <option value="rating">Guest Rating (High to Low)</option>
-              <option value="price-low">Price (Low to High)</option>
-              <option value="price-high">Price (High to Low)</option>
-            </select>
+              value={sortBy}
+              onChange={setSortBy}
+              ariaLabel="Sort featured hotels"
+              options={[
+                { value: 'recommended', label: 'Recommended & Featured' },
+                { value: 'rating', label: 'Guest Rating (High to Low)' },
+                { value: 'price-low', label: 'Price (Low to High)' },
+                { value: 'price-high', label: 'Price (High to Low)' }
+              ]}
+            />
           </div>
         </div>
 
@@ -140,7 +139,7 @@ export default function FeaturedHotelsSection({
               <HotelCard
                 key={hotel.id}
                 hotel={hotel}
-                onBook={() => onViewHotelDetails && onViewHotelDetails(hotel)}
+                onBook={(selectedHotel) => onViewHotelDetails?.(selectedHotel)}
                 onPreview={onQuickPreview}
                 onFavoriteToggle={onFavoriteToggle}
               />
@@ -150,23 +149,13 @@ export default function FeaturedHotelsSection({
           <div className="hotels-empty-wrapper">
             <EmptyState
               title={`No Stays Found in ${effectiveCity}`}
-              description="We couldn't find any sample hotels matching this specific destination in our demonstration catalog. Try selecting 'All Stays' to view all properties."
+              description="We couldn't find any stays in this destination. Try selecting 'All Stays' to browse the available properties."
               actionText="View All Stays"
               onAction={() => handleCityChange('All')}
             />
           </div>
         )}
 
-        {/* Academic Project Transparency Disclaimer */}
-        <div className="hotels-academic-disclaimer">
-          <Badge variant="neutral" size="sm">
-            Mock Demonstration Notice
-          </Badge>
-          <span>
-            Room rates, amenity lists, and guest review counts represent local demonstration data for project evaluation.
-            Live availability will be integrated with the Django REST Framework API in future stages.
-          </span>
-        </div>
       </Container>
     </section>
   );

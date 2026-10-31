@@ -13,14 +13,24 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--space-6);
-  margin-bottom: var(--space-8);
+  margin-bottom: var(--space-4);
+}
+
+.offers-section__eyebrow {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px solid var(--color-primary-100);
+  border-radius: var(--radius-full);
+  background: var(--color-primary-50);
+  color: var(--color-primary-700);
+  letter-spacing: 0.06em;
 }
 
 .offer-card {
   display: flex;
   flex-direction: column;
-  background-color: var(--color-bg-page);
-  border: 1px solid var(--color-border-subtle);
+  background-color: #f5faff;
+  border: 1px solid #d6e8f5;
   border-radius: var(--radius-lg);
   padding: var(--space-6);
   box-shadow: var(--shadow-sm);
@@ -36,7 +46,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--color-primary-800), var(--color-accent-500));
+  background: linear-gradient(90deg, #b9d7eb, #d9efff);
 }
 
 .offer-card:hover {
@@ -52,8 +62,14 @@
 }
 
 .offer-category {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  border: 1px solid #d3e6f3;
+  border-radius: var(--radius-full);
+  background: #eaf4fb;
   font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
+  color: #234c6b;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   font-weight: var(--font-weight-medium);
@@ -67,11 +83,11 @@
 }
 
 .offer-tag-icon {
-  color: var(--color-accent-600);
+  color: var(--color-primary-600);
 }
 
 .offer-discount {
-  font-family: var(--font-family-serif);
+  font-family: var(--font-family-sans);
   font-size: 1.5rem;
   font-weight: var(--font-weight-bold);
   color: var(--color-primary-800);
@@ -108,7 +124,7 @@
   align-items: center;
   justify-content: space-between;
   background-color: var(--color-bg-surface);
-  border: 1px dashed var(--color-primary-300);
+  border: 1px dashed #b9d7eb;
   border-radius: var(--radius-md);
   padding: 8px 12px;
   margin-top: auto;
@@ -126,8 +142,9 @@
 }
 
 .code-text {
-  font-family: monospace;
+  font-family: var(--font-family-sans);
   font-size: 1rem;
+  font-weight: var(--font-weight-bold);
   color: var(--color-primary-900);
   letter-spacing: 1px;
 }
@@ -136,7 +153,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background-color: var(--color-primary-800);
+  background-color: var(--color-primary-600);
   color: #ffffff;
   border: none;
   border-radius: var(--radius-sm);
@@ -148,22 +165,20 @@
 }
 
 .copy-code-btn:hover {
-  background-color: var(--color-primary-900);
+  background-color: var(--color-primary-700);
+  box-shadow: 0 4px 12px rgba(29, 53, 87, 0.2);
+  transform: translateY(-1px);
 }
 
 .copy-code-btn.copied {
   background-color: var(--color-success);
 }
 
-/* Academic Disclaimer */
-.offers-disclaimer {
-  padding: var(--space-3) var(--space-4);
-  background-color: var(--color-bg-page);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border-subtle);
+.offers-section__note {
+  margin: 0;
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
-  line-height: 1.4;
+  line-height: var(--line-height-normal);
 }
 
 @media (max-width: 640px) {

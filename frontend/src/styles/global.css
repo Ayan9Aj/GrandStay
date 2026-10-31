@@ -85,7 +85,7 @@ a {
 }
 
 a:hover {
-  color: var(--color-accent-600);
+  color: var(--color-primary-700);
 }
 
 /* 5. Accessible Focus Outlines (Keyboard Navigation) */

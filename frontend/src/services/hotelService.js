@@ -37,6 +37,7 @@
  */
 
 import { SAMPLE_HOTELS } from '../data/sampleHotels';
+import { TRENDING_HOTELS } from '../data/trendingHotels';
 
 // ─── Helper: Normalise destination string for comparison ───────────────────
 const normDest = (s) => (s || '').trim().toLowerCase();
@@ -189,5 +190,9 @@ export function getHotels(filters = {}) {
 // Django equivalent: GET /api/hotels/{id}/
 // ─────────────────────────────────────────────────────────────────────────────
 export function getHotelById(id) {
-  return SAMPLE_HOTELS.find((h) => h.id === id) || null;
+  return TRENDING_HOTELS.find((h) => h.id === id) || null;
+}
+
+export function getTrendingHotels() {
+  return [...TRENDING_HOTELS];
 }

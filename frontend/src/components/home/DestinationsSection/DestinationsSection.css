@@ -27,7 +27,7 @@
 }
 
 .section-header__title {
-  font-family: var(--font-family-serif);
+  font-family: var(--font-family-sans);
   font-size: var(--font-size-3xl);
   color: var(--color-text-heading);
   margin-bottom: var(--space-2);
@@ -140,7 +140,7 @@
 }
 
 .destination-card__name {
-  font-family: var(--font-family-serif);
+  font-family: var(--font-family-sans);
   font-size: 1.65rem;
   color: #ffffff;
   margin-bottom: 6px;

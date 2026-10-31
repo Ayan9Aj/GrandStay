@@ -1,0 +1,58 @@
+.trending-hotels-page {
+  min-height: 100vh;
+  background: var(--color-bg-page);
+}
+
+.trending-hotels-main {
+  min-height: 70vh;
+  padding: var(--space-8) 0 var(--space-12);
+}
+
+.trending-hotels-title {
+  margin: 0 0 var(--space-8);
+  color: var(--color-text-heading);
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+  text-align: center;
+}
+
+.trending-hotels-sort-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-5);
+}
+
+.trending-hotels-count {
+  margin: 0;
+  color: var(--color-text-body);
+  font-size: var(--font-size-base);
+}
+
+.trending-hotels-count strong { color: var(--color-text-heading); }
+
+.trending-hotels-sort-control {
+  display: flex;
+  width: min(360px, 100%);
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.trending-hotels-sort-control label { flex: none; }
+.trending-hotels-sort-select { flex: 1; }
+
+.trending-hotels-list {
+  display: grid;
+  gap: var(--space-5);
+}
+
+@media (max-width: 600px) {
+  .trending-hotels-main { padding-top: var(--space-6); }
+  .trending-hotels-title { margin-bottom: var(--space-6); }
+  .trending-hotels-sort-bar { align-items: flex-start; flex-direction: column; }
+  .trending-hotels-sort-control { width: 100%; }
+}

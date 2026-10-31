@@ -230,7 +230,7 @@
 }
 
 .tour-modal__title {
-  font-family: var(--font-family-serif);
+  font-family: var(--font-family-sans);
   font-size: 1.4rem;
   color: var(--color-text-heading);
   margin: var(--space-2) 0 4px;
@@ -310,4 +310,29 @@
   font-size: var(--font-size-xs);
   color: var(--color-text-muted);
   font-weight: var(--font-weight-normal);
+}
+.tour-card .btn.tour-card__preview-btn {
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-600);
+  color: var(--color-text-inverse);
+  transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.tour-card .btn.tour-card__preview-btn:hover:not(:disabled) {
+  border-color: var(--color-primary-700);
+  background: var(--color-primary-700);
+  color: var(--color-text-inverse);
+  box-shadow: 0 4px 12px rgba(29, 53, 87, 0.14);
+  transform: translateY(-1px);
+}
+
+.tour-card .btn.tour-card__preview-btn:active:not(:disabled) {
+  border-color: var(--color-primary-800);
+  background: var(--color-primary-800);
+  transform: translateY(0);
+}
+
+.tour-card .btn.tour-card__preview-btn:focus-visible {
+  outline: 2px solid var(--color-primary-500);
+  outline-offset: 2px;
 }

@@ -31,7 +31,12 @@ export default function HotelCard({
   hotel,
   onBook,
   onPreview,
-  onFavoriteToggle
+  onFavoriteToggle,
+  layout = 'vertical',
+  showPreview = true,
+  showDetails = true,
+  pricePrefix = 'Rooms start from',
+  pricePeriod = '/ night',
 }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -41,6 +46,7 @@ export default function HotelCard({
   const {
     name = 'Luxury Stay Resort',
     location = 'Tropical Haven',
+    description = '',
     image,
     rating = 4.8,
     reviewCount = 120,
@@ -67,7 +73,7 @@ export default function HotelCard({
   };
 
   return (
-    <article className="hotel-card">
+    <article className={`hotel-card ${layout === 'horizontal' ? 'hotel-card--horizontal' : ''}`}>
       {/* Image Thumbnail Container */}
       <div className="hotel-card__image-container">
         {!imgError && image ? (
@@ -112,16 +118,30 @@ export default function HotelCard({
             <span>{location}</span>
           </div>
 
-          <div className="hotel-card__rating" title={`Rated ${rating} out of 5 stars`}>
-            <StarIcon size={14} className="hotel-card__star-icon" fill="var(--color-accent-600)" />
-            <span className="hotel-card__rating-score">{rating}</span>
-            <span className="hotel-card__review-count">({reviewCount})</span>
-          </div>
+          {layout !== 'horizontal' && (
+            <div className="hotel-card__rating" title={`Rated ${rating} out of 5 stars`}>
+              <StarIcon size={14} className="hotel-card__star-icon" fill="var(--color-accent-600)" />
+              <span className="hotel-card__rating-score">{rating}</span>
+              <span className="hotel-card__review-count">({reviewCount})</span>
+            </div>
+          )}
         </div>
 
         <h3 className="hotel-card__title" title={name}>
           {name}
         </h3>
+
+        {layout === 'horizontal' && (
+          <div className="hotel-card__rating" title={`Rated ${rating} out of 5 stars`}>
+            <StarIcon size={14} className="hotel-card__star-icon" fill="var(--color-accent-600)" />
+            <span className="hotel-card__rating-score">{rating}</span>
+            <span className="hotel-card__review-count">({reviewCount})</span>
+          </div>
+        )}
+
+        {layout === 'horizontal' && description && (
+          <p className="hotel-card__description">{description}</p>
+        )}
 
         {/* Amenity Pills */}
         {amenities && amenities.length > 0 && (
@@ -135,8 +155,9 @@ export default function HotelCard({
           </div>
         )}
 
-        {/* Bottom Pricing & CTA */}
-        <div className="hotel-card__footer">
+        {/* Bottom Pricing & CTA: retain the original homepage layout. */}
+        {layout !== 'horizontal' && (
+          <div className="hotel-card__footer">
           <div className="hotel-card__pricing">
             <span className="hotel-card__price-prefix">From</span>
             <div className="hotel-card__price-wrapper">
@@ -147,23 +168,62 @@ export default function HotelCard({
             <span className="hotel-card__tax-note">+ taxes &amp; fees</span>
           </div>
 
-          <div className="hotel-card__actions">
-            {onPreview && (
-              <Button variant="outline" size="sm" onClick={() => onPreview(hotel)}>
+            <div className="hotel-card__actions">
+              {showPreview && onPreview && (
+                <Button variant="outline" size="sm" className="hotel-card__quick-preview-btn" onClick={() => onPreview(hotel)}>
+                  Quick Preview
+                </Button>
+              )}
+              {showDetails && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="hotel-card__view-details-btn"
+                  onClick={() => onBook && onBook(hotel)}
+                  ariaLabel={`View details for ${name}`}
+                >
+                  View Details
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {layout === 'horizontal' && (
+        <div className="hotel-card__footer hotel-card__footer--horizontal">
+          <div className="hotel-card__actions hotel-card__actions--horizontal">
+            <Button variant="primary" size="sm" className="hotel-card__book-now-btn" onClick={() => onBook && onBook(hotel)}>
+              Book Now
+            </Button>
+            {showPreview && onPreview && (
+              <Button variant="outline" size="sm" className="hotel-card__quick-preview-btn" onClick={() => onPreview(hotel)}>
                 Quick Preview
               </Button>
             )}
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => onBook && onBook(hotel)}
-              ariaLabel={`View details for ${name}`}
-            >
-              View Details
-            </Button>
+            {showDetails && (
+              <Button
+                variant="primary"
+                size="sm"
+                className="hotel-card__view-details-btn"
+                onClick={() => onBook && onBook(hotel)}
+                ariaLabel={`View details for ${name}`}
+              >
+                View Details
+              </Button>
+            )}
+          </div>
+          <div className="hotel-card__pricing">
+            <span className="hotel-card__price-prefix">{pricePrefix}</span>
+            <div className="hotel-card__price-wrapper">
+              <span className="hotel-card__currency">{currency}</span>
+              <span className="hotel-card__price">{pricePerNight.toLocaleString()}</span>
+              <span className="hotel-card__period">{pricePeriod}</span>
+            </div>
+            <span className="hotel-card__tax-note">+ taxes &amp; fees</span>
           </div>
         </div>
-      </div>
+      )}
     </article>
   );
 }

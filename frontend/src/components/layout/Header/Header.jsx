@@ -1,233 +1,214 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import Container from '../Container/Container';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import Button from '../../common/Button/Button';
-import { BuildingIcon } from '../../common/Icons';
+import Logo from '../../common/Logo/Logo';
+import { getAllPropertyTypes } from '../../../services/hotelService';
 import './Header.css';
 
+const getVillaPropertyTypes = () => getAllPropertyTypes()
+  .filter((type) => /villa|bungalow/i.test(type));
 
-/**
- * ==============================================================================
- * HEADER / NAVBAR COMPONENT
- * Project: GrandStay - Multi-Hotel Booking Platform
- * Stage 2: Homepage Implementation
- * ==============================================================================
- * 
- * Commercial header with branding, working navigation links to page sections,
- * prototype sign-in modal trigger, and mobile menu support.
- */
-export default function Header({ onOpenSignIn, onBookStayClick, currentUser, onSignOut }) {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export default function Header({ currentUser, onOpenSignIn, onOpenRegister, onSignOut }) {
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const menuButtonRef = useRef(null);
+  const menuPanelRef = useRef(null);
   const displayName = typeof currentUser === 'object' && currentUser !== null
     ? currentUser.name
     : currentUser;
 
-  const handleNavClick = (sectionId) => {
-    setMobileMenuOpen(false);
-    if (sectionId === 'hotels') {
-      // Navigate to the Hotel Catalog page (Stage 3 route)
-      navigate('/hotels');
-    } else {
-      // Smooth-scroll to homepage sections (Destinations, Tours, Offers, Hero)
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        // If not on homepage, navigate to homepage section
-        navigate(`/#${sectionId}`);
-        setTimeout(() => {
-          const target = document.getElementById(sectionId);
-          if (target) {
-            target.scrollIntoView({ behavior: 'smooth' });
-          }
-        }, 100);
-      }
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    menuButtonRef.current?.focus();
+  }, []);
+
+  const navigateToCatalog = (options = {}) => {
+    const params = new URLSearchParams(location.search);
+    params.delete('propertyType');
+    params.delete('sortBy');
+    if (options.propertyTypes?.length) {
+      options.propertyTypes.forEach((type) => params.append('propertyType', type));
+    } else if (options.villasOnly) {
+      // An unmatched filter intentionally produces the catalog's existing empty state.
+      params.append('propertyType', 'Villas & Bungalows');
     }
+    if (options.sortBy) params.set('sortBy', options.sortBy);
+    const query = params.toString();
+    if (menuOpen) closeMenu();
+    navigate(`/hotels${query ? `?${query}` : ''}`);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   };
 
+  const scrollToHomeSection = useCallback((sectionId) => {
+    const target = document.getElementById(sectionId);
+    if (!target) return;
+    const headerHeight = document.querySelector('.site-header')?.getBoundingClientRect().height || 0;
+    const top = window.scrollY + target.getBoundingClientRect().top - headerHeight - 12;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }, []);
+
+  const goToHomeSection = (sectionId) => {
+    closeMenu();
+    if (location.pathname === '/') {
+      scrollToHomeSection(sectionId);
+      return;
+    }
+    navigate(`/#${sectionId}`);
+  };
+
+  useLayoutEffect(() => {
+    if (location.pathname !== '/' || !location.hash) return undefined;
+    const sectionId = decodeURIComponent(location.hash.slice(1));
+    const frameId = window.requestAnimationFrame(() => scrollToHomeSection(sectionId));
+    return () => window.cancelAnimationFrame(frameId);
+  }, [location.pathname, location.hash, scrollToHomeSection]);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    menuPanelRef.current?.querySelector('button, a')?.focus();
+
+    const onPointerDown = (event) => {
+      if (!menuPanelRef.current?.contains(event.target) && !menuButtonRef.current?.contains(event.target)) {
+        closeMenu();
+      }
+    };
+    const onKeyDown = (event) => {
+      if (event.key === 'Escape') closeMenu();
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [menuOpen, closeMenu]);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const body = document.body;
+    const originalOverflow = body.style.overflow;
+    const mobileQuery = window.matchMedia('(max-width: 860px)');
+    const updateScrollLock = () => {
+      body.style.overflow = mobileQuery.matches ? 'hidden' : originalOverflow;
+    };
+    updateScrollLock();
+    mobileQuery.addEventListener('change', updateScrollLock);
+    return () => {
+      mobileQuery.removeEventListener('change', updateScrollLock);
+      body.style.overflow = originalOverflow;
+    };
+  }, [menuOpen]);
+
+  const handleMenuRoute = (path, { requiresAuth = false } = {}) => {
+    closeMenu();
+    if (requiresAuth && !currentUser) {
+      onOpenSignIn?.();
+      return;
+    }
+    navigate(path);
+  };
+
+  const handleSignOut = () => {
+    closeMenu();
+    onSignOut?.();
+  };
+
+  const openSignIn = () => {
+    closeMenu();
+    onOpenSignIn?.();
+  };
+
+  const openRegister = () => {
+    closeMenu();
+    onOpenRegister?.();
+  };
+
+  const villaTypes = getVillaPropertyTypes();
+  const openVillas = () => navigateToCatalog({ propertyTypes: villaTypes, villasOnly: villaTypes.length === 0 });
+  const openTrendingHotels = () => handleMenuRoute('/trending-hotels');
+  const openTrendingVillas = () => navigateToCatalog({ propertyTypes: villaTypes, villasOnly: villaTypes.length === 0, sortBy: 'rating-desc' });
 
   return (
     <header className="site-header">
-      <Container size="lg">
-        <div className="site-header__inner">
-          {/* Brand Logo — clicking navigates to homepage (/) */}
-          <Link
-            to="/"
-            className="site-header__brand"
+      <div className="site-header__inner">
+        <div className="site-header__left">
+          <button
+            ref={menuButtonRef}
+            type="button"
+            className="site-header__menu-toggle"
+            aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={menuOpen}
+            aria-controls="site-navigation-panel"
+            onClick={() => menuOpen ? closeMenu() : setMenuOpen(true)}
           >
-
-            <div className="site-header__logo-icon">
-              <BuildingIcon size={22} />
-            </div>
-            <div className="site-header__brand-text">
-              <span className="site-header__brand-title">GrandStay</span>
-              <span className="site-header__brand-tagline">Hotels &amp; Resorts</span>
-            </div>
-          </Link>
-
-          {/* Desktop Navigation Links */}
-          <nav className="site-header__nav" aria-label="Main Navigation">
-            <ul className="site-header__menu">
-              <li>
-                <button
-                  type="button"
-                  className="site-header__link-btn"
-                  onClick={() => handleNavClick('hotels')}
-                >
-                  Hotels &amp; Resorts
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  className="site-header__link-btn"
-                  onClick={() => handleNavClick('destinations')}
-                >
-                  Destinations
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  className="site-header__link-btn"
-                  onClick={() => handleNavClick('tours')}
-                >
-                  Tour Packages
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  className="site-header__link-btn"
-                  onClick={() => handleNavClick('offers')}
-                >
-                  Deals &amp; Offers
-                </button>
-              </li>
-            </ul>
+            <span className={`site-header__hamburger ${menuOpen ? 'is-open' : ''}`} aria-hidden="true"><span /><span /><span /></span>
+          </button>
+          <nav className="site-header__nav site-header__nav--left" aria-label="Hotel categories">
+            <button type="button" className="site-header__link-btn" onClick={() => navigateToCatalog()}>Hotels &amp; Resorts</button>
+            <button type="button" className="site-header__link-btn" onClick={openVillas}>Villas &amp; Bungalows</button>
           </nav>
-
-          {/* Header Action Buttons */}
-          <div className="site-header__actions">
-            {currentUser ? (
-              <div className="site-header__user-pill">
-                <span className="user-greeting">Hi, {displayName}</span>
-                <Button variant="text" size="sm" onClick={onSignOut}>
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="text"
-                size="sm"
-                className="site-header__login-btn"
-                onClick={onOpenSignIn}
-              >
-                Sign In
-              </Button>
-            )}
-
-            <Button
-              variant="accent"
-              size="sm"
-              onClick={() => {
-                if (onBookStayClick) onBookStayClick();
-                else handleNavClick('hero');
-              }}
-            >
-              Book a Stay
-            </Button>
-
-            {/* Mobile Menu Toggle Button */}
-            <button
-              type="button"
-              className="site-header__mobile-toggle"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle navigation menu"
-              aria-expanded={mobileMenuOpen}
-            >
-              <span className={`hamburger-bar ${mobileMenuOpen ? 'open' : ''}`} />
-              <span className={`hamburger-bar ${mobileMenuOpen ? 'open' : ''}`} />
-              <span className={`hamburger-bar ${mobileMenuOpen ? 'open' : ''}`} />
-            </button>
-          </div>
         </div>
 
-        {/* Mobile Navigation Drawer */}
-        {mobileMenuOpen && (
-          <div className="site-header__mobile-nav">
-            <ul className="site-header__mobile-menu">
-              <li>
-                <button
-                  type="button"
-                  className="site-header__mobile-link-btn"
-                  onClick={() => handleNavClick('hotels')}
-                >
-                  Hotels &amp; Resorts
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  className="site-header__mobile-link-btn"
-                  onClick={() => handleNavClick('destinations')}
-                >
-                  Destinations
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  className="site-header__mobile-link-btn"
-                  onClick={() => handleNavClick('tours')}
-                >
-                  Tour Packages
-                </button>
-              </li>
-              <li>
-                <button
-                  type="button"
-                  className="site-header__mobile-link-btn"
-                  onClick={() => handleNavClick('offers')}
-                >
-                  Deals &amp; Offers
-                </button>
-              </li>
-              <li className="site-header__mobile-actions">
-                {currentUser ? (
-                  <Button variant="outline" size="sm" fullWidth onClick={onSignOut}>
-                    Sign Out ({displayName})
-                  </Button>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    fullWidth
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      if (onOpenSignIn) onOpenSignIn();
-                    }}
-                  >
-                    Sign In
-                  </Button>
-                )}
-                <Button
-                  variant="primary"
-                  size="sm"
-                  fullWidth
-                  onClick={() => {
-                    handleNavClick('hero');
-                  }}
-                >
-                  Book a Stay
-                </Button>
-              </li>
-            </ul>
+        <Link to="/" className="site-header__brand" aria-label="GrandStay home" onClick={() => menuOpen && closeMenu()}>
+          <Logo variant="icon" size={62} showWordmark={false} alt="GrandStay logo" />
+        </Link>
+
+        <div className="site-header__right">
+          <nav className="site-header__nav site-header__nav--right" aria-label="Experiences">
+            <button type="button" className="site-header__link-btn" onClick={() => goToHomeSection('offers')}>Deals &amp; Offers</button>
+            <button type="button" className="site-header__link-btn" onClick={() => goToHomeSection('tours')}>Tours &amp; Camping Packages</button>
+          </nav>
+          <div className="site-header__account-actions">
+            {currentUser ? (
+              <>
+                <span className="site-header__greeting" title={displayName}>Hi, {displayName}</span>
+                <Button variant="text" size="sm" onClick={onSignOut}>Sign Out</Button>
+              </>
+            ) : (
+              <>
+                <Button variant="text" size="sm" onClick={openSignIn}>Sign In</Button>
+                <Button variant="outline" size="sm" onClick={openRegister}>Register</Button>
+              </>
+            )}
           </div>
-        )}
-      </Container>
+        </div>
+      </div>
+
+      {menuOpen && (
+        <nav id="site-navigation-panel" ref={menuPanelRef} className="site-header__menu-panel" aria-label="Main menu">
+          <div className="site-header__account">
+            {currentUser ? (
+              <>
+                <span className="site-header__greeting">Hi, {displayName}</span>
+                <Button variant="text" size="sm" onClick={handleSignOut}>Sign Out</Button>
+              </>
+            ) : (
+              <div className="site-header__mobile-account-actions">
+                <Button variant="text" size="sm" onClick={openSignIn}>Sign In</Button>
+                <Button variant="outline" size="sm" onClick={openRegister}>Register</Button>
+              </div>
+            )}
+          </div>
+
+          <div className="site-header__mobile-links" aria-label="Browse categories">
+            <button type="button" onClick={() => { closeMenu(); navigateToCatalog(); }}>Hotels &amp; Resorts</button>
+            <button type="button" onClick={() => { closeMenu(); openVillas(); }}>Villas &amp; Bungalows</button>
+            <button type="button" onClick={() => goToHomeSection('offers')}>Deals &amp; Offers</button>
+            <button type="button" onClick={() => goToHomeSection('tours')}>Tours &amp; Camping Packages</button>
+          </div>
+
+          <ul className="site-header__panel-list">
+            <li><button type="button" onClick={() => handleMenuRoute('/')}>Home</button></li>
+            <li><button type="button" onClick={openTrendingHotels}>Trending Hotels &amp; Resorts</button></li>
+            <li><button type="button" onClick={openTrendingVillas}>Trending Villas &amp; Bungalows</button></li>
+            <li><button type="button" onClick={() => handleMenuRoute('/my-stays', { requiresAuth: true })}>My Stays</button></li>
+            <li><button type="button" onClick={() => handleMenuRoute('/history', { requiresAuth: true })}>History</button></li>
+            <li><button type="button" onClick={() => handleMenuRoute('/settings')}>Settings</button></li>
+            <li><button type="button" onClick={() => handleMenuRoute('/about')}>About</button></li>
+          </ul>
+        </nav>
+      )}
     </header>
   );
 }

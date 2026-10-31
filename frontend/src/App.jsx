@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import HomePage from './pages/HomePage/HomePage';
 import HotelsPage from './pages/HotelsPage/HotelsPage';
+import TrendingHotelsPage from './pages/TrendingHotelsPage/TrendingHotelsPage';
 import HotelDetailPage from './pages/HotelDetailPage/HotelDetailPage';
 import BookingPage from './pages/BookingPage/BookingPage';
+import PlaceholderPage from './pages/PlaceholderPage/PlaceholderPage';
+import SignInModal from './components/home/SignInModal/SignInModal';
+import { clearActiveUserSession, getActiveUserSession } from './data/authSession';
 import Header from './components/layout/Header/Header';
 import Footer from './components/layout/Footer/Footer';
 import Container from './components/layout/Container/Container';
@@ -20,8 +24,7 @@ import {
   MapPinIcon,
   CalendarIcon,
   UsersIcon,
-  ArrowRightIcon,
-  SparklesIcon
+  ArrowRightIcon
 } from './components/common/Icons';
 import { SAMPLE_HOTELS, DESIGN_TOKENS_INFO } from './data/sampleHotels';
 import './App.css';
@@ -46,69 +49,15 @@ import './App.css';
  * It overlays on top of the router content.
  */
 
-// ── AcademicBar is a separate inner component so it can use useNavigate & useLocation ───────
-function AcademicBar({ showDesignSystem, setShowDesignSystem }) {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const isHomepage = !showDesignSystem && location.pathname === '/';
-  const isCatalog = !showDesignSystem && location.pathname.startsWith('/hotels');
-  const isDesignSystem = showDesignSystem;
-
-  const goTo = (mode, path) => {
-    if (mode === 'design-system') {
-      setShowDesignSystem(true);
-    } else {
-      setShowDesignSystem(false);
-      if (path && location.pathname !== path) {
-        navigate(path);
-      }
-    }
-  };
-
-  return (
-    <div className="academic-evaluation-bar" role="banner">
-      <div className="academic-bar__content">
-        <div className="academic-bar__label">
-          <span className="academic-dot" />
-          <span><strong>GrandStay:</strong> BCA Capstone Project</span>
-          <Badge variant="accent" size="sm">Stage 3 Active</Badge>
-        </div>
-
-        <div className="academic-bar__actions">
-          <button
-            type="button"
-            className={`academic-toggle-btn ${isHomepage ? 'active' : ''}`}
-            onClick={() => goTo('homepage', '/')}
-          >
-            <SparklesIcon size={14} />
-            <span>Customer Homepage (Stage 2)</span>
-          </button>
-          <button
-            type="button"
-            className={`academic-toggle-btn ${isCatalog ? 'active' : ''}`}
-            onClick={() => goTo('catalog', '/hotels')}
-          >
-            <span>Hotel Catalog (Stage 3)</span>
-          </button>
-          <button
-            type="button"
-            className={`academic-toggle-btn ${isDesignSystem ? 'active' : ''}`}
-            onClick={() => goTo('design-system')}
-          >
-            <span>Design System Tokens (Stage 1)</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ── DesignSystemShowcase — preserved from Stage 1/2, unchanged ───────────────
 function DesignSystemShowcase() {
   const [activeTab, setActiveTab] = useState('hotel-cards');
   const [demoState, setDemoState] = useState('live');
   const [stage1Toast, setStage1Toast] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => getActiveUserSession());
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [authMode, setAuthMode] = useState('signin');
   const [formState, setFormState] = useState({
     destination: 'Goa, India',
     checkIn: '2026-11-15',
@@ -132,9 +81,19 @@ function DesignSystemShowcase() {
     });
   };
 
+  const handleSignOut = () => {
+    clearActiveUserSession();
+    setCurrentUser(null);
+  };
+
   return (
     <div className="app-layout">
-      <Header />
+      <Header
+        currentUser={currentUser}
+        onOpenSignIn={() => { setAuthMode('signin'); setIsSignInOpen(true); }}
+        onOpenRegister={() => { setAuthMode('register'); setIsSignInOpen(true); }}
+        onSignOut={handleSignOut}
+      />
 
       <section className="stage-hero">
         <Container size="lg">
@@ -349,35 +308,63 @@ function DesignSystemShowcase() {
           <span>{stage1Toast}</span>
         </div>
       )}
+      <SignInModal
+        key={authMode}
+        isOpen={isSignInOpen}
+        onClose={() => setIsSignInOpen(false)}
+        onLoginSuccess={setCurrentUser}
+        initialMode={authMode}
+      />
     </div>
   );
 }
 
-// ── Root App component ────────────────────────────────────────────────────────
-export default function App() {
-  /**
-   * showDesignSystem controls whether the Stage 1 design system showcase overlay is rendered.
-   * When false, standard client-side routing (/ and /hotels) is displayed.
-   */
-  const [showDesignSystem, setShowDesignSystem] = useState(false);
+function PlaceholderRoute({ title, requiresAuth = false }) {
+  const [currentUser, setCurrentUser] = useState(() => getActiveUserSession());
+  const [isSignInOpen, setIsSignInOpen] = useState(() => requiresAuth && !currentUser);
+  const [authMode, setAuthMode] = useState('signin');
 
   return (
-    <BrowserRouter>
-      {/* Academic evaluation bar — visible on every page */}
-      <AcademicBar showDesignSystem={showDesignSystem} setShowDesignSystem={setShowDesignSystem} />
+    <PlaceholderPage
+      title={title}
+      requiresAuth={requiresAuth}
+      currentUser={currentUser}
+      setCurrentUser={setCurrentUser}
+      isSignInOpen={isSignInOpen}
+      setIsSignInOpen={setIsSignInOpen}
+      authMode={authMode}
+      setAuthMode={setAuthMode}
+    />
+  );
+}
 
-      {/* Design System overlay (Stage 1) — renders instead of router content */}
-      {showDesignSystem ? (
-        <DesignSystemShowcase />
-      ) : (
-        /* Route-based navigation for Stage 2 + 3 */
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/hotels" element={<HotelsPage />} />
-          <Route path="/hotels/:hotelId" element={<HotelDetailPage />} />
-          <Route path="/booking" element={<BookingPage />} />
-        </Routes>
-      )}
+function HotelsRoute() {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const filterParams = new URLSearchParams();
+  ['destination', 'sortBy', 'propertyType'].forEach((key) => {
+    searchParams.getAll(key).forEach((value) => filterParams.append(key, value));
+  });
+  return <HotelsPage key={filterParams.toString()} />;
+}
+
+// ── Root App component ────────────────────────────────────────────────────────
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/hotels" element={<HotelsRoute />} />
+        <Route path="/trending-hotels" element={<TrendingHotelsPage />} />
+        <Route path="/hotels/:hotelId" element={<HotelDetailPage />} />
+        <Route path="/booking" element={<BookingPage />} />
+        {/* Preserved Stage 1 Design System showcase for direct academic evaluation URL */}
+        <Route path="/design-system" element={<DesignSystemShowcase />} />
+        <Route path="/my-stays" element={<PlaceholderRoute title="My Stays" requiresAuth />} />
+        <Route path="/history" element={<PlaceholderRoute title="History" requiresAuth />} />
+        <Route path="/settings" element={<PlaceholderRoute title="Settings" />} />
+        <Route path="/about" element={<PlaceholderRoute title="About" />} />
+      </Routes>
     </BrowserRouter>
   );
 }

@@ -24,7 +24,7 @@
 }
 
 .trust-section__title {
-  font-family: var(--font-family-serif);
+  font-family: var(--font-family-sans);
   font-size: var(--font-size-3xl);
   color: var(--color-text-heading);
   margin-bottom: var(--space-2);
@@ -40,7 +40,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: var(--space-6);
-  margin-bottom: var(--space-8);
+  margin-bottom: 0;
 }
 
 .trust-card {
@@ -80,15 +80,6 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
   line-height: var(--line-height-relaxed);
-}
-
-.trust-section__footnote {
-  text-align: center;
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  max-width: 720px;
-  margin: 0 auto;
-  line-height: 1.4;
 }
 
 @media (max-width: 640px) {
