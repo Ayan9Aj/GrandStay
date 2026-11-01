@@ -64,6 +64,7 @@ function DestinationPanel({ panelRef, searchRef, query, selected, onQueryChange,
 }
 
 export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
+  const [searchType, setSearchType] = useState('hotel');
   const [dates, setDates] = useState(() => getDefaultDates());
   const [destination, setDestination] = useState(selectedDestination || 'All');
   const [prevPropDestination, setPrevPropDestination] = useState(selectedDestination);
@@ -166,7 +167,7 @@ export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
       return;
     }
     setDateError('');
-    onSearch?.({ destination, checkIn: dates.checkIn, checkOut: dates.checkOut, guests: String(rooms) });
+    onSearch?.({ searchType, destination, checkIn: dates.checkIn, checkOut: dates.checkOut, guests: String(rooms) });
   };
 
   const destinationPanel = destinationOpen && createPortal(
@@ -202,6 +203,27 @@ export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
           <div className="hero-search-card">
             <form onSubmit={handleSubmit} className="hero-search-form" noValidate>
               <div className="hero-search-form__grid">
+                <div className="hero-search-form__item hero-stay-type">
+                  <div className="hero-stay-type__options" role="group" aria-label="Stay type">
+                    <button
+                      type="button"
+                      className={`hero-stay-type__option ${searchType === 'hotel' ? 'is-selected' : ''}`}
+                      aria-pressed={searchType === 'hotel'}
+                      onClick={() => setSearchType('hotel')}
+                    >
+                      Hotels &amp; Resorts
+                    </button>
+                    <button
+                      type="button"
+                      className={`hero-stay-type__option ${searchType === 'villa' ? 'is-selected' : ''}`}
+                      aria-pressed={searchType === 'villa'}
+                      onClick={() => setSearchType('villa')}
+                    >
+                      Villas &amp; Bungalows
+                    </button>
+                  </div>
+                </div>
+
                 <div className="hero-search-form__item hero-destination-field">
                   <label className="form-field__label" htmlFor="hero-destination">Destination / City</label>
                   <div className="form-field__input-wrapper">

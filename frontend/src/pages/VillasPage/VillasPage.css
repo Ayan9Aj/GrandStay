@@ -1,0 +1,59 @@
+.villas-page { min-height: 100vh; background: var(--color-bg-page); }
+.villas-page__main { padding: var(--space-8) 0 var(--space-12); }
+.villas-page__heading { margin-bottom: var(--space-7); text-align: center; }
+.villas-page__heading > span { color: var(--color-primary-700); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); letter-spacing: 0.08em; text-transform: uppercase; }
+.villas-page__heading h1 { margin: var(--space-2) 0; color: var(--color-text-heading); font-size: clamp(1.8rem, 3vw, 2.4rem); }
+.villas-page__heading p { margin: 0; color: var(--color-text-muted); }
+.villas-page__chips { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-bottom: var(--space-4); }
+.villas-page__sort-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--space-4); margin-bottom: var(--space-5); }
+.villas-page__sort-bar p { margin: 0; color: var(--color-text-body); }
+.villas-page__sort-bar p strong { color: var(--color-text-heading); }
+.villas-page__sort-bar > div { display: flex; width: min(360px, 100%); align-items: center; gap: var(--space-3); color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.villas-page__sort-bar label { flex: none; }
+.villas-page__sort-bar .select-dropdown__trigger { flex: 1; }
+.villas-page__catalog-layout { display: flex; align-items: flex-start; gap: var(--space-6); }
+.villas-page__results { flex: 1; min-width: 0; }
+.villas-page__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  container-type: inline-size;
+}
+.villas-page__grid .hotel-card__amenities { max-height: 56px; overflow: hidden; }
+
+@container (max-width: 680px) {
+  .villas-page__grid .hotel-card--horizontal {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .villas-page__grid .hotel-card--horizontal .hotel-card__image-container {
+    grid-column: 1;
+    grid-row: auto;
+    width: 100%;
+    height: 220px;
+    min-height: 220px;
+    margin: 0;
+    border-radius: 0;
+  }
+
+  .villas-page__grid .hotel-card--horizontal .hotel-card__content {
+    grid-column: 1;
+    grid-row: auto;
+    min-width: 0;
+  }
+
+  .villas-page__grid .hotel-card__footer--horizontal {
+    grid-column: 1;
+    grid-row: auto;
+    border-top: 1px solid var(--color-border-subtle);
+    border-left: 0;
+  }
+}
+@media (max-width: 640px) {
+  .villas-page__main { padding-top: var(--space-6); }
+  .villas-page__sort-bar { align-items: stretch; flex-direction: column; }
+  .villas-page__sort-bar > div { width: 100%; }
+  .villas-page__catalog-layout { gap: 0; }
+  .villas-page__grid { grid-template-columns: minmax(0, 1fr); }
+}

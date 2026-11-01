@@ -3,7 +3,11 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import HomePage from './pages/HomePage/HomePage';
 import HotelsPage from './pages/HotelsPage/HotelsPage';
 import TrendingHotelsPage from './pages/TrendingHotelsPage/TrendingHotelsPage';
+import TrendingVillasPage from './pages/TrendingVillasPage/TrendingVillasPage';
 import HotelDetailPage from './pages/HotelDetailPage/HotelDetailPage';
+import VillaDetailPage from './pages/VillaDetailPage/VillaDetailPage';
+import VillaBookingPage from './pages/VillaBookingPage/VillaBookingPage';
+import VillasPage from './pages/VillasPage/VillasPage';
 import BookingPage from './pages/BookingPage/BookingPage';
 import PlaceholderPage from './pages/PlaceholderPage/PlaceholderPage';
 import SignInModal from './components/home/SignInModal/SignInModal';
@@ -13,6 +17,7 @@ import Footer from './components/layout/Footer/Footer';
 import Container from './components/layout/Container/Container';
 import Button from './components/common/Button/Button';
 import Input from './components/common/Input/Input';
+import DateRangePicker from './components/common/DateRangePicker/DateRangePicker';
 import Card from './components/common/Card/Card';
 import Badge from './components/common/Badge/Badge';
 import HotelCard from './components/common/HotelCard/HotelCard';
@@ -22,7 +27,6 @@ import ErrorMessage from './components/common/ErrorMessage/ErrorMessage';
 import {
   StarIcon,
   MapPinIcon,
-  CalendarIcon,
   UsersIcon,
   ArrowRightIcon
 } from './components/common/Icons';
@@ -61,6 +65,7 @@ function DesignSystemShowcase() {
   const [formState, setFormState] = useState({
     destination: 'Goa, India',
     checkIn: '2026-11-15',
+    checkOut: '2026-11-18',
     guests: '2',
     email: '',
     emailError: ''
@@ -198,16 +203,17 @@ function DesignSystemShowcase() {
                     icon={<MapPinIcon size={16} />}
                     required
                   />
-                  <Input
-                    label="Check-in Date"
-                    id="checkin-input"
-                    name="checkIn"
-                    type="date"
-                    value={formState.checkIn}
-                    onChange={(e) => handleInputChange('checkIn', e.target.value)}
-                    icon={<CalendarIcon size={16} />}
-                    required
-                  />
+                  <div className="form-field stage-date-range-field">
+                    <label className="form-field__label" htmlFor="stage-date-range">Check-in / Check-out</label>
+                    <DateRangePicker
+                      id="stage-date-range"
+                      dates={{ checkIn: formState.checkIn, checkOut: formState.checkOut }}
+                      onChange={(dates) => setFormState((previous) => ({ ...previous, ...dates }))}
+                      label="Check-in and check-out"
+                      triggerClassName="date-range-picker-trigger"
+                      valueClassName="date-range-picker-trigger__value"
+                    />
+                  </div>
                   <Input
                     label="Guests &amp; Rooms"
                     id="guests-input"
@@ -356,6 +362,10 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/hotels" element={<HotelsRoute />} />
         <Route path="/trending-hotels" element={<TrendingHotelsPage />} />
+        <Route path="/villas" element={<VillasPage />} />
+        <Route path="/villas/:villaId/booking" element={<VillaBookingPage />} />
+        <Route path="/villas/:villaId" element={<VillaDetailPage />} />
+        <Route path="/trending-villas" element={<TrendingVillasPage />} />
         <Route path="/hotels/:hotelId" element={<HotelDetailPage />} />
         <Route path="/booking" element={<BookingPage />} />
         {/* Preserved Stage 1 Design System showcase for direct academic evaluation URL */}

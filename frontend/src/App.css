@@ -265,6 +265,7 @@
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: var(--space-4);
 }
+.stage-date-range-field { min-width: 0; }
 
 .form-submit-demo {
   margin-top: var(--space-3);

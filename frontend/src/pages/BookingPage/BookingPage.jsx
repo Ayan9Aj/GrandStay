@@ -4,6 +4,7 @@ import Badge from '../../components/common/Badge/Badge';
 import Button from '../../components/common/Button/Button';
 import EmptyState from '../../components/common/EmptyState/EmptyState';
 import Input from '../../components/common/Input/Input';
+import DateRangePicker from '../../components/common/DateRangePicker/DateRangePicker';
 import Container from '../../components/layout/Container/Container';
 import Footer from '../../components/layout/Footer/Footer';
 import Header from '../../components/layout/Header/Header';
@@ -49,18 +50,20 @@ export default function BookingPage() {
   const confirmationHeading = useRef(null);
   const booking = location.state?.booking;
   const hotel = booking?.hotelId ? getHotelById(booking.hotelId) : null;
-  const room = hotel && Number.isInteger(booking?.roomIndex) ? hotel.rooms?.[booking.roomIndex] : null;
+  const selectedRoomIndex = hotel && Number.isInteger(booking?.roomIndex) && hotel.rooms?.[booking.roomIndex]
+    ? booking.roomIndex
+    : null;
+  const room = selectedRoomIndex === null ? null : hotel.rooms[selectedRoomIndex];
   const returnTo = safeInternalPath(location.state?.returnTo, hotel ? `/hotels/${hotel.id}` : '/hotels');
   const browseTo = safeInternalPath(location.state?.browseTo, '/hotels');
   const [checkIn, setCheckIn] = useState(booking?.checkIn || '');
   const [checkOut, setCheckOut] = useState(booking?.checkOut || '');
   const [guestCount, setGuestCount] = useState(booking?.guests || '');
-  const [extraGuestEnabled, setExtraGuestEnabled] = useState(false);
   const [guest, setGuest] = useState({ fullName: '', email: '', phone: '' });
   const [errors, setErrors] = useState({});
   const [submitted, setSubmitted] = useState(false);
   const [currentUser, setCurrentUser] = useState(() => getActiveUserSession());
-  const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(() => !getActiveUserSession() && Boolean(booking?.hotelId));
   const [authMode, setAuthMode] = useState('signin');
 
   useLayoutEffect(() => {
@@ -90,11 +93,8 @@ export default function BookingPage() {
   const maximumGuests = typeof room?.maxGuests === 'number' ? room.maxGuests : null;
   const parsedGuestCount = guestCount.trim() === '' ? Number.NaN : Number(guestCount);
   const isValidGuestCount = Number.isInteger(parsedGuestCount) && parsedGuestCount > 0;
-  const extraGuestsRequested = isValidGuestCount && maximumGuests !== null
-    ? Math.max(0, parsedGuestCount - maximumGuests)
-    : 0;
-  const capacityError = !extraGuestEnabled && isValidGuestCount && extraGuestsRequested > 0
-    ? `This room’s standard capacity is ${maximumGuests}. Reduce the guest count or request extra guest accommodation.`
+  const capacityError = isValidGuestCount && maximumGuests !== null && parsedGuestCount > maximumGuests
+    ? `This room accommodates up to ${maximumGuests} guests.`
     : '';
   const returnLabel = returnTo.startsWith('/hotels/') ? 'Back to hotel details' : 'Back to hotel browsing';
   const toursWithAmounts = selectedTours.map((tour) => ({
@@ -107,11 +107,20 @@ export default function BookingPage() {
   const tourSubtotal = selectedTours.length === 0
     ? 0
     : hasUnknownTourAmount || tourCurrencies.size > 1 ? null : toursWithAmounts.reduce((sum, tour) => sum + tour.estimatedAmount, 0);
-  const estimatedTotal = roomSubtotal !== null && tourSubtotal !== null && !tourCurrencyMismatch ? roomSubtotal + tourSubtotal : null;
+  const estimatedTotal = roomSubtotal !== null && tourSubtotal !== null && !tourCurrencyMismatch && isValidGuestCount && !capacityError
+    ? roomSubtotal + tourSubtotal
+    : null;
 
   const removeTour = (tourId) => {
     const tourIds = Array.isArray(booking.tourIds) ? booking.tourIds : [];
     const nextBooking = { ...booking, tourIds: tourIds.filter((id) => id !== tourId) };
+    navigate('/booking', { replace: true, state: { ...location.state, booking: nextBooking } });
+  };
+
+  const selectRoom = (roomIndex) => {
+    if (!hotel?.rooms?.[roomIndex]) return;
+    const nextBooking = { ...booking, hotelId: hotel.id, roomIndex, checkIn, checkOut, guests: guestCount };
+    setErrors((current) => ({ ...current, room: '', guestCount: '' }));
     navigate('/booking', { replace: true, state: { ...location.state, booking: nextBooking } });
   };
 
@@ -123,6 +132,7 @@ export default function BookingPage() {
 
   const validateForm = () => {
     const nextErrors = {};
+    if (!room) nextErrors.room = 'Select a room before continuing.';
     if (!isDateOnly(checkIn)) nextErrors.checkIn = 'Choose a valid check-in date.';
     if (!isDateOnly(checkOut)) nextErrors.checkOut = 'Choose a valid check-out date.';
     else if (isDateOnly(checkIn) && calculateNights(checkIn, checkOut) === null) {
@@ -131,8 +141,8 @@ export default function BookingPage() {
 
     if (!isValidGuestCount) {
       nextErrors.guestCount = 'Enter a whole number of at least 1 guest.';
-    } else if (!extraGuestEnabled && maximumGuests !== null && parsedGuestCount > maximumGuests) {
-      nextErrors.guestCount = `This room’s standard capacity is ${maximumGuests} guests. Reduce the guest count or request extra guest accommodation.`;
+    } else if (maximumGuests !== null && parsedGuestCount > maximumGuests) {
+      nextErrors.guestCount = `This room accommodates up to ${maximumGuests} guests.`;
     }
 
     if (!guest.fullName.trim()) nextErrors.fullName = 'Enter the lead guest’s full name.';
@@ -150,7 +160,13 @@ export default function BookingPage() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    if (validateForm()) setSubmitted(true);
+    if (room && validateForm()) setSubmitted(true);
+  };
+
+  const handleSignOut = () => {
+    clearActiveUserSession();
+    setCurrentUser(null);
+    setIsSignInOpen(true);
   };
 
   return (
@@ -159,7 +175,7 @@ export default function BookingPage() {
         currentUser={currentUser}
         onOpenSignIn={() => { setAuthMode('signin'); setIsSignInOpen(true); }}
         onOpenRegister={() => { setAuthMode('register'); setIsSignInOpen(true); }}
-        onSignOut={() => { clearActiveUserSession(); setCurrentUser(null); }}
+        onSignOut={handleSignOut}
       />
       <main id="main-content" className="booking-main">
         <Container size="lg">
@@ -167,7 +183,13 @@ export default function BookingPage() {
             <Link to="/">Home</Link><span aria-hidden="true">/</span><Link to={browseTo}>Hotel browsing</Link><span aria-hidden="true">/</span><span aria-current="page">Booking &amp; checkout</span>
           </nav>
 
-          {!hotel || !room ? (
+          {!currentUser && hotel ? (
+            <section className="booking-auth-required" aria-labelledby="booking-auth-title">
+              <h1 id="booking-auth-title">Sign in to continue</h1>
+              <p>Your selected hotel and booking details are kept while you sign in or create an account.</p>
+              <Button variant="accent" onClick={() => { setAuthMode('signin'); setIsSignInOpen(true); }}>Sign In or Register</Button>
+            </section>
+          ) : !hotel ? (
             <section className="booking-missing-context">
               <EmptyState
                 title="Choose a hotel room first"
@@ -179,19 +201,8 @@ export default function BookingPage() {
           ) : submitted ? (
             <section className="booking-confirmation" aria-labelledby="booking-confirmation-title" role="status">
               <Badge variant="accent" size="sm">Request summary</Badge>
-              {extraGuestsRequested > 0 ? (
-                <>
-                  <Badge variant="neutral" size="sm">Approval required</Badge>
-                  <h1 ref={confirmationHeading} tabIndex="-1" id="booking-confirmation-title">Extra guest request prepared for review</h1>
-                  <p>Your request includes {extraGuestsRequested} guest{extraGuestsRequested === 1 ? '' : 's'} above the room’s standard capacity. Hotel approval is required, and additional charges may apply.</p>
-                  <p>Your request has not been sent to the hotel. The additional guests are not approved, no room was reserved, no booking record was saved, and no payment was taken.</p>
-                </>
-              ) : (
-                <>
-                  <h1 ref={confirmationHeading} tabIndex="-1" id="booking-confirmation-title">Checkout review complete</h1>
-                  <p>Your details were reviewed on this page. No reservation was created, no room was reserved, no booking or guest details were saved, and no payment was taken.</p>
-                </>
-              )}
+              <h1 ref={confirmationHeading} tabIndex="-1" id="booking-confirmation-title">Checkout review complete</h1>
+              <p>Your details were reviewed on this page. No reservation was created, no room was reserved, no booking or guest details were saved, and no payment was taken.</p>
               <p>Room availability has not been checked, and your stay is not confirmed.</p>
               <Link className="booking-return-link" to={returnTo} state={{ selectedTourIds: booking.tourIds || [], selectedRoomIndex: booking.roomIndex, from: browseTo }}>Return to hotel details</Link>
             </section>
@@ -200,131 +211,117 @@ export default function BookingPage() {
               <header className="booking-heading">
                 <div>
                   <span className="booking-eyebrow">Guest checkout</span>
-                  <h1>Review your stay</h1>
+                  <h1>Review Your Booking</h1>
                   <p>Review your stay and guest details. Submitting this page does not reserve a room or take payment.</p>
                 </div>
                 <Link className="booking-back-link" to={returnTo} state={{ selectedTourIds: booking.tourIds || [], selectedRoomIndex: booking.roomIndex, from: browseTo }}>{returnLabel}</Link>
               </header>
 
-              <div className="booking-layout">
-                <section className="booking-card booking-stay-card" aria-labelledby="stay-summary-title">
-                  <div className="booking-card-heading">
-                    <div><span className="booking-eyebrow">Your selection</span><h2 id="stay-summary-title">Stay summary</h2></div>
-                    <Badge variant="neutral" size="sm">Stay details</Badge>
-                  </div>
-                  <h3 className="booking-hotel-name">{hotel.name}</h3>
-                  <p className="booking-hotel-location">{hotel.location}</p>
-                  <dl className="booking-room-summary">
-                    <div><dt>Room</dt><dd>{room.type || 'Room name not provided'}</dd></div>
-                    <div><dt>Room capacity</dt><dd>{maximumGuests ? `Up to ${maximumGuests} guests` : 'Not provided'}</dd></div>
-                    <div><dt>Check-in</dt><dd>{checkIn || 'Choose a date below'}</dd></div>
-                    <div><dt>Check-out</dt><dd>{checkOut || 'Choose a date below'}</dd></div>
-                    <div><dt>Guests</dt><dd>{isValidGuestCount ? `${parsedGuestCount} ${parsedGuestCount === 1 ? 'guest' : 'guests'}` : 'Enter a guest count below'}</dd></div>
-                  </dl>
-
+              <form className="booking-layout booking-review-layout" onSubmit={handleSubmit} noValidate>
+                <section className="booking-card booking-guest-form booking-guest-panel" aria-labelledby="guest-details-title">
+                  <div className="booking-card-heading"><div><span className="booking-eyebrow">Guest checkout</span><h2 id="guest-details-title">Guest details</h2></div></div>
+                  <p className="booking-form-intro">Fields marked with * are required. Your details stay in this page’s memory and are not saved.</p>
                   <div className="booking-stay-inputs">
-                    <Input label="Check-in" id="booking-check-in" name="checkIn" type="date" value={checkIn} onChange={(event) => { setCheckIn(event.target.value); setErrors((current) => ({ ...current, checkIn: '', checkOut: '' })); }} error={errors.checkIn} required />
-                    <Input label="Check-out" id="booking-check-out" name="checkOut" type="date" value={checkOut} onChange={(event) => { setCheckOut(event.target.value); setErrors((current) => ({ ...current, checkOut: '' })); }} error={errors.checkOut} required />
-                    <Input
-                      label="Guests"
-                      id="booking-guests"
-                      name="guestCount"
-                      type="number"
-                      min="1"
-                      max={!extraGuestEnabled ? maximumGuests || undefined : undefined}
-                      step="1"
-                      value={guestCount}
-                      onChange={(event) => { setGuestCount(event.target.value); setErrors((current) => ({ ...current, guestCount: '' })); }}
-                      error={errors.guestCount || capacityError}
-                      helperText={maximumGuests ? `Room standard capacity: up to ${maximumGuests} guests.` : 'Enter the number of guests for this stay.'}
-                      required
-                    />
-                    <section className="extra-guest-option" aria-labelledby="extra-guest-title">
-                      <h3 id="extra-guest-title">Extra Guest Accommodation</h3>
-                      <p>The room’s listed capacity is its standard guest capacity. Extra guests are requests only and require hotel approval.</p>
-                      <label className="extra-guest-toggle">
-                        <input
-                          type="checkbox"
-                          checked={extraGuestEnabled}
-                          onChange={(event) => {
-                            setExtraGuestEnabled(event.target.checked);
-                            setErrors((current) => ({ ...current, guestCount: '' }));
-                          }}
-                        />
-                        <span>Request extra guest accommodation</span>
-                      </label>
-                      <dl className="extra-guest-counts">
-                        <div><dt>Standard room capacity</dt><dd>{maximumGuests !== null ? `Up to ${maximumGuests} guests` : 'Not listed'}</dd></div>
-                        <div><dt>Current guest count</dt><dd>{isValidGuestCount ? parsedGuestCount : 'Enter a valid whole number'}</dd></div>
-                        <div><dt>Extra guests requested</dt><dd>{maximumGuests !== null && isValidGuestCount ? extraGuestsRequested : 'Cannot calculate'}</dd></div>
-                      </dl>
-                      {extraGuestEnabled && extraGuestsRequested > 0 ? (
-                        <p className="extra-guest-status" role="status"><strong>Approval required.</strong> The hotel must approve {extraGuestsRequested} extra guest{extraGuestsRequested === 1 ? '' : 's'}; additional charges may apply.</p>
-                      ) : extraGuestEnabled ? (
-                        <p className="extra-guest-status" role="status">The current guest count is within the room’s standard capacity.</p>
-                      ) : (
-                        <p className="extra-guest-warning">If extra guests are requested, hotel approval is required and additional charges may apply.</p>
-                      )}
-                    </section>
+                    <div className="booking-date-field">
+                      <label className="form-field__label" htmlFor="booking-date-range">Check-in / Check-out</label>
+                      <DateRangePicker id="booking-date-range" dates={{ checkIn, checkOut }} onChange={(nextDates) => { setCheckIn(nextDates.checkIn); setCheckOut(nextDates.checkOut); setErrors((current) => ({ ...current, checkIn: '', checkOut: '' })); }} label="Travel dates" triggerClassName="date-range-picker-trigger" valueClassName="date-range-picker-trigger__value" ariaDescribedBy={(errors.checkIn || errors.checkOut) ? 'booking-date-range-error' : undefined} ariaInvalid={Boolean(errors.checkIn || errors.checkOut)} />
+                      {(errors.checkIn || errors.checkOut) && <p id="booking-date-range-error" className="form-field__message form-field__message--error" role="alert">{errors.checkIn || errors.checkOut}</p>}
+                    </div>
+                    <Input label="Guests" id="booking-guests" name="guestCount" type="number" min="1" max={maximumGuests || undefined} step="1" value={guestCount} onChange={(event) => { setGuestCount(event.target.value); setErrors((current) => ({ ...current, guestCount: '' })); }} error={errors.guestCount || capacityError} helperText={maximumGuests ? `Room capacity: up to ${maximumGuests} guests.` : 'Enter the number of guests for this stay.'} required />
                   </div>
                   {nights !== null ? <p className="booking-night-count" role="status">{nights} {nights === 1 ? 'night' : 'nights'}</p> : <p className="booking-inline-note">{checkIn && checkOut && isDateOnly(checkIn) && isDateOnly(checkOut) ? 'Check-out must be later than check-in.' : 'Select valid dates with check-out after check-in to calculate the room subtotal.'}</p>}
-
+                  <div className="booking-guest-fields">
+                    <Input label="Full name" id="guest-full-name" name="fullName" autoComplete="name" value={guest.fullName} onChange={updateGuest} error={errors.fullName} required />
+                    <Input label="Phone number" id="guest-phone" name="phone" type="tel" autoComplete="tel" value={guest.phone} onChange={updateGuest} error={errors.phone} required />
+                    <Input label="Email address" id="guest-email" name="email" type="email" autoComplete="email" value={guest.email} onChange={updateGuest} error={errors.email} required />
+                  </div>
+                  {Object.values(errors).some(Boolean) && <p className="booking-form-error-summary" role="alert">Please correct the highlighted fields before continuing.</p>}
                 </section>
 
-                <aside className="booking-side-column">
-                  <section className="booking-card booking-price-card" aria-labelledby="price-breakdown-title">
-                    <span className="booking-eyebrow">Transparent estimate</span>
-                    <h2 id="price-breakdown-title">Price breakdown</h2>
-                    {hasNightlyRate ? (
+                <div className="booking-side-column">
+                  <aside className="booking-card booking-price-card booking-summary-card" aria-labelledby="price-breakdown-title">
+                    <div className="booking-card-heading"><div><span className="booking-eyebrow">Your booking details</span><h2 id="price-breakdown-title">Booking summary</h2></div></div>
+                    <div className="booking-property-summary">
+                      {hotel.image && <img src={hotel.image} alt={`${hotel.name} property`} />}
+                      <div><h3 className="booking-hotel-name">{hotel.name}</h3><p className="booking-hotel-location">{hotel.location}</p></div>
+                    </div>
+                    <dl className="booking-room-summary">
+                      <div><dt>Check-in</dt><dd>{checkIn || 'Choose a date'}</dd></div>
+                      <div><dt>Check-out</dt><dd>{checkOut || 'Choose a date'}</dd></div>
+                      <div><dt>Room</dt><dd>{room?.type || 'Select a room below'}</dd></div>
+                      <div><dt>Room quantity</dt><dd>1 room</dd></div>
+                      <div><dt>Guests</dt><dd>{isValidGuestCount ? `${parsedGuestCount} ${parsedGuestCount === 1 ? 'guest' : 'guests'}` : 'Enter a guest count'}</dd></div>
+                      <div><dt>Number of nights</dt><dd>{nights === null ? 'Choose valid dates' : nights}</dd></div>
+                    </dl>
+                    {room && hasNightlyRate ? (
                       <dl className="booking-price-lines">
                         <div><dt>Room rate</dt><dd>{money(hotel.currency, room.price)} / night</dd></div>
-                        <div><dt>Number of nights</dt><dd>{nights === null ? 'Select valid dates' : nights}</dd></div>
                         <div className="booking-price-subtotal"><dt>Room subtotal</dt><dd>{roomSubtotal === null ? 'Not calculated' : money(hotel.currency, roomSubtotal)}</dd></div>
                         {selectedTours.length > 0 && <div><dt>Sightseeing tour subtotal</dt><dd>{tourSubtotal === null ? 'To be confirmed' : money([...tourCurrencies][0], tourSubtotal)}</dd></div>}
-                        {extraGuestsRequested > 0 && extraGuestEnabled && <div className="extra-guest-price-line"><dt>Extra guest charge</dt><dd>To be confirmed by the hotel</dd></div>}
-                        <div className="booking-price-total"><dt>Estimated total</dt><dd>{estimatedTotal === null ? 'To be confirmed' : money(hotel.currency, estimatedTotal)}</dd></div>
+                        <div><dt>Taxes and fees</dt><dd>Not calculated</dd></div>
+                        <div className="booking-price-total"><dt>Estimated total before taxes/fees</dt><dd>{estimatedTotal === null ? 'To be confirmed' : money(hotel.currency, estimatedTotal)}</dd></div>
                       </dl>
-                    ) : <p className="booking-inline-note">A room rate is not listed, so no subtotal or total is shown.</p>}
-                    <div className="booking-tour-summary">
-                      <div className="booking-card-heading"><div><span className="booking-eyebrow">Optional</span><h3>Selected sightseeing tours</h3></div></div>
-                      {selectedTours.length ? (
-                        <ul className="booking-tour-list">
-                          {toursWithAmounts.map((tour) => (
-                            <li key={tour.id}>
-                              <div>
-                                <strong>{tour.title}</strong>
-                                <span>{typeof tour.price === 'number' ? money(tour.currency, tour.price) : 'Price not provided'} · {tour.priceType || 'pricing unit not provided'}</span>
-                                <span>{tour.estimatedAmount === null ? 'Charge to be confirmed for this guest count' : `Estimated charge: ${money(tour.currency, tour.estimatedAmount)}`}</span>
-                              </div>
-                              <Button variant="text" size="sm" onClick={() => removeTour(tour.id)} aria-label={`Remove ${tour.title}`}>Remove</Button>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : <p className="booking-inline-note">No tours selected. They are optional; you can continue without them.</p>}
+                    ) : <p className="booking-inline-note">{room ? 'A room rate is not listed, so no subtotal or total is shown.' : 'Select a room below to see its rate and calculate an estimate.'}</p>}
+                    <div className="booking-summary-tours">
+                      <h3>Selected sightseeing tours</h3>
+                      {selectedTours.length ? <ul className="booking-tour-list">{toursWithAmounts.map((tour) => <li key={tour.id}><div><strong>{tour.title}</strong><span>{typeof tour.price === 'number' ? money(tour.currency, tour.price) : 'Price not provided'} · {tour.priceType || 'pricing unit not provided'}</span><span>{tour.estimatedAmount === null ? 'Charge to be confirmed for this guest count' : `Estimated charge: ${money(tour.currency, tour.estimatedAmount)}`}</span></div><Button type="button" variant="text" size="sm" onClick={() => removeTour(tour.id)} aria-label={`Remove ${tour.title}`}>Remove</Button></li>)}</ul> : <p className="booking-inline-note">No tours selected. They are optional; you can continue without them.</p>}
                       {(hasUnknownTourAmount || tourCurrencies.size > 1 || tourCurrencyMismatch) && <p className="booking-price-disclaimer">At least one tour charge cannot be calculated reliably from its listed pricing rule, guest count, or currency. The tour subtotal or estimated total needs confirmation.</p>}
                     </div>
-                    {extraGuestsRequested > 0 && extraGuestEnabled && <p className="booking-price-disclaimer">Any estimated total excludes additional charges the hotel may apply if it approves extra guests.</p>}
-                    <p className="booking-price-disclaimer">Estimate only. No taxes, fees, discounts, tour charges, availability checks, or payment are included.</p>
+                    {hotel.policies && <details className="booking-property-policy"><summary>Property policy</summary><dl>{hotel.policies.checkIn && <div><dt>Check-in</dt><dd>{hotel.policies.checkIn}</dd></div>}{hotel.policies.checkOut && <div><dt>Check-out</dt><dd>{hotel.policies.checkOut}</dd></div>}{hotel.policies.cancellation && <div><dt>Cancellation</dt><dd>{hotel.policies.cancellation}</dd></div>}</dl></details>}
+                    <p className="booking-price-disclaimer">Estimate only. Taxes, fees, discounts, availability, and payment are not included.</p>
+                  </aside>
+                  <section className="booking-card booking-room-selector" aria-labelledby="booking-room-selector-title">
+                    <div className="booking-card-heading"><div><span className="booking-eyebrow">Room selection</span><h2 id="booking-room-selector-title">Choose Your Room</h2></div></div>
+                    <p className="booking-room-selector__intro">Select one room at {hotel.name}. Room capacity must accommodate your guest count.</p>
+                    {errors.room && <p className="booking-form-error-summary" role="alert">{errors.room}</p>}
+                    {hotel.rooms?.length ? (
+                      <div className="booking-room-options">
+                        {hotel.rooms.map((roomOption, index) => {
+                          const isSelected = selectedRoomIndex === index;
+                          const roomExceedsCapacity = isSelected && isValidGuestCount
+                            && typeof roomOption.maxGuests === 'number'
+                            && parsedGuestCount > roomOption.maxGuests;
+                          return (
+                            <article className={`booking-room-option${isSelected ? ' is-selected' : ''}`} key={`${roomOption.type || 'room'}-${index}`}>
+                              <div className="booking-room-option__details">
+                                <h3>{roomOption.type || `Room ${index + 1}`}</h3>
+                                <p>{roomOption.bed || roomOption.description || 'Room details not provided'}</p>
+                                <div className="booking-room-option__facts">
+                                  <span>{typeof roomOption.maxGuests === 'number' ? `Up to ${roomOption.maxGuests} guests` : 'Guest capacity not provided'}</span>
+                                  <strong>{typeof roomOption.price === 'number' && Number.isFinite(roomOption.price) ? `${money(hotel.currency, roomOption.price)} / night` : 'Price not listed'}</strong>
+                                </div>
+                                {roomExceedsCapacity && <p className="booking-room-option__capacity-error" role="alert">Your guest count exceeds this room’s capacity of {roomOption.maxGuests}.</p>}
+                              </div>
+                              <Button
+                                type="button"
+                                variant="primary"
+                                size="sm"
+                                className="booking-light-blue-button booking-room-option__select"
+                                aria-pressed={isSelected}
+                                onClick={() => selectRoom(index)}
+                              >
+                                {isSelected ? 'Selected' : 'Select Room'}
+                              </Button>
+                            </article>
+                          );
+                        })}
+                      </div>
+                    ) : <p className="booking-inline-note">No room options are listed for this hotel.</p>}
                   </section>
-
-                  <form className="booking-card booking-guest-form" onSubmit={handleSubmit} noValidate>
-                    <div className="booking-card-heading"><div><span className="booking-eyebrow">No account required</span><h2>Lead guest details</h2></div></div>
-                    <p className="booking-form-intro">Fields marked with * are required. Your details stay in this page’s memory and are not saved.</p>
-                    <Input label="Full name" id="guest-full-name" name="fullName" autoComplete="name" value={guest.fullName} onChange={updateGuest} error={errors.fullName} required />
-                    <Input label="Email address" id="guest-email" name="email" type="email" autoComplete="email" value={guest.email} onChange={updateGuest} error={errors.email} required />
-                    <Input label="Phone number" id="guest-phone" name="phone" type="tel" autoComplete="tel" value={guest.phone} onChange={updateGuest} error={errors.phone} required />
-                    {Object.values(errors).some(Boolean) && <p className="booking-form-error-summary" role="alert">Please correct the highlighted fields before continuing.</p>}
-                    <Button type="submit" variant="accent" size="lg" fullWidth>Review booking request</Button>
-                    <p className="booking-submit-note">This review does not create a reservation or request payment.</p>
-                  </form>
-                </aside>
-              </div>
+                  <div className="booking-summary-action">
+                    <Button type="submit" variant="primary" className="booking-light-blue-button" size="lg" fullWidth disabled={!room || !isValidGuestCount || Boolean(capacityError)}>
+                      {room ? 'Review booking request' : 'Select a room to continue'}
+                    </Button>
+                    <p className="booking-submit-note">Submitting reviews your details only; no reservation or payment is made.</p>
+                  </div>
+                </div>
+              </form>
             </>
           )}
         </Container>
       </main>
       <Footer />
-      <SignInModal key={authMode} isOpen={isSignInOpen} onClose={() => setIsSignInOpen(false)} onLoginSuccess={setCurrentUser} initialMode={authMode} />
+      <SignInModal key={authMode} isOpen={isSignInOpen && !currentUser} onClose={() => setIsSignInOpen(false)} onLoginSuccess={setCurrentUser} initialMode={authMode} />
     </div>
   );
 }

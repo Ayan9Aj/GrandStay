@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Badge from '../../components/common/Badge/Badge';
 import Button from '../../components/common/Button/Button';
@@ -10,6 +10,7 @@ import SignInModal from '../../components/home/SignInModal/SignInModal';
 import { getHotelById } from '../../services/hotelService';
 import { SAMPLE_TOURS } from '../../data/sampleTours';
 import { clearActiveUserSession, getActiveUserSession } from '../../data/authSession';
+import DateRangePicker from '../../components/common/DateRangePicker/DateRangePicker';
 import './HotelDetailPage.css';
 
 const formatPrice = (currency, amount) =>
@@ -32,6 +33,7 @@ export default function HotelDetailPage() {
   const [currentUser, setCurrentUser] = useState(() => getActiveUserSession());
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [authMode, setAuthMode] = useState('signin');
+  const pendingCheckout = useRef(false);
   const openSignIn = () => { setAuthMode('signin'); setIsSignInOpen(true); };
   const openRegister = () => { setAuthMode('register'); setIsSignInOpen(true); };
 
@@ -43,6 +45,9 @@ export default function HotelDetailPage() {
       if (!sourceParams.get(key)) sourceParams.set(key, fromParams.get(key) || '');
     });
   }
+  const [checkIn, setCheckIn] = useState(sourceParams.get('checkIn') || '');
+  const [checkOut, setCheckOut] = useState(sourceParams.get('checkOut') || '');
+  const [guestCount, setGuestCount] = useState(sourceParams.get('guests') || '2');
 
   if (!hotel) {
     return (
@@ -72,28 +77,47 @@ export default function HotelDetailPage() {
   const matchingTours = SAMPLE_TOURS.filter(
     (tour) => tour.destination?.trim().toLowerCase() === hotel.destination?.trim().toLowerCase()
   );
+  const listedRoomPrices = (hotel.rooms || []).map((room) => room.price).filter((price) => Number.isFinite(price));
+  const lowestRoomPrice = listedRoomPrices.length ? Math.min(...listedRoomPrices) : null;
   const toggleTour = (tourId) => {
     setSelectedTours((selected) => selected.includes(tourId)
       ? selected.filter((id) => id !== tourId)
       : [...selected, tourId]);
   };
 
-  const goToCheckout = () => {
+  const continueToCheckout = () => {
     if (!Number.isInteger(selectedRoomIndex) || !hotel.rooms?.[selectedRoomIndex]) return;
     navigate('/booking', {
       state: {
         booking: {
           hotelId: hotel.id,
           roomIndex: selectedRoomIndex,
-          checkIn: sourceParams.get('checkIn') || '',
-          checkOut: sourceParams.get('checkOut') || '',
-          guests: sourceParams.get('guests') || '',
+          checkIn,
+          checkOut,
+          guests: guestCount,
           tourIds: selectedTours,
         },
         returnTo: `${location.pathname}${location.search}`,
         browseTo: backTo,
       },
     });
+  };
+
+  const goToCheckout = () => {
+    if (!currentUser) {
+      pendingCheckout.current = true;
+      openSignIn();
+      return;
+    }
+    continueToCheckout();
+  };
+
+  const handleLoginSuccess = (user) => {
+    setCurrentUser(user);
+    if (pendingCheckout.current) {
+      pendingCheckout.current = false;
+      continueToCheckout();
+    }
   };
 
   return (
@@ -114,34 +138,23 @@ export default function HotelDetailPage() {
             <div>
               <Badge variant="accent" size="sm">{hotel.badge || 'GrandStay property'}</Badge>
               <h1 id="hotel-detail-title">{hotel.name}</h1>
-              <p>{hotel.location} · {hotel.rating} / 5 ({hotel.reviewCount} reviews)</p>
+              <p className="hotel-detail-rating">{hotel.rating} / 5 <span aria-label={`${hotel.reviewCount} reviews`}>★</span> ({hotel.reviewCount} reviews)</p>
+              <p className="hotel-detail-location"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.2"/></svg>{hotel.location}</p>
             </div>
             <div className="hotel-detail-heading__actions">
               <Link className="hotel-detail-back-link" to={backTo}>Back to results</Link>
             </div>
           </section>
 
-          <section className="hotel-detail-section" aria-labelledby="gallery-title">
-            <div className="hotel-detail-section__heading">
-              <div><span className="hotel-detail-eyebrow">Discover the property</span><h2 id="gallery-title">Photo gallery</h2></div>
-              <span className="hotel-detail-muted">{gallery.length} {gallery.length === 1 ? 'photo' : 'photos'}</span>
-            </div>
+          <div className="property-detail-layout">
+          <div className="property-detail-content">
+          <section className="hotel-detail-section property-gallery-section" aria-label="Hotel photo gallery">
+            <div className="hotel-gallery__caption"><span className="hotel-detail-eyebrow">Discover the property</span><span className="hotel-detail-muted">{gallery.length} {gallery.length === 1 ? 'photo' : 'photos'}</span></div>
             {gallery.length ? (
               <div className={`hotel-gallery ${gallery.length === 1 ? 'hotel-gallery--single' : ''}`}>
-                {gallery.map((photo, index) => (
+                {gallery.slice(0, 3).map((photo, index) => (
                   <div className="hotel-gallery__item" key={`${photo}-${index}`}>
-                    {!imageErrors.includes(index) ? (
-                      <img
-                        src={photo}
-                        alt={`${hotel.name} property view ${index + 1}`}
-                        loading={index === 0 ? 'eager' : 'lazy'}
-                        onError={() => setImageErrors((current) => [...current, index])}
-                      />
-                    ) : (
-                      <div className="hotel-gallery__fallback" role="img" aria-label={`Image unavailable for ${hotel.name}`}>
-                        <span>Property photo unavailable</span>
-                      </div>
-                    )}
+                    {!imageErrors.includes(index) ? <img src={photo} alt={`${hotel.name} property view ${index + 1}`} loading={index === 0 ? 'eager' : 'lazy'} onError={() => setImageErrors((current) => [...current, index])} /> : <div className="hotel-gallery__fallback" role="img" aria-label={`Image unavailable for ${hotel.name}`}><span>Property photo unavailable</span></div>}
                   </div>
                 ))}
               </div>
@@ -154,14 +167,16 @@ export default function HotelDetailPage() {
               <span className="hotel-detail-muted">{hotel.destination}</span>
             </div>
             <p>{hotel.description || 'No description is available.'}</p>
-            <ul className="hotel-amenities" aria-label="Hotel amenities">
-              {(hotel.amenities || []).map((amenity) => <li key={amenity}>{amenity}</li>)}
-            </ul>
+          </section>
+
+          <section className="hotel-detail-section" aria-labelledby="amenities-title">
+            <div className="hotel-detail-section__heading"><div><span className="hotel-detail-eyebrow">Included with your stay</span><h2 id="amenities-title">Amenities</h2></div></div>
+            <ul className="hotel-amenities" aria-label="Hotel amenities">{(hotel.amenities || []).map((amenity) => <li key={amenity}>{amenity}</li>)}</ul>
           </section>
 
           <section className="hotel-detail-section" aria-labelledby="rooms-title">
             <div className="hotel-detail-section__heading">
-              <div><span className="hotel-detail-eyebrow">Compare room options</span><h2 id="rooms-title">Room comparison</h2></div>
+              <div><span className="hotel-detail-eyebrow">Choose your room</span><h2 id="rooms-title">Select Rooms</h2></div>
               <span className="hotel-detail-muted">Availability has not been confirmed</span>
             </div>
             {hotel.rooms?.length ? (
@@ -216,24 +231,37 @@ export default function HotelDetailPage() {
               <p className="hotel-detail-empty-note">No sightseeing tours are listed for {hotel.destination}. Browse the hotel’s room details without an add-on.</p>
             )}
             {selectedTours.length > 0 && <p className="hotel-tour-selection" role="status">{selectedTours.length} optional {selectedTours.length === 1 ? 'tour' : 'tours'} selected for this page preview. Prices are shown individually; no combined total is calculated.</p>}
-            <div className="hotel-detail-checkout-next">
-              {Number.isInteger(selectedRoomIndex) && hotel.rooms?.[selectedRoomIndex] ? (
-                <>
-                  <p><strong>Selected room:</strong> {hotel.rooms[selectedRoomIndex].type || 'Room name not provided'} · {formatPrice(hotel.currency, hotel.rooms[selectedRoomIndex].price)} / night · {typeof hotel.rooms[selectedRoomIndex].maxGuests === 'number' ? `up to ${hotel.rooms[selectedRoomIndex].maxGuests} guests` : 'capacity not listed'}</p>
-                  <Button variant="accent" size="lg" onClick={goToCheckout}>Continue to guest checkout</Button>
-                </>
-              ) : <p>Select a room above to continue. You can choose tours before or after selecting a room.</p>}
-            </div>
+            {!Number.isInteger(selectedRoomIndex) && <p className="hotel-detail-empty-note">Select a room above to continue. You can choose tours before or after selecting a room.</p>}
           </section>
 
           <section className="hotel-detail-section hotel-policies" aria-labelledby="policies-title">
             <div className="hotel-detail-section__heading"><div><span className="hotel-detail-eyebrow">Before your stay</span><h2 id="policies-title">Property policies</h2></div></div>
             <dl><div><dt>Check-in</dt><dd>{hotel.policies?.checkIn || 'Not provided'}</dd></div><div><dt>Check-out</dt><dd>{hotel.policies?.checkOut || 'Not provided'}</dd></div><div><dt>Cancellation</dt><dd>{hotel.policies?.cancellation || 'Not provided'}</dd></div></dl>
           </section>
+          </div>
+          <aside className="property-booking-card" aria-labelledby="hotel-booking-title">
+            <span className="hotel-detail-eyebrow">Your stay</span><h2 id="hotel-booking-title">Booking summary</h2>
+            <div className="property-booking-fields">
+              <div className="property-booking-date-field">
+                <label htmlFor="hotel-detail-date-range">Travel dates</label>
+                <DateRangePicker id="hotel-detail-date-range" dates={{ checkIn, checkOut }} onChange={(nextDates) => { setCheckIn(nextDates.checkIn); setCheckOut(nextDates.checkOut); }} label="Travel dates" triggerClassName="date-range-picker-trigger" valueClassName="date-range-picker-trigger__value" />
+              </div>
+              <label>Guests<input type="number" min="1" value={guestCount} onChange={(event) => setGuestCount(event.target.value)} /></label>
+            </div>
+            <div className="property-booking-selection"><span>Selected room</span><strong>{Number.isInteger(selectedRoomIndex) && hotel.rooms?.[selectedRoomIndex] ? hotel.rooms[selectedRoomIndex].type : 'Choose a room below'}</strong></div>
+            <dl className="property-booking-price">
+              <div><dt>{Number.isInteger(selectedRoomIndex) && hotel.rooms?.[selectedRoomIndex] ? 'Room rate' : 'Rooms start from'}</dt><dd>{Number.isInteger(selectedRoomIndex) && hotel.rooms?.[selectedRoomIndex] ? formatPrice(hotel.currency, hotel.rooms[selectedRoomIndex].price) : lowestRoomPrice === null ? 'Not provided' : formatPrice(hotel.currency, lowestRoomPrice)}</dd></div>
+              <div><dt>Price basis</dt><dd>per night</dd></div>
+            </dl>
+            <p className="property-booking-note">Taxes and fees are not calculated in this demo. Availability is not confirmed.</p>
+            <Button className="property-booking-submit" variant="primary" size="lg" onClick={goToCheckout} disabled={!Number.isInteger(selectedRoomIndex) || !hotel.rooms?.[selectedRoomIndex]}>Book This Now</Button>
+            {!Number.isInteger(selectedRoomIndex) && <p className="property-booking-hint">Select a room to continue.</p>}
+          </aside>
+          </div>
         </Container>
       </main>
       <Footer />
-      <SignInModal key={authMode} isOpen={isSignInOpen} onClose={() => setIsSignInOpen(false)} onLoginSuccess={setCurrentUser} initialMode={authMode} />
+      <SignInModal key={authMode} isOpen={isSignInOpen} onClose={() => setIsSignInOpen(false)} onLoginSuccess={handleLoginSuccess} initialMode={authMode} />
     </div>
   );
 }

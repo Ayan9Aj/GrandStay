@@ -31,12 +31,16 @@ export default function HotelCard({
   hotel,
   onBook,
   onPreview,
+  onBookNow,
   onFavoriteToggle,
   layout = 'vertical',
   showPreview = true,
   showDetails = true,
+  showBookNow = false,
   pricePrefix = 'Rooms start from',
+  verticalPricePrefix = 'From',
   pricePeriod = '/ night',
+  priceSummary,
 }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -53,6 +57,7 @@ export default function HotelCard({
     pricePerNight = 4999,
     currency = '₹',
     badge = 'Featured',
+    rentalCategory,
     amenities = ['Free WiFi', 'Breakfast', 'Pool']
   } = hotel;
 
@@ -91,10 +96,10 @@ export default function HotelCard({
         )}
 
         {/* Top Badges */}
-        {badge && (
+        {(rentalCategory || badge) && (
           <div className="hotel-card__badge-wrapper">
             <Badge variant="accent" size="sm">
-              {badge}
+              {rentalCategory || badge}
             </Badge>
           </div>
         )}
@@ -159,16 +164,22 @@ export default function HotelCard({
         {layout !== 'horizontal' && (
           <div className="hotel-card__footer">
           <div className="hotel-card__pricing">
-            <span className="hotel-card__price-prefix">From</span>
+            <span className="hotel-card__price-prefix">{verticalPricePrefix}</span>
             <div className="hotel-card__price-wrapper">
               <span className="hotel-card__currency">{currency}</span>
               <span className="hotel-card__price">{pricePerNight.toLocaleString()}</span>
-              <span className="hotel-card__period">/ night</span>
+              <span className="hotel-card__period">{pricePeriod}</span>
             </div>
             <span className="hotel-card__tax-note">+ taxes &amp; fees</span>
+            {priceSummary && <span className="hotel-card__price-summary">{priceSummary}</span>}
           </div>
 
             <div className="hotel-card__actions">
+              {showBookNow && (
+                <Button variant="primary" size="sm" className="hotel-card__book-now-btn" onClick={() => onBookNow?.(hotel)}>
+                  Book Now
+                </Button>
+              )}
               {showPreview && onPreview && (
                 <Button variant="outline" size="sm" className="hotel-card__quick-preview-btn" onClick={() => onPreview(hotel)}>
                   Quick Preview
@@ -193,7 +204,7 @@ export default function HotelCard({
       {layout === 'horizontal' && (
         <div className="hotel-card__footer hotel-card__footer--horizontal">
           <div className="hotel-card__actions hotel-card__actions--horizontal">
-            <Button variant="primary" size="sm" className="hotel-card__book-now-btn" onClick={() => onBook && onBook(hotel)}>
+            <Button variant="primary" size="sm" className="hotel-card__book-now-btn" onClick={() => (onBookNow ? onBookNow(hotel) : onBook?.(hotel))}>
               Book Now
             </Button>
             {showPreview && onPreview && (
@@ -221,6 +232,7 @@ export default function HotelCard({
               <span className="hotel-card__period">{pricePeriod}</span>
             </div>
             <span className="hotel-card__tax-note">+ taxes &amp; fees</span>
+            {priceSummary && <span className="hotel-card__price-summary">{priceSummary}</span>}
           </div>
         </div>
       )}

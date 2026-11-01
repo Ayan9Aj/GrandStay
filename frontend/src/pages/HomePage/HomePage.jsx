@@ -5,12 +5,14 @@ import Footer from '../../components/layout/Footer/Footer';
 import HeroSection from '../../components/home/HeroSection/HeroSection';
 import DestinationsSection from '../../components/home/DestinationsSection/DestinationsSection';
 import FeaturedHotelsSection from '../../components/home/FeaturedHotelsSection/FeaturedHotelsSection';
+import VillasSection from '../../components/home/VillasSection/VillasSection';
 import ToursSection from '../../components/home/ToursSection/ToursSection';
 import OffersSection from '../../components/home/OffersSection/OffersSection';
 import TrustSection from '../../components/home/TrustSection/TrustSection';
 import HotelDetailsModal from '../../components/home/HotelDetailsModal/HotelDetailsModal';
 import SignInModal from '../../components/home/SignInModal/SignInModal';
 import { CheckCircleIcon } from '../../components/common/Icons';
+import { getDefaultRentalDates } from '../../utils/rentalDates';
 import { getActiveUserSession, clearActiveUserSession } from '../../data/authSession';
 import './HomePage.css';
 
@@ -45,6 +47,8 @@ export default function HomePage() {
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [authMode, setAuthMode] = useState('signin');
   const [currentUser, setCurrentUser] = useState(() => getActiveUserSession());
+  const [pendingVillaBooking, setPendingVillaBooking] = useState(null);
+  const [pendingHotelBooking, setPendingHotelBooking] = useState(null);
 
   // Global toast feedback
   const [toastMessage, setToastMessage] = useState(null);
@@ -68,8 +72,9 @@ export default function HomePage() {
       checkOut:    formData.checkOut   || '',
       guests:      formData.guests     || '2',
     });
-    // Navigate to the Hotel Catalog page (Stage 3)
-    navigate(`/hotels?${params.toString()}`);
+    const catalogPath = formData.searchType === 'villa' ? '/villas' : '/hotels';
+    navigate(`${catalogPath}?${params.toString()}`);
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   };
 
   // 2. Handle clicking a destination card — navigates to /hotels?destination=...
@@ -97,6 +102,23 @@ export default function HomePage() {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   };
 
+  const continueVillaBooking = (villa) => {
+    const dates = getDefaultRentalDates();
+    navigate(`/villas/${villa.id}/booking`, {
+      state: { booking: { villaId: villa.id, ...dates, guests: Math.min(2, villa.guestCapacity) }, returnTo: '/' },
+    });
+  };
+
+  const handleVillaBookNow = (villa) => {
+    if (currentUser) {
+      continueVillaBooking(villa);
+      return;
+    }
+    setPendingVillaBooking(villa);
+    setAuthMode('signin');
+    setIsSignInOpen(true);
+  };
+
   // 3. Clear active search filter (for the Featured Hotels section on the homepage)
   const handleResetSearch = () => {
     setSearchFilter(null);
@@ -114,13 +136,18 @@ export default function HomePage() {
       return;
     }
     const params = new URLSearchParams(location.search);
-    navigate('/booking', {
-      state: {
+    const state = {
         booking: { hotelId: hotel.id, roomIndex, checkIn: params.get('checkIn') || '', checkOut: params.get('checkOut') || '', guests: params.get('guests') || '', tourIds: [] },
         returnTo: `${location.pathname}${location.search}${location.hash}`,
         browseTo: '/hotels',
-      },
-    });
+      };
+    if (!currentUser) {
+      setPendingHotelBooking(state);
+      setAuthMode('signin');
+      setIsSignInOpen(true);
+      return;
+    }
+    navigate('/booking', { state });
   };
 
   // 5. Wishlist toggle
@@ -138,6 +165,15 @@ export default function HomePage() {
   // 7. Sign in prototype
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
+    if (pendingVillaBooking) {
+      const villa = pendingVillaBooking;
+      setPendingVillaBooking(null);
+      continueVillaBooking(villa);
+    } else if (pendingHotelBooking) {
+      const bookingState = pendingHotelBooking;
+      setPendingHotelBooking(null);
+      navigate('/booking', { state: bookingState });
+    }
     const greetingName = typeof user === 'object' && user !== null ? user.name : user;
     showToast(`Welcome to GrandStay, ${greetingName}!`);
   };
@@ -179,9 +215,22 @@ export default function HomePage() {
         <FeaturedHotelsSection
           searchFilter={searchFilter}
           onResetSearchFilter={handleResetSearch}
+          onBrowseAll={() => {
+            navigate('/hotels');
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+          }}
           onViewHotelDetails={handleViewHotelDetails}
           onQuickPreview={(hotel) => setSelectedHotelForDetails(hotel)}
           onFavoriteToggle={handleFavoriteToggle}
+        />
+
+        <VillasSection
+          onViewDetails={(villa) => navigate(`/villas/${villa.id}`, { state: { from: `${location.pathname}${location.search}${location.hash}` } })}
+          onBookNow={handleVillaBookNow}
+          onBrowseAll={() => {
+            navigate('/villas');
+            window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+          }}
         />
 
         {/* 5. Optional Sightseeing Tour Packages Preview */}

@@ -39,12 +39,17 @@ export default function HotelFilterSidebar({
   onTravelDateChange,
   popularFilters,
   onPopularToggle,
+  catalogName = 'Hotel',
+  maxPriceLimit = 99999,
+  currencySymbol = '₹',
+  budgetTitle = 'Your Budget Per Night',
+  starRatingOptions = [5, 4, 3, 2, 1],
 }) {
   // Count how many filters are currently active (for the badge)
   const activeCount = [
     filters.destination && filters.destination !== 'All' ? 1 : 0,
     filters.minPrice > 0 ? 1 : 0,
-    filters.maxPrice < 99999 ? 1 : 0,
+    filters.maxPrice < maxPriceLimit ? 1 : 0,
     filters.starRatings.length,
     filters.amenities.length,
     filters.propertyTypes.length,
@@ -153,10 +158,10 @@ export default function HotelFilterSidebar({
 
       {/* ── 2. Price Range ───────────────────────────────────────────── */}
       <div className="filter-section">
-        <h3 className="filter-section__title">Your Budget Per Night</h3>
+        <h3 className="filter-section__title">{budgetTitle}</h3>
         <div className="filter-price-row">
           <div className="filter-price-field">
-            <span className="filter-price-prefix">₹</span>
+            <span className="filter-price-prefix">{currencySymbol}</span>
             <input
               type="number"
               className="filter-price-input"
@@ -171,15 +176,15 @@ export default function HotelFilterSidebar({
           </div>
           <span className="filter-price-separator">to</span>
           <div className="filter-price-field">
-            <span className="filter-price-prefix">₹</span>
+            <span className="filter-price-prefix">{currencySymbol}</span>
             <input
               type="number"
               className="filter-price-input"
               placeholder="Max"
               min="0"
-              value={filters.maxPrice >= 99999 ? '' : filters.maxPrice}
+              value={filters.maxPrice >= maxPriceLimit ? '' : filters.maxPrice}
               onChange={(e) =>
-                onFilterChange('maxPrice', Number(e.target.value) || 99999)
+                onFilterChange('maxPrice', Number(e.target.value) || maxPriceLimit)
               }
               aria-label="Maximum price per night"
             />
@@ -187,7 +192,7 @@ export default function HotelFilterSidebar({
         </div>
         {/* Validation: show a hint if min > max */}
         {filters.minPrice > 0 &&
-          filters.maxPrice < 99999 &&
+          filters.maxPrice < maxPriceLimit &&
           filters.minPrice > filters.maxPrice && (
             <p className="filter-price-error">Min must be less than Max</p>
           )}
@@ -196,7 +201,7 @@ export default function HotelFilterSidebar({
       {/* ── 3. Star Rating ───────────────────────────────────────────── */}
       <div className="filter-section">
         <h3 className="filter-section__title">Star Rating</h3>
-        {[5, 4, 3, 2, 1].map((star) => (
+        {starRatingOptions.map((star) => (
           <label key={star} className="filter-checkbox-label">
             <input
               type="checkbox"
@@ -266,7 +271,7 @@ export default function HotelFilterSidebar({
     <>
       {/* ── DESKTOP SIDEBAR ────────────────────────────────────────── */}
       {/* Hidden on mobile via CSS. No drawer logic needed here. */}
-      <aside className="filter-sidebar" aria-label="Hotel search filters">
+      <aside className="filter-sidebar" aria-label={`${catalogName} search filters`}>
         {panelContent}
       </aside>
 
@@ -282,7 +287,7 @@ export default function HotelFilterSidebar({
       {/* Slide-in drawer panel */}
       <div
         className={`filter-drawer ${isDrawerOpen ? 'filter-drawer--open' : ''}`}
-        aria-label="Hotel search filters"
+        aria-label={`${catalogName} search filters`}
         aria-modal="true"
         role="dialog"
       >

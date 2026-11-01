@@ -62,14 +62,12 @@ const DEFAULT_FILTERS = {
 const DESTINATIONS    = getDestinations();
 const AMENITIES_LIST  = getAllAmenities();
 const PROP_TYPES_LIST = getAllPropertyTypes();
-const PROPERTY_TYPE_OPTIONS = ['Hotel', 'Resort', 'Villa'].map((label) => ({
+const PROPERTY_TYPE_OPTIONS = ['Hotel', 'Resort'].map((label) => ({
   label,
   values: PROP_TYPES_LIST.filter((type) => (
     label === 'Resort'
       ? /resort/i.test(type)
-      : label === 'Villa'
-        ? /villa/i.test(type)
-        : /^hotel$/i.test(type)
+      : /^hotel$/i.test(type)
   )),
 }));
 const AMENITY_LABELS = [
@@ -161,6 +159,7 @@ export default function HotelsPage() {
   const [currentUser, setCurrentUser]           = useState(() => getActiveUserSession());
   const [isSignInOpen, setSignInOpen]           = useState(false);
   const [authMode, setAuthMode]                 = useState('signin');
+  const [pendingAuthAction, setPendingAuthAction] = useState(null);
   const [toastMessage, setToastMessage]         = useState(null);
 
   const queryCheckIn = searchParams.get('checkIn') || '';
@@ -188,6 +187,15 @@ export default function HotelsPage() {
     setCurrentUser(user);
     const name = typeof user === 'object' && user !== null ? user.name : user;
     showToast(`Welcome back, ${name}!`);
+    if (pendingAuthAction?.type === 'hotel-details') {
+      const { hotel } = pendingAuthAction;
+      setPendingAuthAction(null);
+      navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}` } });
+    } else if (pendingAuthAction?.type === 'hotel-booking') {
+      const { state } = pendingAuthAction;
+      setPendingAuthAction(null);
+      navigate('/booking', { state });
+    }
   };
 
   const handleSignOut = () => {
@@ -203,15 +211,49 @@ export default function HotelsPage() {
     );
   };
 
+  const handleHotelCardBook = (hotel) => {
+    if (!currentUser) {
+      setPendingAuthAction({ type: 'hotel-details', hotel });
+      setAuthMode('signin');
+      setSignInOpen(true);
+      return;
+    }
+    navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}` } });
+  };
+
+  const handleCatalogBookNow = (hotel) => {
+    if (!hotel?.id) return;
+    const browseTo = `${location.pathname}${location.search}`;
+    const state = {
+      booking: {
+        hotelId: hotel.id,
+        checkIn: searchParams.get('checkIn') || '',
+        checkOut: searchParams.get('checkOut') || '',
+        guests: searchParams.get('guests') || '',
+        tourIds: [],
+      },
+      returnTo: browseTo,
+      browseTo,
+    };
+
+    if (!currentUser) {
+      setPendingAuthAction({ type: 'hotel-booking', state });
+      setAuthMode('signin');
+      setSignInOpen(true);
+      return;
+    }
+
+    navigate('/booking', { state });
+  };
+
   const handleBookNow = (hotel, room) => {
     setSelectedHotel(null);
     const roomIndex = hotel?.rooms?.indexOf(room) ?? -1;
     if (!hotel?.id || roomIndex < 0) {
-      if (hotel?.id) navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}` } });
+      if (hotel?.id) handleHotelCardBook(hotel);
       return;
     }
-    navigate('/booking', {
-      state: {
+    const state = {
         booking: {
           hotelId: hotel.id,
           roomIndex,
@@ -222,8 +264,14 @@ export default function HotelsPage() {
         },
         returnTo: `${location.pathname}${location.search}`,
         browseTo: `${location.pathname}${location.search}`,
-      },
-    });
+      };
+    if (!currentUser) {
+      setPendingAuthAction({ type: 'hotel-booking', state });
+      setAuthMode('signin');
+      setSignInOpen(true);
+      return;
+    }
+    navigate('/booking', { state });
   };
 
   // Close modal on Escape key
@@ -327,12 +375,6 @@ export default function HotelsPage() {
   // Count of active filters (for the mobile Filters button badge)
   const activeFilterCount = activeChips.length;
 
-  // URL search params passed from Hero (for "Modify Search" link display)
-  const checkIn  = searchParams.get('checkIn')  || '';
-  const checkOut = searchParams.get('checkOut') || '';
-  const guests   = searchParams.get('guests')   || '';
-  const hasSearchContext = checkIn || checkOut || guests;
-
   return (
     <div className="hotels-page-wrapper">
       {/* Navigation header */}
@@ -363,31 +405,6 @@ export default function HotelsPage() {
               </p>
             </div>
           </div>
-
-          {/* ── Search context pill bar (if navigated from Hero) ─────────── */}
-          {hasSearchContext && (
-            <div className="hotels-search-context">
-              <span className="hotels-search-context__label">Searching for:</span>
-              {filters.destination !== 'All' && (
-                <span className="hotels-search-context__pill">📍 {filters.destination}</span>
-              )}
-              {checkIn && (
-                <span className="hotels-search-context__pill">📅 {checkIn}</span>
-              )}
-              {checkOut && (
-                <span className="hotels-search-context__pill">📅 {checkOut}</span>
-              )}
-              {guests && (
-                <span className="hotels-search-context__pill">👥 {guests} guest{guests > 1 ? 's' : ''}</span>
-              )}
-              <Link
-                to={`/?destination=${filters.destination}&checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`}
-                className="hotels-search-context__modify"
-              >
-                Modify Search
-              </Link>
-            </div>
-          )}
 
           {/* ── Active Filter Chips ──────────────────────────────────────── */}
           {activeChips.length > 0 && (
@@ -469,7 +486,9 @@ export default function HotelsPage() {
                       key={hotel.id}
                       hotel={hotel}
                       layout="horizontal"
-                      onBook={(h) => navigate(`/hotels/${h.id}`, { state: { from: `${location.pathname}${location.search}` } })}
+                      showPreview={false}
+                      onBook={handleHotelCardBook}
+                      onBookNow={handleCatalogBookNow}
                       onPreview={(h) => setSelectedHotel(h)}
                       onFavoriteToggle={handleFavoriteToggle}
                     />

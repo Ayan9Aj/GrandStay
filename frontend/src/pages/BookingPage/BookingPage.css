@@ -19,6 +19,9 @@
 .booking-room-summary dt, .booking-price-lines dt { color: var(--color-text-muted); font-size: var(--font-size-sm); }
 .booking-room-summary dd { margin-top: var(--space-1); color: var(--color-text-heading); font-weight: var(--font-weight-semibold); }
 .booking-stay-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.booking-date-field { display: grid; min-width: 0; grid-column: 1 / -1; gap: var(--space-2); }
+.booking-date-field > label { color: var(--color-text-heading); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+.booking-date-field .form-field__message { margin: 0; }
 .booking-stay-inputs .form-field:last-child { grid-column: 1 / -1; }
 .booking-night-count { margin-top: var(--space-3); color: var(--color-primary-700); font-weight: var(--font-weight-semibold); }
 .booking-inline-note { margin-top: var(--space-3); padding: var(--space-3); border-radius: var(--radius-sm); background: var(--color-bg-subtle); color: var(--color-text-muted); font-size: var(--font-size-sm); }
@@ -44,6 +47,9 @@
 .booking-form-error-summary { padding: var(--space-3); border: 1px solid var(--color-danger-border); border-radius: var(--radius-sm); background: var(--color-danger-bg); color: var(--color-danger); }
 .booking-submit-note { margin-top: calc(var(--space-2) * -1); text-align: center; }
 .booking-missing-context { max-width: 720px; margin: var(--space-12) auto; }
+.booking-auth-required { max-width: 720px; margin: var(--space-12) auto; padding: var(--space-8); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-lg); background: var(--color-bg-surface); box-shadow: var(--shadow-sm); text-align: center; }
+.booking-auth-required h1 { margin-bottom: var(--space-3); color: var(--color-text-heading); }
+.booking-auth-required p { margin-bottom: var(--space-5); color: var(--color-text-muted); }
 .booking-confirmation { max-width: 740px; margin: var(--space-12) auto; padding: var(--space-8); border: 1px solid var(--color-success-border); border-radius: var(--radius-lg); background: var(--color-bg-surface); box-shadow: var(--shadow-md); }
 .booking-confirmation p { margin-top: var(--space-4); }
 .booking-confirmation .booking-return-link { margin-top: var(--space-6); }
@@ -60,4 +66,79 @@
   .booking-stay-inputs .form-field:last-child { grid-column: auto; }
   .booking-tour-list li { align-items: flex-start; }
   .booking-confirmation { padding: var(--space-5); }
+}
+
+/* Booking review reference layout */
+.booking-page { background: var(--color-bg-page); }
+.booking-heading { margin-bottom: var(--space-5); }
+.booking-heading h1 { color: var(--color-text-heading); font-size: clamp(1.8rem, 3vw, 2.2rem); font-weight: var(--font-weight-bold); }
+.booking-review-layout { grid-template-columns: minmax(0, 1.25fr) minmax(330px, .9fr); align-items: start; gap: var(--space-5); }
+.booking-guest-panel, .booking-summary-card { padding: clamp(var(--space-5), 2.5vw, var(--space-8)); border-radius: var(--radius-xl, 1rem); background: var(--color-bg-surface); box-shadow: var(--shadow-sm); }
+.booking-guest-panel { gap: var(--space-5); }
+.booking-guest-panel .booking-card-heading { margin-bottom: 0; }
+.booking-guest-panel .booking-card-heading h2 { color: var(--color-text-heading); font-size: var(--font-size-2xl); }
+.booking-guest-panel .booking-form-intro { margin-top: calc(var(--space-3) * -1); }
+.booking-guest-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.booking-guest-fields > :nth-child(3) { grid-column: 1 / -1; }
+.booking-side-column { min-width: 0; gap: var(--space-4); }
+.booking-page .booking-light-blue-button { border-color: #DCEEFF; background: #DCEEFF; color: #0C1A2E; box-shadow: var(--shadow-sm); }
+.booking-page .booking-light-blue-button:hover:not(:disabled) { border-color: #C7E2FF; background: #C7E2FF; }
+.booking-page .booking-light-blue-button:focus-visible { outline: 3px solid var(--color-primary-500); outline-offset: 3px; }
+.booking-page .booking-light-blue-button:active:not(:disabled) { border-color: #B4D8FF; background: #B4D8FF; }
+.booking-page .booking-light-blue-button:disabled { border-color: #D5DEE8; background: #D5DEE8; color: #566579; cursor: not-allowed; opacity: 1; box-shadow: none; transform: none; }
+.booking-summary-card { padding: var(--space-5); }
+.booking-summary-card .booking-card-heading { margin-bottom: var(--space-4); }
+.booking-summary-card .booking-card-heading h2 { font-size: var(--font-size-xl); }
+.booking-property-summary { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--color-border-subtle); }
+.booking-property-summary img { display: block; width: 112px; height: 112px; border-radius: var(--radius-md); object-fit: cover; }
+.booking-property-summary > div { min-width: 0; }
+.booking-property-summary .booking-hotel-name { margin: 0; overflow-wrap: anywhere; color: var(--color-text-heading); font-size: var(--font-size-lg); }
+.booking-property-summary .booking-hotel-location { margin: var(--space-2) 0 0; overflow-wrap: anywhere; color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.booking-summary-card .booking-room-summary { grid-template-columns: minmax(0, 1fr); gap: 0; margin: 0; }
+.booking-summary-card .booking-room-summary > div { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--color-border-subtle); border-radius: 0; background: transparent; }
+.booking-summary-card .booking-room-summary dd { margin: 0; text-align: right; overflow-wrap: anywhere; }
+.booking-price-lines { padding-top: var(--space-4); }
+.booking-summary-tours { padding-top: var(--space-4); margin-top: var(--space-4); border-top: 1px solid var(--color-border-subtle); }
+.booking-summary-tours h3 { margin-bottom: var(--space-3); color: var(--color-text-heading); font-size: var(--font-size-base); }
+.booking-property-policy { padding-top: var(--space-4); margin-top: var(--space-4); border-top: 1px solid var(--color-border-subtle); }
+.booking-property-policy summary { color: var(--color-text-heading); font-weight: var(--font-weight-semibold); cursor: pointer; }
+.booking-property-policy dl { display: grid; gap: var(--space-3); margin-top: var(--space-3); }
+.booking-property-policy dl > div { display: flex; justify-content: space-between; gap: var(--space-3); font-size: var(--font-size-sm); }
+.booking-property-policy dt { color: var(--color-text-muted); }
+.booking-property-policy dd { max-width: 65%; color: var(--color-text-body); text-align: right; overflow-wrap: anywhere; }
+.booking-summary-action { min-width: 0; }
+.booking-summary-action .btn { min-height: 54px; }
+.booking-summary-action .booking-submit-note { margin-top: var(--space-3); text-align: center; }
+.booking-room-selector { min-width: 0; padding: var(--space-5); }
+.booking-room-selector .booking-card-heading { margin-bottom: var(--space-3); }
+.booking-room-selector .booking-card-heading h2 { font-size: var(--font-size-xl); }
+.booking-room-selector__intro { margin-bottom: var(--space-4); color: var(--color-text-muted); font-size: var(--font-size-sm); line-height: 1.5; }
+.booking-room-options { display: grid; gap: var(--space-3); }
+.booking-room-option { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--space-3); padding: var(--space-4); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); background: var(--color-bg-surface); }
+.booking-room-option.is-selected { border-color: #9ACDFF; background: #F3F9FF; box-shadow: 0 0 0 1px #9ACDFF; }
+.booking-room-option__details { min-width: 0; }
+.booking-room-option__details h3 { color: var(--color-text-heading); font-size: var(--font-size-base); }
+.booking-room-option__details > p { margin-top: var(--space-1); color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.booking-room-option__facts { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--space-2) var(--space-4); margin-top: var(--space-2); color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.booking-room-option__facts strong { color: var(--color-text-heading); }
+.booking-room-option__select { min-width: 110px; }
+.booking-room-option__capacity-error { margin-top: var(--space-2); color: var(--color-danger-700, #b42318) !important; font-size: var(--font-size-sm); }
+
+@media (max-width: 900px) {
+  .booking-review-layout { grid-template-columns: minmax(0, 1.1fr) minmax(285px, .9fr); gap: var(--space-4); }
+  .booking-summary-card { padding: var(--space-4); }
+}
+@media (max-width: 760px) {
+  .booking-review-layout { grid-template-columns: minmax(0, 1fr); }
+  .booking-side-column { grid-row: 2; }
+}
+@media (max-width: 600px) {
+  .booking-guest-panel { padding: var(--space-4); }
+  .booking-guest-fields { grid-template-columns: minmax(0, 1fr); }
+  .booking-guest-fields > :nth-child(3) { grid-column: auto; }
+  .booking-property-summary { grid-template-columns: 88px minmax(0, 1fr); gap: var(--space-3); }
+  .booking-property-summary img { width: 88px; height: 88px; }
+  .booking-room-selector { padding: var(--space-4); }
+  .booking-room-option { grid-template-columns: minmax(0, 1fr); }
+  .booking-room-option__select { width: 100%; }
 }

@@ -96,6 +96,8 @@ export default function DateRangePicker({
   triggerClassName = '',
   valueClassName = '',
   showIcon = true,
+  ariaDescribedBy,
+  ariaInvalid = false,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [draftDates, setDraftDates] = useState(dates);
@@ -192,6 +194,8 @@ export default function DateRangePicker({
         aria-haspopup="dialog"
         aria-controls={calendarId}
         aria-expanded={isOpen}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid || undefined}
         aria-label={`${label}: ${displayDate(displayedDates.checkIn) || 'not selected'}${displayedDates.checkOut ? ` to ${displayDate(displayedDates.checkOut)}` : ''}. Open calendar`}
         onClick={openCalendar}
       >

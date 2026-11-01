@@ -1,0 +1,83 @@
+.villa-booking-page { min-height: 100vh; background: var(--color-bg-page); }
+.villa-booking-main { min-height: 65vh; padding: var(--space-6) 0 var(--space-12); }
+.villa-booking-breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-6); color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.villa-booking-breadcrumb a { color: var(--color-primary-700); }
+.villa-booking-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--space-5); margin-bottom: var(--space-6); }
+.villa-booking-heading > div > span, .villa-booking-eyebrow { color: var(--color-primary-700); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); letter-spacing: .08em; text-transform: uppercase; }
+.villa-booking-heading h1 { margin: var(--space-2) 0; color: var(--color-text-heading); }
+.villa-booking-heading p { margin: 0; color: var(--color-text-muted); }
+.villa-booking-heading > a { color: var(--color-primary-700); }
+.villa-booking-layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(280px, .8fr); align-items: start; gap: var(--space-5); }
+.villa-booking-card, .villa-booking-auth-gate, .villa-booking-confirmation { padding: var(--space-6); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-lg); background: var(--color-bg-surface); box-shadow: var(--shadow-sm); }
+.villa-booking-card h2 { margin: var(--space-2) 0; color: var(--color-text-heading); }
+.villa-booking-card > p { color: var(--color-text-muted); }
+.villa-booking-form { display: grid; gap: var(--space-4); margin-top: var(--space-5); }
+.villa-booking-inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-3); }
+.villa-booking-date-field { display: grid; min-width: 0; grid-column: 1 / -1; gap: var(--space-2); }
+.villa-booking-form label { display: grid; min-width: 0; gap: var(--space-2); color: var(--color-text-heading); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+.villa-booking-form input { width: 100%; min-width: 0; min-height: 44px; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); background: var(--color-bg-surface); color: var(--color-text-body); font: inherit; }
+.villa-booking-form input:focus-visible { outline: 2px solid var(--color-primary-500); outline-offset: 2px; }
+.villa-booking-error { margin: 0; color: var(--color-danger-700, #b42318); font-size: var(--font-size-sm); }
+.villa-booking-summary dl { display: grid; gap: var(--space-4); margin: var(--space-5) 0; }
+.villa-booking-summary dl > div { display: flex; justify-content: space-between; gap: var(--space-3); color: var(--color-text-body); }
+.villa-booking-summary dd { font-weight: var(--font-weight-semibold); text-align: right; }
+.villa-booking-summary__total { padding-top: var(--space-4); border-top: 1px solid var(--color-border-subtle); color: var(--color-primary-900) !important; font-size: var(--font-size-lg); }
+.villa-booking-summary > p { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.villa-booking-auth-gate, .villa-booking-confirmation { max-width: 720px; margin: var(--space-10) auto; text-align: center; }
+.villa-booking-auth-gate h1, .villa-booking-confirmation h1 { margin: var(--space-3) 0; color: var(--color-text-heading); }
+.villa-booking-auth-gate p, .villa-booking-confirmation p { color: var(--color-text-muted); }
+.villa-booking-confirmation a { color: var(--color-primary-700); }
+@media (max-width: 760px) {
+  .villa-booking-layout { grid-template-columns: minmax(0, 1fr); }
+  .villa-booking-heading { align-items: flex-start; flex-direction: column; }
+}
+@media (max-width: 560px) {
+  .villa-booking-inputs { grid-template-columns: minmax(0, 1fr); }
+  .villa-booking-card, .villa-booking-auth-gate, .villa-booking-confirmation { padding: var(--space-4); }
+  .villa-booking-summary dl > div { align-items: flex-start; flex-direction: column; gap: var(--space-1); }
+  .villa-booking-summary dd { text-align: left; }
+}
+
+/* Villa booking review mirrors the hotel review panels, with whole-property pricing. */
+.villa-booking-page { background: var(--color-bg-page); }
+.villa-booking-heading { margin-bottom: var(--space-5); }
+.villa-booking-heading h1 { font-size: clamp(1.8rem, 3vw, 2.2rem); font-weight: var(--font-weight-bold); }
+.villa-booking-review-layout { grid-template-columns: minmax(0, 1.25fr) minmax(330px, .9fr); gap: var(--space-5); }
+.villa-booking-review-layout > .villa-booking-card { min-width: 0; padding: clamp(var(--space-5), 2.5vw, var(--space-8)); border-radius: var(--radius-xl, 1rem); }
+.villa-booking-review-layout > .villa-booking-summary { padding: var(--space-5); }
+.villa-booking-review-layout .villa-booking-summary h2 { font-size: var(--font-size-xl); }
+.villa-booking-review-layout label { display: grid; min-width: 0; gap: var(--space-2); color: var(--color-text-heading); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+.villa-booking-review-layout input { width: 100%; min-width: 0; min-height: 46px; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); background: var(--color-bg-surface); color: var(--color-text-body); font: inherit; }
+.villa-booking-review-layout input:focus-visible { outline: 3px solid var(--color-primary-200); outline-offset: 2px; border-color: var(--color-primary-600); }
+.villa-booking-form-intro { margin: 0; color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.villa-booking-inputs { grid-template-columns: minmax(0, 1fr) minmax(150px, .45fr); align-items: end; }
+.villa-booking-guest-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); margin-top: var(--space-4); }
+.villa-booking-guest-fields > :last-child { grid-column: 1 / -1; }
+.villa-booking-property-summary { display: grid; grid-template-columns: 112px minmax(0, 1fr); align-items: center; gap: var(--space-4); padding-bottom: var(--space-4); border-bottom: 1px solid var(--color-border-subtle); }
+.villa-booking-property-summary img { display: block; width: 112px; height: 112px; border-radius: var(--radius-md); object-fit: cover; }
+.villa-booking-property-summary > div { min-width: 0; }
+.villa-booking-property-summary h3 { margin: 0; color: var(--color-text-heading); font-size: var(--font-size-lg); overflow-wrap: anywhere; }
+.villa-booking-property-summary p { margin: var(--space-2) 0; font-size: var(--font-size-sm); overflow-wrap: anywhere; }
+.villa-booking-property-summary span { color: var(--color-text-muted); font-size: var(--font-size-xs); }
+.villa-booking-stay-summary { display: grid; gap: 0; padding: 0 0 var(--space-3); margin: 0; border-bottom: 1px solid var(--color-border-subtle); }
+.villa-booking-stay-summary > div { display: flex; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) 0; }
+.villa-booking-stay-summary dt { color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.villa-booking-stay-summary dd { color: var(--color-text-heading); overflow-wrap: anywhere; }
+.villa-booking-review-layout .villa-booking-summary > dl:not(.villa-booking-stay-summary) { margin: var(--space-4) 0; }
+.villa-booking-action { grid-column: 2; min-width: 0; }
+.villa-booking-action .btn { min-height: 54px; }
+.villa-booking-action p { margin-top: var(--space-3); color: var(--color-text-muted); font-size: var(--font-size-sm); text-align: center; }
+@media (max-width: 900px) {
+  .villa-booking-review-layout { grid-template-columns: minmax(0, 1.1fr) minmax(285px, .9fr); gap: var(--space-4); }
+}
+@media (max-width: 760px) {
+  .villa-booking-review-layout { grid-template-columns: minmax(0, 1fr); }
+  .villa-booking-action { grid-column: 1; }
+}
+@media (max-width: 560px) {
+  .villa-booking-review-layout > .villa-booking-card { padding: var(--space-4); }
+  .villa-booking-inputs, .villa-booking-guest-fields { grid-template-columns: minmax(0, 1fr); }
+  .villa-booking-guest-fields > :last-child { grid-column: auto; }
+  .villa-booking-property-summary { grid-template-columns: 88px minmax(0, 1fr); gap: var(--space-3); }
+  .villa-booking-property-summary img { width: 88px; height: 88px; }
+}

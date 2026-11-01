@@ -24,6 +24,7 @@ export default function TrendingHotelsPage() {
   const [currentUser, setCurrentUser] = useState(() => getActiveUserSession());
   const [isSignInOpen, setSignInOpen] = useState(false);
   const [authMode, setAuthMode] = useState('signin');
+  const [pendingHotel, setPendingHotel] = useState(null);
   const hotels = getTrendingHotels();
   const sortedHotels = [...hotels];
 
@@ -33,6 +34,23 @@ export default function TrendingHotelsPage() {
 
   const openSignIn = () => { setAuthMode('signin'); setSignInOpen(true); };
   const openRegister = () => { setAuthMode('register'); setSignInOpen(true); };
+  const handleLoginSuccess = (user) => {
+    setCurrentUser(user);
+    if (pendingHotel) {
+      const hotel = pendingHotel;
+      setPendingHotel(null);
+      navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}` } });
+    }
+  };
+  const bookHotel = (hotel) => {
+    if (!currentUser) {
+      setPendingHotel(hotel);
+      setAuthMode('signin');
+      setSignInOpen(true);
+      return;
+    }
+    navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}` } });
+  };
   const signOut = () => {
     clearActiveUserSession();
     setCurrentUser(null);
@@ -76,9 +94,7 @@ export default function TrendingHotelsPage() {
                 showDetails={false}
                 pricePrefix="From"
                 pricePeriod="/ per night"
-                onBook={(selectedHotel) => navigate(`/hotels/${selectedHotel.id}`, {
-                  state: { from: `${location.pathname}${location.search}` },
-                })}
+                onBook={bookHotel}
               />
             ))}
           </section>
@@ -91,7 +107,7 @@ export default function TrendingHotelsPage() {
         key={authMode}
         isOpen={isSignInOpen}
         onClose={() => setSignInOpen(false)}
-        onLoginSuccess={setCurrentUser}
+        onLoginSuccess={handleLoginSuccess}
         initialMode={authMode}
       />
     </div>

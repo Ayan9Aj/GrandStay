@@ -1,0 +1,25 @@
+.villa-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+.villa-facts > div { padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-bg-subtle); }
+.villa-facts dt { margin-bottom: var(--space-1); color: var(--color-text-muted); font-size: var(--font-size-xs); }
+.villa-facts dd { color: var(--color-text-heading); font-weight: var(--font-weight-semibold); }
+.villa-rental-panel__intro { margin-bottom: var(--space-5); color: var(--color-text-body); }
+.villa-rental-panel__inputs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+.villa-rental-panel__inputs label { display: flex; flex-direction: column; gap: var(--space-2); color: var(--color-text-heading); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+.villa-rental-panel__inputs input { min-width: 0; min-height: 44px; padding: var(--space-2) var(--space-3); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); background: var(--color-bg-surface); color: var(--color-text-body); font: inherit; }
+.villa-price-breakdown { display: grid; gap: var(--space-3); margin: var(--space-5) 0; }
+.villa-price-breakdown > div { display: flex; justify-content: space-between; gap: var(--space-4); color: var(--color-text-body); }
+.villa-price-breakdown dd { font-weight: var(--font-weight-semibold); text-align: right; }
+.villa-price-breakdown__total { padding-top: var(--space-3); border-top: 1px solid var(--color-border-subtle); color: var(--color-primary-900) !important; font-size: var(--font-size-lg); }
+.villa-rental-panel__note { margin-bottom: var(--space-4); color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.villa-rental-panel__error { color: var(--color-danger-700, #b42318); font-size: var(--font-size-sm); }
+.villa-detail-page .hotel-gallery__item img { min-height: 100%; }
+@media (max-width: 640px) {
+  .villa-rental-panel__inputs { grid-template-columns: minmax(0, 1fr); }
+  .villa-price-breakdown > div { align-items: flex-start; flex-direction: column; gap: var(--space-1); }
+  .villa-price-breakdown dd { text-align: left; }
+}
