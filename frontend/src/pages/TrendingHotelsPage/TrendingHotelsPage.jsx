@@ -37,12 +37,19 @@ export default function TrendingHotelsPage() {
   const handleLoginSuccess = (user) => {
     setCurrentUser(user);
     if (pendingHotel) {
-      const hotel = pendingHotel;
-      setPendingHotel(null);
-      navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}` } });
+      if (pendingHotel.type === 'booking') {
+        const targetState = pendingHotel.state;
+        setPendingHotel(null);
+        navigate('/booking', { state: targetState });
+      } else {
+        const hotel = pendingHotel;
+        setPendingHotel(null);
+        navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}` } });
+      }
     }
   };
-  const bookHotel = (hotel) => {
+
+  const viewHotelDetails = (hotel) => {
     if (!currentUser) {
       setPendingHotel(hotel);
       setAuthMode('signin');
@@ -51,6 +58,31 @@ export default function TrendingHotelsPage() {
     }
     navigate(`/hotels/${hotel.id}`, { state: { from: `${location.pathname}${location.search}` } });
   };
+
+  const bookHotelDirect = (hotel) => {
+    if (!hotel?.id) return;
+    const browseTo = `${location.pathname}${location.search}`;
+    const state = {
+      booking: {
+        hotelId: hotel.id,
+        roomIndex: 0,
+        checkIn: '',
+        checkOut: '',
+        guests: '2',
+        tourIds: [],
+      },
+      returnTo: browseTo,
+      browseTo,
+    };
+    if (!currentUser) {
+      setPendingHotel({ type: 'booking', state });
+      setAuthMode('signin');
+      setSignInOpen(true);
+      return;
+    }
+    navigate('/booking', { state });
+  };
+
   const signOut = () => {
     clearActiveUserSession();
     setCurrentUser(null);
@@ -91,10 +123,12 @@ export default function TrendingHotelsPage() {
                 hotel={hotel}
                 layout="horizontal"
                 showPreview={false}
-                showDetails={false}
+                showDetails={true}
+                showBookNow={true}
                 pricePrefix="From"
                 pricePeriod="/ per night"
-                onBook={bookHotel}
+                onBookNow={bookHotelDirect}
+                onBook={viewHotelDetails}
               />
             ))}
           </section>

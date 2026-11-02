@@ -3,6 +3,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import Badge from '../../components/common/Badge/Badge';
 import Button from '../../components/common/Button/Button';
 import DateRangePicker from '../../components/common/DateRangePicker/DateRangePicker';
+import GuestRoomSelector from '../../components/common/GuestRoomSelector/GuestRoomSelector';
 import Container from '../../components/layout/Container/Container';
 import Footer from '../../components/layout/Footer/Footer';
 import Header from '../../components/layout/Header/Header';
@@ -93,7 +94,19 @@ export default function VillaBookingPage() {
                       <label htmlFor="villa-booking-date-range">Check-in / Check-out</label>
                       <DateRangePicker id="villa-booking-date-range" dates={{ checkIn, checkOut }} onChange={(nextDates) => { setCheckIn(nextDates.checkIn); setCheckOut(nextDates.checkOut); }} label="Travel dates" triggerClassName="date-range-picker-trigger" valueClassName="date-range-picker-trigger__value" />
                     </div>
-                    <label>Guests<input type="number" required min="1" max={villa.guestCapacity} value={guestCount} onChange={(event) => setGuestCount(event.target.value)} /></label>
+                    <div className="villa-booking-guest-field">
+                      <GuestRoomSelector
+                        mode="inline"
+                        id="villa-booking-guests"
+                        label="Guests"
+                        value={Number(guestCount) || 1}
+                        min={1}
+                        max={villa.guestCapacity || 10}
+                        singularLabel="Guest"
+                        pluralLabel="Guests"
+                        onChange={(val) => setGuestCount(String(val))}
+                      />
+                    </div>
                   </div>
                   {nights === null && <p className="villa-booking-error" role="alert">Check-out must be after check-in.</p>}
                   {!hasValidGuests && <p className="villa-booking-error" role="alert">Choose between 1 and {villa.guestCapacity} guests for this property.</p>}

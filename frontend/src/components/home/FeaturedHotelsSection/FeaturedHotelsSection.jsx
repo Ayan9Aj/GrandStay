@@ -10,6 +10,7 @@ export default function FeaturedHotelsSection({
   searchFilter,
   onResetSearchFilter,
   onBrowseAll,
+  onBookDirect,
   onViewHotelDetails,
   onQuickPreview,
   onFavoriteToggle,
@@ -56,8 +57,9 @@ export default function FeaturedHotelsSection({
                 key={hotel.id}
                 hotel={hotel}
                 showBookNow
+                showDetails
                 showPreview={false}
-                onBookNow={(selectedHotel) => onViewHotelDetails?.(selectedHotel)}
+                onBookNow={(selectedHotel) => onBookDirect ? onBookDirect(selectedHotel) : onViewHotelDetails?.(selectedHotel)}
                 onBook={(selectedHotel) => onViewHotelDetails?.(selectedHotel)}
                 onPreview={onQuickPreview}
                 onFavoriteToggle={onFavoriteToggle}

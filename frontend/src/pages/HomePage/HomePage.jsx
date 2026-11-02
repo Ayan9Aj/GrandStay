@@ -126,6 +126,30 @@ export default function HomePage() {
     showToast('Showing all featured hotels across India');
   };
 
+  // 3b. Direct booking from hotel card Book Now
+  const handleDirectHotelBook = (hotel) => {
+    if (!hotel?.id) return;
+    const params = new URLSearchParams(location.search);
+    const state = {
+      booking: {
+        hotelId: hotel.id,
+        roomIndex: 0,
+        checkIn: searchFilter?.checkIn || params.get('checkIn') || '',
+        checkOut: searchFilter?.checkOut || params.get('checkOut') || '',
+        guests: searchFilter?.guests || params.get('guests') || '2',
+        tourIds: [],
+      },
+      returnTo: `${location.pathname}${location.search}${location.hash}`,
+      browseTo: '/hotels',
+    };
+    if (!currentUser) {
+      setPendingHotelBooking(state);
+      setAuthMode('signin');
+      setIsSignInOpen(true);
+      return;
+    }
+    navigate('/booking', { state });
+  };
 
   // 4. Start guest checkout from the hotel preview modal
   const handleBookNow = (hotel, room) => {
@@ -219,6 +243,7 @@ export default function HomePage() {
             navigate('/hotels');
             window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
           }}
+          onBookDirect={handleDirectHotelBook}
           onViewHotelDetails={handleViewHotelDetails}
           onQuickPreview={(hotel) => setSelectedHotelForDetails(hotel)}
           onFavoriteToggle={handleFavoriteToggle}

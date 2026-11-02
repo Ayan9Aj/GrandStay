@@ -11,6 +11,7 @@ import { getHotelById } from '../../services/hotelService';
 import { SAMPLE_TOURS } from '../../data/sampleTours';
 import { clearActiveUserSession, getActiveUserSession } from '../../data/authSession';
 import DateRangePicker from '../../components/common/DateRangePicker/DateRangePicker';
+import GuestRoomSelector from '../../components/common/GuestRoomSelector/GuestRoomSelector';
 import './HotelDetailPage.css';
 
 const formatPrice = (currency, amount) =>
@@ -246,7 +247,19 @@ export default function HotelDetailPage() {
                 <label htmlFor="hotel-detail-date-range">Travel dates</label>
                 <DateRangePicker id="hotel-detail-date-range" dates={{ checkIn, checkOut }} onChange={(nextDates) => { setCheckIn(nextDates.checkIn); setCheckOut(nextDates.checkOut); }} label="Travel dates" triggerClassName="date-range-picker-trigger" valueClassName="date-range-picker-trigger__value" />
               </div>
-              <label>Guests<input type="number" min="1" value={guestCount} onChange={(event) => setGuestCount(event.target.value)} /></label>
+              <div className="property-booking-guest-field">
+                <GuestRoomSelector
+                  mode="inline"
+                  id="hotel-detail-guests"
+                  label="Guests"
+                  value={Number(guestCount) || 2}
+                  min={1}
+                  max={10}
+                  singularLabel="Guest"
+                  pluralLabel="Guests"
+                  onChange={(val) => setGuestCount(String(val))}
+                />
+              </div>
             </div>
             <div className="property-booking-selection"><span>Selected room</span><strong>{Number.isInteger(selectedRoomIndex) && hotel.rooms?.[selectedRoomIndex] ? hotel.rooms[selectedRoomIndex].type : 'Choose a room below'}</strong></div>
             <dl className="property-booking-price">

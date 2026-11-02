@@ -34,9 +34,9 @@ export default function HotelCard({
   onBookNow,
   onFavoriteToggle,
   layout = 'vertical',
-  showPreview = true,
+  showPreview = false,
   showDetails = true,
-  showBookNow = false,
+  showBookNow = true,
   pricePrefix = 'Rooms start from',
   verticalPricePrefix = 'From',
   pricePeriod = '/ night',
@@ -176,7 +176,12 @@ export default function HotelCard({
 
             <div className="hotel-card__actions">
               {showBookNow && (
-                <Button variant="primary" size="sm" className="hotel-card__book-now-btn" onClick={() => onBookNow?.(hotel)}>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="hotel-card__book-now-btn"
+                  onClick={() => onBookNow ? onBookNow(hotel) : onBook?.(hotel)}
+                >
                   Book Now
                 </Button>
               )}
@@ -187,7 +192,7 @@ export default function HotelCard({
               )}
               {showDetails && (
                 <Button
-                  variant="primary"
+                  variant={showBookNow ? "outline" : "primary"}
                   size="sm"
                   className="hotel-card__view-details-btn"
                   onClick={() => onBook && onBook(hotel)}
@@ -204,9 +209,16 @@ export default function HotelCard({
       {layout === 'horizontal' && (
         <div className="hotel-card__footer hotel-card__footer--horizontal">
           <div className="hotel-card__actions hotel-card__actions--horizontal">
-            <Button variant="primary" size="sm" className="hotel-card__book-now-btn" onClick={() => (onBookNow ? onBookNow(hotel) : onBook?.(hotel))}>
-              Book Now
-            </Button>
+            {showBookNow && (
+              <Button
+                variant="primary"
+                size="sm"
+                className="hotel-card__book-now-btn"
+                onClick={() => onBookNow ? onBookNow(hotel) : onBook?.(hotel)}
+              >
+                Book Now
+              </Button>
+            )}
             {showPreview && onPreview && (
               <Button variant="outline" size="sm" className="hotel-card__quick-preview-btn" onClick={() => onPreview(hotel)}>
                 Quick Preview
@@ -214,7 +226,7 @@ export default function HotelCard({
             )}
             {showDetails && (
               <Button
-                variant="primary"
+                variant={showBookNow ? "outline" : "primary"}
                 size="sm"
                 className="hotel-card__view-details-btn"
                 onClick={() => onBook && onBook(hotel)}

@@ -194,35 +194,33 @@
   gap: var(--space-2);
 }
 
-.hotel-card__actions .hotel-card__quick-preview-btn,
-.hotel-card__actions .hotel-card__view-details-btn,
-.hotel-card:not(.hotel-card--horizontal) .hotel-card__actions .hotel-card__book-now-btn {
+.hotel-card__actions .hotel-card__book-now-btn {
   border-color: var(--color-primary-600);
   background: var(--color-primary-600);
   color: var(--color-text-inverse);
+  font-weight: var(--font-weight-semibold);
   transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
 }
 
-.hotel-card__actions .hotel-card__quick-preview-btn:hover:not(:disabled),
-.hotel-card__actions .hotel-card__view-details-btn:hover:not(:disabled),
-.hotel-card:not(.hotel-card--horizontal) .hotel-card__actions .hotel-card__book-now-btn:hover:not(:disabled) {
+.hotel-card__actions .hotel-card__book-now-btn:hover:not(:disabled) {
   border-color: var(--color-primary-700);
   background: var(--color-primary-700);
   color: var(--color-text-inverse);
-  box-shadow: 0 4px 12px rgba(29, 53, 87, 0.14);
+  box-shadow: 0 4px 12px rgba(29, 53, 87, 0.18);
   transform: translateY(-1px);
 }
 
-.hotel-card__actions .hotel-card__quick-preview-btn:active:not(:disabled),
-.hotel-card__actions .hotel-card__view-details-btn:active:not(:disabled),
-.hotel-card:not(.hotel-card--horizontal) .hotel-card__actions .hotel-card__book-now-btn:active:not(:disabled) {
-  border-color: var(--color-primary-800);
-  background: var(--color-primary-800);
-  transform: translateY(0);
+.hotel-card__actions .btn--outline.hotel-card__view-details-btn {
+  border: 1px solid var(--color-primary-600);
+  background: transparent;
+  color: var(--color-primary-700);
 }
 
-.hotel-card__actions .hotel-card__quick-preview-btn:focus-visible,
-.hotel-card__actions .hotel-card__view-details-btn:focus-visible,
+.hotel-card__actions .btn--outline.hotel-card__view-details-btn:hover:not(:disabled) {
+  background: var(--color-primary-50, #f0f7ff);
+  color: var(--color-primary-800);
+  border-color: var(--color-primary-700);
+}
 .hotel-card:not(.hotel-card--horizontal) .hotel-card__actions .hotel-card__book-now-btn:focus-visible {
   outline: 2px solid var(--color-primary-500);
   outline-offset: 2px;

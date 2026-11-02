@@ -341,14 +341,10 @@
   .site-header__utilities { gap: var(--space-1); }
 }
 
-@media (max-width: 1240px) {
-  .site-header__mobile-links,
-  .site-header__menu-utilities { display: flex; }
-}
-
 @media (max-width: 1080px) {
   .site-header__nav--left { display: none; }
   .site-header__left { gap: 0; }
+  .site-header__mobile-links { display: flex; }
 }
 
 @media (max-width: 900px) {

@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Container from '../../layout/Container/Container';
 import Button from '../../common/Button/Button';
-import { SearchIcon, MapPinIcon, CalendarIcon, UsersIcon, AlertCircleIcon, CompassIcon } from '../../common/Icons';
+import { SearchIcon, MapPinIcon, CalendarIcon, AlertCircleIcon, CompassIcon } from '../../common/Icons';
 import DateRangePicker from '../../common/DateRangePicker/DateRangePicker';
+import GuestRoomSelector from '../../common/GuestRoomSelector/GuestRoomSelector';
 import { getDestinations } from '../../../services/hotelService';
 import heroBackground from '../../../assets/brand/donald-teel-CFyJZMDyJJY-unsplash.jpg';
 import './HeroSection.css';
@@ -70,11 +71,9 @@ export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
   const [prevPropDestination, setPrevPropDestination] = useState(selectedDestination);
   const [rooms, setRooms] = useState(1);
   const [dateError, setDateError] = useState('');
-  const [roomsOpen, setRoomsOpen] = useState(false);
   const [destinationOpen, setDestinationOpen] = useState(false);
   const [destinationQuery, setDestinationQuery] = useState('');
   const [nearbyMessage, setNearbyMessage] = useState(false);
-  const roomsRef = useRef(null);
   const destinationPanelRef = useRef(null);
   const destinationTriggerRef = useRef(null);
   const destinationSearchRef = useRef(null);
@@ -123,26 +122,9 @@ export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
     };
   }, [destinationOpen]);
 
-  useEffect(() => {
-    if (!roomsOpen) return undefined;
-    const onPointerDown = (event) => {
-      if (!roomsRef.current?.contains(event.target)) setRoomsOpen(false);
-    };
-    const onKeyDown = (event) => {
-      if (event.key === 'Escape') setRoomsOpen(false);
-    };
-    document.addEventListener('pointerdown', onPointerDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('pointerdown', onPointerDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [roomsOpen]);
-
   const handleCitySelect = (city) => setDestination(city);
 
   const openDestinationPicker = (event) => {
-    setRoomsOpen(false);
     destinationTriggerRef.current = event.currentTarget;
     setDestinationQuery('');
     setNearbyMessage(false);
@@ -262,47 +244,17 @@ export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
                   <input type="hidden" name="checkOut" value={dates.checkOut} />
                 </div>
 
-                <div className="hero-search-form__item" ref={roomsRef}>
+                <div className="hero-search-form__item">
                   <label className="form-field__label" htmlFor="hero-guests">Guests &amp; Rooms</label>
-                  <div className="hero-room-selector">
-                    <button
-                      type="button"
-                      id="hero-guests"
-                      name="guests"
-                      className="hero-room-selector__trigger"
-                      aria-haspopup="dialog"
-                      aria-expanded={roomsOpen}
-                      aria-controls="hero-room-selector-popup"
-                      aria-label={`${rooms} ${rooms === 1 ? 'room' : 'rooms'}. Change rooms`}
-                      onClick={() => setRoomsOpen((current) => !current)}
-                    >
-                      <UsersIcon size={16} aria-hidden="true" />
-                      <span>{rooms} {rooms === 1 ? 'Room' : 'Rooms'}</span>
-                      <span className="hero-room-selector__chevron" aria-hidden="true">⌄</span>
-                    </button>
-                    {roomsOpen && (
-                      <div id="hero-room-selector-popup" className="hero-room-selector__popup" role="dialog" aria-label="Choose number of rooms">
-                        <span className="hero-room-selector__count">{rooms} {rooms === 1 ? 'Room' : 'Rooms'}</span>
-                        <div className="hero-room-selector__controls">
-                          <button
-                            type="button"
-                            className="hero-room-selector__step hero-room-selector__step--minus"
-                            onClick={() => setRooms((current) => Math.max(1, current - 1))}
-                            disabled={rooms <= 1}
-                            aria-label="Decrease rooms"
-                          >−</button>
-                          <output aria-live="polite" aria-label="Selected rooms">{rooms}</output>
-                          <button
-                            type="button"
-                            className="hero-room-selector__step hero-room-selector__step--plus"
-                            onClick={() => setRooms((current) => Math.min(MAX_ROOMS, current + 1))}
-                            disabled={rooms >= MAX_ROOMS}
-                            aria-label="Increase rooms"
-                          >+</button>
-                        </div>
-                      </div>
-                    )}
-                  </div>
+                  <GuestRoomSelector
+                    id="hero-guests"
+                    value={rooms}
+                    min={1}
+                    max={MAX_ROOMS}
+                    onChange={setRooms}
+                    singularLabel="Room"
+                    pluralLabel="Rooms"
+                  />
                 </div>
 
                 <div className="hero-search-form__submit-wrap">

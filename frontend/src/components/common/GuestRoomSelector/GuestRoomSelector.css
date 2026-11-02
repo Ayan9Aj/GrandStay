@@ -1,0 +1,193 @@
+/* ==============================================================================
+   REUSABLE GUEST AND ROOM SELECTOR STYLES
+   Visual reference: Homepage Hero Search Box Guest and Room Selector
+   ============================================================================== */
+
+.guest-room-selector {
+  position: relative;
+  font-family: var(--font-family-sans, sans-serif);
+}
+
+/* ── POPOVER TRIGGER BUTTON ── */
+.guest-room-selector__trigger {
+  display: flex;
+  width: 100%;
+  min-height: 42px;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  padding: 0 0.85rem;
+  border: 1px solid #c7e5d0;
+  border-radius: var(--radius-md, 0.5rem);
+  background: #ddf3e4;
+  color: #204c31;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transition-fast, 150ms ease), border-color var(--transition-fast, 150ms ease);
+}
+
+.guest-room-selector__trigger:hover:not(:disabled) {
+  background: #d1ebd9;
+  border-color: #b5dcbe;
+}
+
+.guest-room-selector__trigger:focus-visible {
+  outline: 2px solid var(--color-primary-600, #1d3557);
+  outline-offset: 2px;
+}
+
+.guest-room-selector__trigger:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.guest-room-selector__trigger-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.guest-room-selector__chevron {
+  margin-left: auto;
+  color: #52745d;
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+/* ── FLOATING POPOVER CARD ── */
+.guest-room-selector__popup {
+  position: absolute;
+  z-index: 40;
+  top: calc(100% + 8px);
+  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 240px;
+  gap: var(--space-3, 0.75rem);
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  border: 1px solid var(--color-border-subtle, #e2e8f0);
+  border-radius: var(--radius-md, 0.5rem);
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(12, 26, 46, 0.16);
+}
+
+/* ── STEPPER ROW (SHARED BY POPOVER & INLINE MODES) ── */
+.guest-room-stepper-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4, 1rem);
+  padding: var(--space-2, 0.5rem) 0;
+}
+
+.guest-room-stepper-row:not(:last-child) {
+  border-bottom: 1px solid var(--color-border-subtle, #f1f5f9);
+}
+
+.guest-room-stepper-row__label-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.guest-room-stepper-row__name {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: 600;
+  color: var(--color-text-heading, #0f172a);
+}
+
+.guest-room-stepper-row__sub {
+  margin-left: 4px;
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: normal;
+  color: var(--color-text-muted, #64748b);
+}
+
+.guest-room-stepper-row__summary {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-muted, #64748b);
+}
+
+/* ── CONTROLS & ROUND STEPPER BUTTONS ── */
+.guest-room-stepper-row__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  flex-shrink: 0;
+}
+
+.guest-room-stepper__output {
+  min-width: 26px;
+  text-align: center;
+  font-weight: 700;
+  font-size: var(--font-size-base, 1rem);
+  color: var(--color-text-heading, #0f172a);
+}
+
+.guest-room-stepper__step {
+  display: inline-grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border: 1px solid var(--color-border-subtle, #cbd5e1);
+  border-radius: var(--radius-full, 9999px);
+  background: #f1f3f5;
+  color: var(--color-text-heading, #0f172a);
+  font-size: 1.25rem;
+  line-height: 1;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-fast, 150ms ease), transform var(--transition-fast, 150ms ease), border-color var(--transition-fast, 150ms ease);
+}
+
+.guest-room-stepper__step--minus:hover:not(:disabled) {
+  border-color: #f0bbbb;
+  background: #fdeaea;
+  color: #991b1b;
+}
+
+.guest-room-stepper__step--plus {
+  border-color: #c7e5d0;
+  background: #ddf3e4;
+  color: #204c31;
+}
+
+.guest-room-stepper__step--plus:hover:not(:disabled) {
+  background: #c9e8d2;
+  border-color: #aed9b9;
+}
+
+.guest-room-stepper__step:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.guest-room-stepper__step:focus-visible {
+  outline: 2px solid var(--color-primary-600, #1d3557);
+  outline-offset: 2px;
+}
+
+.guest-room-stepper__step:disabled {
+  color: #aab2bb;
+  border-color: var(--color-border-subtle, #e2e8f0);
+  background: #f8fafc;
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+/* ── INLINE MODE (FORM FIELD EMBED) ── */
+.guest-room-selector--inline {
+  display: grid;
+  gap: var(--space-2, 0.5rem);
+  padding: var(--space-3, 0.75rem) var(--space-4, 1rem);
+  border: 1px solid var(--color-border-subtle, #e2e8f0);
+  border-radius: var(--radius-md, 0.5rem);
+  background: #ffffff;
+}
+
+.guest-room-selector--inline .guest-room-stepper-row {
+  padding: var(--space-1, 0.25rem) 0;
+}
