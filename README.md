@@ -1,6 +1,6 @@
 # GrandStay - Multi-Hotel Management & Booking System
 
-> **BCA Final Year Capstone Project**  
+> **BCA Final Year Project**  
 > **Architecture: React.js (Frontend) + Python Django REST (Backend Later) + MySQL**  
 > **Status:** Stage 1 (Foundation & Design System) &amp; Stage 2 (Customer Homepage) Completed  
 
