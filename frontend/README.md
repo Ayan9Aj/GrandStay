@@ -1,177 +1,212 @@
-# GrandStay - Multi-Hotel Booking Platform
+# GrandStay Frontend
 
-> **BCA Final Year College Project**  
-> **Status:** Stage 1 (Foundation & Design System) &amp; Stage 2 (Customer Homepage Implementation) Completed  
+## 1. Frontend Overview
 
----
+The frontend is the current, runnable part of GrandStay: a responsive hotel, resort, villa, and bungalow discovery and booking-review prototype. It is built with React and Vite and uses local sample data plus browser-side state. It does not connect to a live hotel inventory, backend API, or persistent database.
 
-## 1. Project Overview
-
-**GrandStay** is a commercial-grade, multi-hotel booking web platform. The platform is designed for travelers to discover premier hotels and resorts, compare room categories and prices, reserve accommodation, customize their stay with sightseeing tour packages, and manage bookings.
-
-This project is structured for academic evaluation as a Bachelor of Computer Applications (BCA) capstone project, demonstrating professional frontend architecture, UI/UX design tokens, and modular React programming.
-
----
+The hotel and villa booking flows are separate. Hotel bookings select a room category; villa bookings use whole-property rental pricing.
 
 ## 2. Technology Stack
 
-### Current Frontend Stack (Stages 1 & 2)
-- **Library:** React 19 (Functional Components + Hooks)
-- **Language:** JavaScript & JSX *(pure JS, no TypeScript)*
-- **Styling:** Vanilla CSS with Design System Tokens (`variables.css` + `global.css`)
-- **Icons:** Lightweight, inline SVGs *(zero external icon library bloat, 100% offline support)*
-- **Build Tool & Dev Server:** Vite 8
-- **Linter:** Oxlint
+The versions below are the dependency ranges declared by `frontend/package.json`.
 
-### Planned Future Stack (Upcoming Stages)
-- **Routing:** `react-router-dom` *(multi-page routes in Stages 3 & 4)*
-- **Backend API:** Python, Django & Django REST Framework (DRF)
-- **Database:** MySQL
+| Technology | Use | Declared version |
+| --- | --- | --- |
+| React / React DOM | UI and component state | `^19.3.1` |
+| JavaScript / JSX | Application language | — |
+| React Router DOM | Client-side routes | `^7.18.4` |
+| Vite | Development server and production build | `^8.3.0` |
+| `@vitejs/plugin-react` | Vite React support | `^6.1.1` |
+| CSS | Component styling and responsive layouts | — |
+| Leaflet | Interactive maps | `^1.9.4` |
+| React Leaflet | Declared map-related dependency | `^5.0.0` |
+| Oxlint | Lint command | `^1.81.0` |
 
----
+Map components use Leaflet directly and display OpenStreetMap tiles. Map tiles are loaded from the OpenStreetMap tile service, so map viewing needs network access.
 
-## 3. Project Folder Structure
+The repository has a root `bun.lock` and root workspace manifest. The root also defines npm workspace scripts.
 
-```
+## 3. Implemented Frontend Features
+
+### Homepage and navigation
+
+- GrandStay-branded responsive homepage and shared header/footer.
+- Navigation for Hotels & Resorts, Villas & Bungalows, Deals & Offers, and Tours & Camping Packages.
+- Homepage search with stay type, destination suggestions, date range, guest/room controls, and routes to the matching catalog.
+- Featured hotel and villa cards, destination cards, tour previews, and sample promotional offers.
+- Prototype sign-in and registration modal backed by browser storage; this is not server authentication.
+
+### Hotel catalog and discovery
+
+- Hotel listing with sorting and filter controls for destination, price, star rating, amenities, property type, booking conditions, meal plans, accessibility, review threshold, and supported distance options.
+- Filter and search values represented in URL query parameters where supported.
+- List/map view switch with Leaflet markers, OpenStreetMap tiles, and property previews.
+- Sample-data availability notes are shown only where those fields exist; they do not represent live inventory.
+
+### Hotel details
+
+- Dedicated `/hotels/:hotelId` pages with a photo gallery, hotel information, amenities, and room comparison.
+- Optional sightseeing tour selection.
+- Property map and nearby location information where sample data is available.
+- Sample ratings, reviews, review filters, policies, and frequently asked questions.
+
+### Villas and bungalows
+
+- Dedicated catalog, trending page, and property details for whole-property stays.
+- Guest capacity, bedrooms/bathrooms, amenities, photographs, and date-based rental estimates from sample records.
+- Villa booking uses a separate route and whole-property calculation rather than hotel room selection.
+
+### Booking and checkout interface
+
+- Hotel and villa booking review experiences on separate flows.
+- Shared date-range picker and stay-duration calculations.
+- Hotel room selection, room count, guest allocation (including adult/child details where shown), rate-plan and price-estimate UI.
+- Villa whole-property guest allocation and rental total estimate.
+- Lead guest details, special requests, and payment-method selection UI in the booking prototype.
+- Local confirmation and downloadable text voucher UI where implemented.
+
+All booking details, payment choices, and confirmations are prototype interactions. They do not create persisted reservations, check live availability, process payments, or generate a server-issued invoice.
+
+### Design system and responsive UI
+
+- Shared buttons, cards, badges, inputs, icons, loading/empty/error states, and design tokens.
+- Responsive navigation, catalogs, maps, details, and booking forms.
+- A design-system showcase is retained at `/design-system` for project review.
+
+## 4. Application Routes
+
+Routes are declared in `src/App.jsx`.
+
+| Route | Page |
+| --- | --- |
+| `/` | Homepage |
+| `/hotels` | Hotel catalog |
+| `/hotels/:hotelId` | Hotel details |
+| `/trending-hotels` | Trending hotels |
+| `/villas` | Villa and bungalow catalog |
+| `/villas/:villaId` | Villa or bungalow details |
+| `/trending-villas` | Trending villas |
+| `/booking` | Hotel booking review |
+| `/villas/:villaId/booking` | Separate villa booking review |
+| `/design-system` | Design-system showcase |
+| `/my-stays` | Placeholder route requiring the prototype auth gate |
+| `/history` | Placeholder route requiring the prototype auth gate |
+| `/settings` | Placeholder page |
+| `/about` | Placeholder page |
+
+The placeholder routes are not complete dashboards or account-management features.
+
+## 5. Frontend Architecture
+
+- `src/App.jsx` configures `BrowserRouter` and the route table. It also retains the design-system showcase.
+- `src/pages/` contains route-level page components.
+- `src/components/` holds reusable UI, catalog, homepage, and shared layout components.
+- `src/styles/variables.css` and `src/styles/global.css` provide design tokens and global styles; components and pages also have focused CSS files.
+- Vite loads `src/main.jsx`, which mounts the React application.
+
+The frontend uses client-side routing. Booking context is passed between pages using route state and, for catalog searches, URL query parameters.
+
+## 6. Data and Service Layer
+
+Current demonstration data is stored in JavaScript modules:
+
+- `src/data/sampleHotels.js` and `src/data/trendingHotels.js`
+- `src/data/villas.js`
+- `src/data/sampleDestinations.js`
+- `src/data/sampleTours.js`
+- `src/data/sampleOffers.js`
+
+`src/services/hotelService.js` provides hotel listing, filtering, and lookup helpers. `src/services/villaService.js` provides villa listing and lookup helpers. These services currently work with local data; they do not make HTTP requests.
+
+`src/data/authSession.js` stores prototype user/session information in browser storage. This is for interface demonstration only and is not secure authentication.
+
+## 7. Project Structure
+
+```text
 frontend/
-├── public/                     # Static public assets & favicon
-│   └── favicon.svg
-├── src/
-│   ├── assets/                 # Brand images & artwork
-│   ├── components/             # Reusable UI component library
-│   │   ├── common/
-│   │   │   ├── Badge/          # Rating & status pills (sm, md, variants)
-│   │   │   ├── Button/         # Primary (Navy), Accent (Gold), Outline, Text
-│   │   │   ├── Card/           # Base card container with elevation
-│   │   │   ├── EmptyState/     # Polite fallback for empty searches/bookings
-│   │   │   ├── ErrorMessage/   # Accessible error alerts with retry action
-│   │   │   ├── HotelCard/      # Commercial hotel card with rating, tags, pricing
-│   │   │   ├── Input/          # Accessible text, date, and select inputs
-│   │   │   ├── LoadingState/   # Animated luxury spinner & card skeleton shimmers
-│   │   │   └── Icons.jsx       # Handcrafted SVG icons (Star, MapPin, Wifi, etc.)
-│   │   ├── home/               # Homepage domain components (Stage 2)
-│   │   │   ├── HeroSection/    # Hero banner & working hotel search form
-│   │   │   ├── DestinationsSection/ # Popular Indian destinations grid
-│   │   │   ├── FeaturedHotelsSection/ # Filterable hotel listings & sorting
-│   │   │   ├── ToursSection/   # Optional sightseeing tour packages preview
-│   │   │   ├── OffersSection/  # Deals, coupons & copy code interaction
-│   │   │   ├── TrustSection/   # Value propositions & service highlights
-│   │   │   ├── HotelDetailsModal/ # Full hotel & room preview modal
-│   │   │   └── SignInModal/    # Prototype guest login & registration modal
-│   │   └── layout/
-│   │       ├── Container/      # Responsive max-width container wrapper
-│   │       ├── Header/         # Sticky navigation header with mobile drawer
-│   │       └── Footer/         # Footer with academic credits & sitemap
-│   ├── data/                   # Mock datasets (separated from presentation)
-│   │   ├── sampleHotels.js     # Luxury hotels across India with rooms & policies
-│   │   ├── sampleDestinations.js # Goa, Jaipur, Udaipur, Manali, Kerala
-│   │   ├── sampleTours.js      # Optional sightseeing tour packages
-│   │   └── sampleOffers.js     # Promotional coupons and deals
-│   ├── pages/
-│   │   └── HomePage/           # Customer-facing homepage assembly
-│   ├── styles/
-│   │   ├── variables.css       # Central design system CSS custom properties
-│   │   └── global.css          # CSS reset, typography scale & focus indicators
-│   ├── App.jsx                 # Stage 2: Customer Homepage + Evaluation Switcher
-│   ├── App.css
-│   ├── index.css
-│   └── main.jsx
-├── index.html
 ├── package.json
-└── vite.config.js
+├── vite.config.js
+├── public/
+└── src/
+    ├── App.jsx
+    ├── main.jsx
+    ├── assets/
+    ├── components/
+    │   ├── catalog/       # Hotel filter sidebar and catalog map
+    │   ├── common/        # Shared controls, cards, maps, and UI states
+    │   ├── home/          # Homepage sections and sign-in modal
+    │   └── layout/        # Header, footer, and container
+    ├── data/              # Sample properties, destinations, tours, and offers
+    ├── pages/             # Homepage, catalog, detail, booking, and placeholder routes
+    ├── services/          # Local hotel and villa data access
+    ├── styles/            # Global CSS and design tokens
+    └── utils/             # Shared date and rental helpers
 ```
 
----
-
-## 4. How to Install and Run
+## 8. Installation and Setup
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) (version 18 or newer)
-- npm (Node Package Manager)
 
-### Step 1: Open the Frontend Directory
+- Node.js
+- Bun for installing from the checked-in `bun.lock`
+
+No frontend environment file is required for the current sample-data prototype. OpenStreetMap tiles and some property images are remote resources and require network access.
+
+### Install and start
+
+From the repository root:
+
 ```bash
-cd c:\Project-Hotel-Management\frontend
+bun install
+cd frontend
+bun run dev
 ```
 
-### Step 2: Install Dependencies (if not already installed)
+Vite serves the application at [http://localhost:3000](http://localhost:3000). The dev server configuration binds to `0.0.0.0` on port `3000`.
+
+## 9. Development Commands
+
+Run these from `frontend/` after dependencies are installed:
+
 ```bash
-npm install
+bun run dev      # Start Vite development server
+bun run lint     # Run Oxlint
+bun run build    # Create the production frontend build
+bun run preview  # Preview the built frontend
 ```
 
-### Step 3: Start the Development Server
-```bash
-npm run dev
-```
-*(On Windows PowerShell, if execution policy limits scripts, run: `npm.cmd run dev`)*
+The root `package.json` also exposes workspace commands: `npm run dev`, `npm run lint`, `npm run build`, and `npm run preview`.
 
-Open [http://localhost:5173/](http://localhost:5173/) in your web browser.
+## 10. Current Limitations
 
-### Step 4: Run Code Checks & Build
-- Run linter (oxlint):
-  ```bash
-  npm run lint
-  ```
-- Build for production (vite build):
-  ```bash
-  npm run build
-  ```
+- Property, review, destination, tour, and offer data are samples, not live inventory.
+- Prototype authentication is browser-side and does not validate credentials against a server.
+- Booking and guest information is not saved to a persistent database.
+- Availability is not checked and no reservation is confirmed by the frontend.
+- Payment method controls are interface-only; no payment provider is connected.
+- Any local confirmation or text voucher is not a server-issued invoice or proof of a real reservation.
+- Some account routes are placeholders.
+- Maps depend on remote OpenStreetMap tiles.
 
----
+## 11. Planned Backend Integration
 
-## 5. What Was Implemented in Stage 2
+The current roadmap specifies a future backend using Node.js, Express.js, and MongoDB; Mongoose may be selected during implementation. No backend code or database connection is present yet.
 
-### 1. Navigation Bar
-- Working navigation links to `#hotels`, `#destinations`, `#tours`, and `#offers` using smooth scrolling.
-- "Sign In" button opens a dedicated prototype authentication modal dialog.
-- "Book a Stay" scrolls directly to the search bar.
-- Fully responsive mobile drawer menu.
+Planned integration work includes:
 
-### 2. Hero Section & Working Search Form
-- Search form supporting: Destination, Check-in date, Check-out date, and Guests.
-- **Form Validation:** Validates required fields and strictly enforces that Check-out date is later than Check-in date with an accessible inline error alert.
-- Submitting filters the hotel catalog and scrolls to the results.
-- Quick filter shortcut pills for popular cities (Goa, Jaipur, Udaipur, Manali, Kerala).
+1. Agree on the backend architecture, data models, authentication approach, and API contract.
+2. Build and validate the Express API and MongoDB models.
+3. Replace the local reads in the service layer with API requests.
+4. Add server-side authentication, authorization, availability checks, booking validation, pricing, and persistence.
+5. Add payment and invoice integrations only if confirmed in the academic project scope.
+6. Test frontend/API integration and configure deployment.
 
-### 3. Popular Destinations (India)
-- Cards for **Goa, Jaipur, Udaipur, Manali, and Kerala** with high-resolution imagery and starting rates.
-- Selecting any destination card automatically updates the search form and filters the hotel list.
+Older source comments still refer to a Django REST Framework/MySQL plan. They are historical comments; this README reflects the newer backend direction in the current documentation brief. The final stack should be confirmed before implementation.
 
-### 4. Featured Hotels & Hotel Details Modal
-- Reuses the Stage 1 `HotelCard` component.
-- Interactive wishlist heart toggle with instant toast notification.
-- Destination filtering tabs ("All Stays", "Goa", "Jaipur", "Udaipur", "Manali", "Kerala") and sorting dropdown (Recommended, Rating, Price).
-- Clicking **"View Details"** opens a comprehensive `HotelDetailsModal` with:
-  - High-res photo & badges
-  - Star rating & verified reviews
-  - Amenity tags
-  - Room categories (Deluxe, Suite, Villa) with prices
-  - Check-in, check-out, and cancellation policies
-  - "Book This Stay" button with reservation feedback
+## 12. Future Frontend Work
 
-### 5. Tour Packages Preview
-- Showcases optional sightseeing packages (Goa Heritage & Spices, Udaipur Sunset Cruise, Manali Snow Point 4x4, Alleppey Houseboat).
-- Displays duration, included transport, guide, meals, and pricing type (per person vs per group).
-- Clarifies that tours are **optional add-ons**, not mandatory.
-
-### 6. Deals & Offers
-- Promotional coupon codes (`EARLYBIRD20`, `ROYALSTAY`, `MONSOON15`).
-- Interactive **"Copy"** button with clipboard feedback.
-- Clearly labeled as demonstration data for project evaluation.
-
-### 7. Trust & Service Highlights
-- 4 pillars: Verified Properties, Flexible Payment Architecture, Dedicated Guest Assistance, Curated Local Experiences.
-- Explicit note on backend readiness.
-
-### 8. Evaluation Switcher (Top Bar)
-- Allows college examiners to toggle between the **Customer Homepage (Stage 2)** and the **Design System Tokens & Component Library (Stage 1)**.
-
----
-
-## 6. Remaining Limitations (To Be Addressed in Future Stages)
-
-1. **Backend Integration:** No live Python/Django REST API endpoints yet. Data is stored in mock JavaScript modules (`src/data/`).
-2. **Database:** MySQL database is not yet connected.
-3. **Authentication:** The Sign-In modal is a frontend prototype; user credentials are not yet validated against a database.
-4. **Payments:** No actual payment gateway (Razorpay/Stripe) is active.
-5. **Multi-Page Routing:** Stage 2 uses section navigation; full page routing (`react-router-dom`) will be introduced in Stages 3 & 4.
+- Connect the hotel and villa service modules to the agreed backend API.
+- Add clear loading, empty, validation, and server-error handling for API requests.
+- Replace prototype auth state with the approved backend authentication flow.
+- Connect customer history and administration screens after their requirements are defined.
+- Verify end-to-end booking, availability, and payment states against backend responses.
