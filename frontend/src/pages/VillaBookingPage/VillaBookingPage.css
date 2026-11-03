@@ -130,55 +130,77 @@
   font-size: var(--font-size-sm);
 }
 
-/* Whole Property Notice Banner */
+/* Whole Property Notice Banner — Compact, Elegant Callout */
 .villa-whole-property-banner {
   display: flex;
-  align-items: flex-start;
-  gap: var(--space-4);
-  padding: var(--space-4) var(--space-5);
-  margin-bottom: var(--space-6);
-  border: 1px solid #c7e5d0;
-  border-radius: var(--radius-lg);
+  align-items: center;
+  gap: var(--space-3);
+  padding: 10px 14px;
+  margin-bottom: var(--space-5);
+  border: 1px solid #bbf7d0;
+  border-radius: var(--radius-lg, 12px);
   background: #f0fdf4;
 }
 
 .villa-banner-badge {
-  display: inline-block;
-  padding: 0.25rem 0.6rem;
-  background: #204c31;
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  background: #14532d;
   color: #ffffff;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm, 6px);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-bold);
+  font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.villa-banner-content {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
 }
 
 .villa-banner-content strong {
-  display: block;
   color: #143522;
   font-size: var(--font-size-sm);
-  margin-bottom: 0.2rem;
+  font-weight: 600;
 }
 
 .villa-banner-content p {
   margin: 0;
-  color: #204c31;
+  color: #166534;
   font-size: var(--font-size-xs);
   line-height: 1.4;
 }
 
-/* Travel Dates */
+/* Travel Dates Card Container */
 .villa-form-field {
-  margin-bottom: var(--space-6);
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-bg-subtle, #f8fafc);
+  border: 1px solid var(--color-border-subtle, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  margin-bottom: var(--space-5);
 }
 
 .villa-night-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin-top: var(--space-2);
-  color: var(--color-primary-700);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm, 6px);
+  background: #e0edff;
+  color: var(--color-primary-800, #0c1a2e);
+  font-weight: var(--font-weight-semibold, 600);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  width: fit-content;
 }
 
 .villa-inline-note {
@@ -189,9 +211,12 @@
 
 /* Sub-blocks */
 .villa-section-subblock {
-  padding-top: var(--space-6);
-  margin-top: var(--space-6);
-  border-top: 1px solid var(--color-border-subtle);
+  padding: var(--space-5);
+  margin-top: var(--space-4);
+  background: var(--color-bg-surface, #ffffff);
+  border: 1px solid var(--color-border-subtle, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 0 1px 3px rgba(12, 26, 46, 0.04);
 }
 
 .villa-subheading {
@@ -993,12 +1018,10 @@
     flex-direction: column;
     align-items: flex-start;
   }
-  .villa-preferences-grid {
-    grid-template-columns: 1fr;
-  }
-  .rate-plan-options {
-    grid-template-columns: 1fr;
-  }
+  .villa-guest-fields,
+  .villa-preferences-grid,
+  .mock-card-row,
+  .rate-plan-options,
   .voucher-grid {
     grid-template-columns: 1fr;
   }

@@ -119,9 +119,12 @@
 }
 
 .booking-section-subblock {
-  padding-top: var(--space-5);
-  margin-top: var(--space-5);
-  border-top: 1px solid var(--color-border-subtle);
+  padding: var(--space-5);
+  margin-top: var(--space-4);
+  background: var(--color-bg-surface, #ffffff);
+  border: 1px solid var(--color-border-subtle, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 0 1px 3px rgba(12, 26, 46, 0.04);
 }
 
 .booking-subheading {
@@ -181,24 +184,36 @@
   box-shadow: 0 0 0 3px rgba(29, 53, 87, 0.12);
 }
 
-/* Travel Dates */
+/* Travel Dates Card Container */
 .booking-date-field {
   display: grid;
   gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-bg-subtle, #f8fafc);
+  border: 1px solid var(--color-border-subtle, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  margin-bottom: var(--space-2);
 }
 
 .booking-night-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   margin-top: var(--space-2);
-  color: var(--color-primary-700);
-  font-weight: var(--font-weight-semibold);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm, 6px);
+  background: #e0edff;
+  color: var(--color-primary-800, #0c1a2e);
+  font-weight: var(--font-weight-semibold, 600);
   font-size: var(--font-size-sm);
+  width: fit-content;
 }
 
 .booking-inline-note {
   margin-top: var(--space-2);
   padding: var(--space-3);
   border-radius: var(--radius-sm);
-  background: var(--color-bg-subtle);
+  background: var(--color-bg-surface);
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
 }
@@ -216,8 +231,10 @@
 }
 
 .booking-stepper-note {
+  margin-top: var(--space-2);
   color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
 }
 
 /* Adult & Child Allocation */
@@ -245,8 +262,9 @@
   padding: var(--space-4);
   border: 1px solid var(--color-border-subtle);
   border-radius: var(--radius-md);
-  background: var(--color-bg-subtle);
-  margin-bottom: var(--space-4);
+  background: var(--color-bg-subtle, #f1f5f9);
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-2);
 }
 
 .child-ages-label {

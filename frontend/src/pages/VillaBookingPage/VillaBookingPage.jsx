@@ -669,10 +669,10 @@ HOUSE POLICIES & KEY HANDOVER:
 
                   {/* Whole Property Rental Notice Banner */}
                   <div className="villa-whole-property-banner">
-                    <div className="villa-banner-badge">Whole Property Booking</div>
+                    <span className="villa-banner-badge">Whole Property Stay</span>
                     <div className="villa-banner-content">
-                      <strong>You are reserving the entire private residence.</strong>
-                      <p>Your party will enjoy exclusive use of the full property, including all {villa.bedrooms} bedrooms, {villa.bathrooms} bathrooms, and private amenities.</p>
+                      <strong>Reserving entire private residence.</strong>
+                      <p>Exclusive use of all {villa.bedrooms} bedrooms, {villa.bathrooms} bathrooms &amp; private amenities.</p>
                     </div>
                   </div>
 
