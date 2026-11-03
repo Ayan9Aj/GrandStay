@@ -122,6 +122,17 @@
   font-weight: var(--font-weight-medium);
 }
 
+.hotel-card__availability-note {
+  font-size: 0.725rem;
+  font-weight: 600;
+  color: var(--color-success, #059669);
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
 .hotel-card__pin-icon {
   color: var(--color-primary-600);
   flex-shrink: 0;

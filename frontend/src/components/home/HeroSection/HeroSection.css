@@ -338,10 +338,15 @@
 .hero-destination-panel__search-label { display: block; margin: var(--space-3) var(--space-1) var(--space-1); color: var(--color-text-muted); font-size: var(--font-size-xs); font-weight: 600; }
 .hero-destination-panel__search { width: 100%; min-height: 42px; padding: 0 var(--space-3); border: 1px solid var(--color-border-subtle); border-radius: var(--radius-md); background: #fff; color: var(--color-text-heading); font: inherit; }
 .hero-destination-panel__search:focus-visible { border-color: var(--color-primary-600); outline: 3px solid rgba(29, 53, 87, 0.16); outline-offset: 1px; }
-.hero-destination-panel__results { display: flex; max-height: 180px; flex-direction: column; gap: 2px; overflow-y: auto; margin-top: var(--space-2); }
-.hero-destination-panel__results button { display: flex; min-height: 40px; align-items: center; gap: var(--space-2); padding: 0 var(--space-2); border: 0; border-radius: var(--radius-sm); background: #fff; color: var(--color-text-body); font: inherit; font-size: var(--font-size-sm); text-align: left; cursor: pointer; }
-.hero-destination-panel__results button:hover,
-.hero-destination-panel__results button[aria-selected='true'] { background: var(--color-primary-50); color: var(--color-primary-800); }
+.hero-destination-panel__results { display: flex; max-height: 220px; flex-direction: column; gap: 6px; overflow-y: auto; margin-top: var(--space-2); }
+.hero-destination-panel__group { display: flex; flex-direction: column; gap: 2px; }
+.hero-destination-panel__group-header { padding: 4px 8px 2px; color: var(--color-accent-600); font-size: 0.725rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--color-border-subtle); margin-bottom: 2px; }
+.hero-destination-panel__option-btn { display: flex; min-height: 44px; align-items: center; gap: var(--space-2); padding: 6px var(--space-2); border: 0; border-radius: var(--radius-sm); background: #fff; color: var(--color-text-body); font: inherit; font-size: var(--font-size-sm); text-align: left; cursor: pointer; }
+.hero-destination-panel__option-btn:hover,
+.hero-destination-panel__option-btn[aria-selected='true'] { background: var(--color-primary-50); color: var(--color-primary-800); }
+.hero-destination-panel__option-text { display: flex; flex-direction: column; line-height: 1.25; }
+.hero-destination-panel__option-text strong { font-size: 0.875rem; font-weight: 600; }
+.hero-destination-panel__option-text small { color: var(--color-text-muted); font-size: 0.75rem; font-weight: 400; }
 .hero-destination-panel__empty { padding: var(--space-3) var(--space-2); color: var(--color-text-muted); font-size: var(--font-size-sm); }
 
 .hero-room-selector { position: relative; }

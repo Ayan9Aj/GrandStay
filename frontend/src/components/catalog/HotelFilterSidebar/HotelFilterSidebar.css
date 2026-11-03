@@ -274,6 +274,86 @@
   transition: color var(--transition-fast);
 }
 
+/* Circular selection controls (Distance, Booking conditions, Meals, Accessibility, Rating) */
+.filter-circular-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-body);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition-fast);
+}
+
+.filter-circular-option:hover .filter-circular-text {
+  color: var(--color-navy);
+}
+
+.filter-circular-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  background: #ffffff;
+  color: transparent;
+  flex-shrink: 0;
+  transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+}
+
+.filter-circular-option--selected .filter-circular-indicator {
+  background: var(--color-navy, #07111e);
+  border-color: var(--color-navy, #07111e);
+  color: #ffffff;
+}
+
+.filter-circular-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+.filter-circular-option--selected .filter-circular-text {
+  color: var(--color-navy, #07111e);
+  font-weight: 600;
+}
+
+/* Radio buttons */
+.filter-radio-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  padding: var(--space-1) 0;
+  user-select: none;
+}
+.filter-radio-label:hover .filter-radio-text {
+  color: var(--color-navy);
+}
+
+.filter-radio {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--color-navy);
+  flex-shrink: 0;
+}
+
+.filter-radio-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  transition: color var(--transition-fast);
+}
+
 /* Clear All button at bottom */
 .filter-panel__clear {
   padding: var(--space-4) var(--space-5);

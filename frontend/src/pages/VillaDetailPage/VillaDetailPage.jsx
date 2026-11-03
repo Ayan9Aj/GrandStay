@@ -11,6 +11,8 @@ import { clearActiveUserSession, getActiveUserSession } from '../../data/authSes
 import { getVillaById } from '../../services/villaService';
 import { getDefaultRentalDates, getRentalNights } from '../../utils/rentalDates';
 import DateRangePicker from '../../components/common/DateRangePicker/DateRangePicker';
+import GuestRoomSelector from '../../components/common/GuestRoomSelector/GuestRoomSelector';
+import { UsersIcon } from '../../components/common/Icons';
 import './VillaDetailPage.css';
 
 const formatMoney = (currency, amount) => `${currency || ''}${amount.toLocaleString('en-IN')}`;
@@ -39,7 +41,7 @@ export default function VillaDetailPage() {
   const openRegister = () => { setAuthMode('register'); setSignInOpen(true); };
   const signOut = () => { clearActiveUserSession(); setCurrentUser(null); };
   const continueToBooking = () => {
-    navigate(`/villas/${villa.id}/booking`, {
+    navigate(`/villas/${villa.id}/booking?checkIn=${encodeURIComponent(checkIn)}&checkOut=${encodeURIComponent(checkOut)}&guests=${encodeURIComponent(guestCount)}`, {
       state: {
         booking: { villaId: villa.id, checkIn, checkOut, guests: Number(guestCount) },
         returnTo: `${location.pathname}${location.search}`,
@@ -69,7 +71,7 @@ export default function VillaDetailPage() {
         <Header currentUser={currentUser} onOpenSignIn={openSignIn} onOpenRegister={openRegister} onSignOut={signOut} />
         <main className="hotel-detail-main"><Container size="lg">
           <nav className="hotel-detail-breadcrumb" aria-label="Breadcrumb"><Link to="/">Home</Link><span aria-hidden="true">/</span><Link to="/villas">Villas &amp; Bungalows</Link></nav>
-          <EmptyState title="Private stay not found" description="This villa or bungalow ID is not in the current demo catalog." actionText="Browse private stays" onAction={() => navigate('/villas')} />
+          <EmptyState title="Private stay not found" description="This villa or bungalow is not in the current property catalog." actionText="Browse private stays" onAction={() => navigate('/villas')} />
         </Container></main>
         <Footer />
       </div>
@@ -126,30 +128,143 @@ export default function VillaDetailPage() {
             <ul className="hotel-amenities" aria-label="Included amenities">{villa.amenities.map((amenity) => <li key={amenity}>{amenity}</li>)}</ul>
           </section>
           <section className="hotel-detail-section villa-stay-details" aria-labelledby="villa-stay-title">
-            <div className="hotel-detail-section__heading"><div><span className="hotel-detail-eyebrow">Private whole-property stay</span><h2 id="villa-stay-title">Your private rental</h2></div><Badge variant="neutral" size="sm">No room selection</Badge></div>
-            <p>The villa or bungalow is reserved as one private unit for your group. The estimate updates with your selected dates.</p>
-            <ul className="villa-stay-highlights"><li>{villa.rentalCategory}</li><li>Up to {villa.guestCapacity} guests</li><li>{villa.bedrooms} bedrooms</li><li>{villa.bathrooms} bathrooms</li></ul>
+            <div className="hotel-detail-section__heading">
+              <div>
+                <span className="hotel-detail-eyebrow">Private whole-property stay</span>
+                <h2 id="villa-stay-title">Your private rental</h2>
+              </div>
+            </div>
+            <p className="villa-stay-description">The villa or bungalow is reserved as one private unit for your group. The estimate updates with your selected dates.</p>
+            <div className="villa-stay-grid">
+              <div className="villa-stay-tile">
+                <div className="villa-stay-tile__icon" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                  </svg>
+                </div>
+                <div className="villa-stay-tile__content">
+                  <span className="villa-stay-tile__label">Rental Category</span>
+                  <strong className="villa-stay-tile__value">{villa.rentalCategory}</strong>
+                </div>
+              </div>
+
+              <div className="villa-stay-tile">
+                <div className="villa-stay-tile__icon" aria-hidden="true">
+                  <UsersIcon size={22} />
+                </div>
+                <div className="villa-stay-tile__content">
+                  <span className="villa-stay-tile__label">Guest Capacity</span>
+                  <strong className="villa-stay-tile__value">Up to {villa.guestCapacity} guests</strong>
+                </div>
+              </div>
+
+              <div className="villa-stay-tile">
+                <div className="villa-stay-tile__icon" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                </div>
+                <div className="villa-stay-tile__content">
+                  <span className="villa-stay-tile__label">Bedrooms</span>
+                  <strong className="villa-stay-tile__value">{villa.bedrooms} {villa.bedrooms === 1 ? 'Bedroom' : 'Bedrooms'}</strong>
+                </div>
+              </div>
+
+              <div className="villa-stay-tile">
+                <div className="villa-stay-tile__icon" aria-hidden="true">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-2.12 0 1.5 1.5 0 0 0 0 2.12L7 8M4 12h16a2 2 0 0 1 2 2v3a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4v-3a2 2 0 0 1 2-2zM6 12V5a2 2 0 0 1 2-2h3"/>
+                  </svg>
+                </div>
+                <div className="villa-stay-tile__content">
+                  <span className="villa-stay-tile__label">Bathrooms</span>
+                  <strong className="villa-stay-tile__value">{villa.bathrooms} {villa.bathrooms === 1 ? 'Bathroom' : 'Bathrooms'}</strong>
+                </div>
+              </div>
+            </div>
           </section>
           </div>
-          <aside className="property-booking-card villa-booking-card" aria-labelledby="villa-booking-summary-title">
-            <span className="hotel-detail-eyebrow">Whole-property rental</span><h2 id="villa-booking-summary-title">Booking summary</h2>
-            <p className="villa-booking-property-name">{villa.rentalCategory} · {villa.name}</p>
+          <aside className="property-booking-card" aria-labelledby="villa-booking-summary-title">
+            <span className="hotel-detail-eyebrow">YOUR STAY</span>
+            <h2 id="villa-booking-summary-title">Booking Summary</h2>
+
             <div className="property-booking-fields">
               <div className="property-booking-date-field">
                 <label htmlFor="villa-detail-date-range">Travel dates</label>
-                <DateRangePicker id="villa-detail-date-range" dates={{ checkIn, checkOut }} onChange={(nextDates) => { setCheckIn(nextDates.checkIn); setCheckOut(nextDates.checkOut); }} label="Travel dates" triggerClassName="date-range-picker-trigger" valueClassName="date-range-picker-trigger__value" />
+                <DateRangePicker
+                  id="villa-detail-date-range"
+                  dates={{ checkIn, checkOut }}
+                  onChange={(nextDates) => {
+                    setCheckIn(nextDates.checkIn);
+                    setCheckOut(nextDates.checkOut);
+                  }}
+                  label="Travel dates"
+                  triggerClassName="date-range-picker-trigger"
+                  valueClassName="date-range-picker-trigger__value"
+                />
               </div>
-              <label>Guests<input type="number" min="1" max={villa.guestCapacity} value={guestCount} onChange={(event) => setGuestCount(event.target.value)} /></label>
+
+              <div className="property-booking-guest-field">
+                <GuestRoomSelector
+                  mode="inline"
+                  id="villa-detail-guests"
+                  label="Guests"
+                  subtitle={`Up to ${villa.guestCapacity} guests`}
+                  value={Number(guestCount) || 1}
+                  min={1}
+                  max={villa.guestCapacity}
+                  singularLabel="Guest"
+                  pluralLabel="Guests"
+                  onChange={(val) => setGuestCount(String(val))}
+                />
+              </div>
             </div>
-            {nights === null && <p className="villa-rental-panel__error" role="alert">Check-out must be later than check-in.</p>}
-            {Number(guestCount) > villa.guestCapacity && <p className="villa-rental-panel__error" role="alert">This private stay accommodates up to {villa.guestCapacity} guests.</p>}
+
+            <div className="property-booking-selection">
+              <span>{villa.rentalCategory}</span>
+              <strong>{villa.name}</strong>
+            </div>
+
+            {nights === null && (
+              <p className="villa-rental-panel__error" role="alert">
+                Check-out must be later than check-in.
+              </p>
+            )}
+            {Number(guestCount) > villa.guestCapacity && (
+              <p className="villa-rental-panel__error" role="alert">
+                This private stay accommodates up to {villa.guestCapacity} guests.
+              </p>
+            )}
+
             <dl className="property-booking-price">
-              <div><dt>Whole-property rate</dt><dd>{formatMoney(villa.currency, villa.pricePerNight)} / night</dd></div>
-              <div><dt>Rental duration</dt><dd>{nights ? `${nights} ${nights === 1 ? 'night' : 'nights'}` : 'Choose valid dates'}</dd></div>
-              <div className="property-booking-price__total"><dt>Estimated rental total</dt><dd>{subtotal === null ? 'Not calculated' : formatMoney(villa.currency, subtotal)}</dd></div>
+              <div>
+                <dt>Whole-property rate</dt>
+                <dd>{formatMoney(villa.currency, villa.pricePerNight)} / night</dd>
+              </div>
+              <div>
+                <dt>Rental duration</dt>
+                <dd>{nights ? `${nights} ${nights === 1 ? 'night' : 'nights'}` : 'Choose valid dates'}</dd>
+              </div>
+              <div className="property-booking-price__total">
+                <dt>Estimated rental total</dt>
+                <dd>{subtotal === null ? 'Not calculated' : formatMoney(villa.currency, subtotal)}</dd>
+              </div>
             </dl>
-            <p className="property-booking-note">Taxes and fees are not included. This demo does not check availability or make a reservation.</p>
-            <Button className="property-booking-submit" variant="accent" size="lg" onClick={bookWholeProperty} disabled={nights === null || Number(guestCount) < 1 || Number(guestCount) > villa.guestCapacity}>Book This Now</Button>
+
+            <p className="property-booking-note">
+              Taxes and fees are estimated and finalized at checkout. Availability is subject to confirmation.
+            </p>
+
+            <Button
+              className="property-booking-submit"
+              variant="primary"
+              size="lg"
+              onClick={bookWholeProperty}
+              disabled={nights === null || Number(guestCount) < 1 || Number(guestCount) > villa.guestCapacity}
+            >
+              Book This Now
+            </Button>
           </aside>
           </div>
         </Container>

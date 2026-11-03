@@ -921,12 +921,15 @@
 }
 
 .booking-confirmation-ref-line strong {
-  font-family: monospace;
-  letter-spacing: 0.05em;
-  color: var(--color-primary-700);
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #0f172a !important;
   background: #f1f5f9;
-  padding: 2px 8px;
-  border-radius: 4px;
+  border: 1px solid #cbd5e1;
+  padding: 3px 10px;
+  border-radius: 6px;
+  display: inline-block;
 }
 
 .booking-confirmation-banner {
@@ -991,24 +994,35 @@
 }
 
 .voucher-ref-badge {
-  background: #0f172a;
-  color: #ffffff;
-  padding: var(--space-2) var(--space-4);
-  border-radius: var(--radius-sm);
-  display: grid;
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border: 1px solid #334155 !important;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm, 6px);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-end;
   text-align: right;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
 }
 
 .voucher-ref-badge span {
+  display: block;
   font-size: 0.65rem;
   letter-spacing: 0.1em;
-  opacity: 0.8;
+  color: #94a3b8 !important;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .voucher-ref-badge strong {
-  font-family: monospace;
+  display: block;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
   font-size: 1.15rem;
-  letter-spacing: 0.06em;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .voucher-date {

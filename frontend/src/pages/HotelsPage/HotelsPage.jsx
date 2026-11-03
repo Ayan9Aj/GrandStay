@@ -8,6 +8,7 @@ import HotelCard from '../../components/common/HotelCard/HotelCard';
 import EmptyState from '../../components/common/EmptyState/EmptyState';
 import HotelDetailsModal from '../../components/home/HotelDetailsModal/HotelDetailsModal';
 import HotelFilterSidebar from '../../components/catalog/HotelFilterSidebar/HotelFilterSidebar';
+import CatalogMap from '../../components/catalog/CatalogMap/CatalogMap';
 import { FilterIcon, CloseIcon, CheckCircleIcon } from '../../components/common/Icons';
 import {
   getHotels,
@@ -19,27 +20,6 @@ import { getActiveUserSession, clearActiveUserSession } from '../../data/authSes
 import SignInModal from '../../components/home/SignInModal/SignInModal';
 import './HotelsPage.css';
 
-/**
- * ==============================================================================
- * HOTELS PAGE — HOTEL CATALOG WITH FILTERS
- * Project: GrandStay - Multi-Hotel Booking Platform
- * Stage 3: Hotel Catalog & Filtering
- * Route: /hotels
- * ==============================================================================
- *
- * Features:
- * - Reads initial filter state from URL query params (destination, checkIn,
- *   checkOut, guests) so that the Hero search on the homepage navigates here
- *   with pre-populated filters.
- * - HotelFilterSidebar (desktop: sticky sidebar; mobile: slide-in drawer)
- * - Sort bar with result count
- * - Active filter chips (one chip per active filter; click to remove)
- * - EmptyState when no hotels match
- * - HotelDetailsModal on "View Details" click
- * - Full sign-in session persistence (same as Homepage)
- */
-
-// ── Preset filter options ────────────────────────────────────────────────────
 const SORT_OPTIONS = [
   { value: 'recommended', label: 'Recommended' },
   { value: 'price-asc',   label: 'Price: Low to High' },
@@ -49,13 +29,20 @@ const SORT_OPTIONS = [
 
 // Default (empty) filter state
 const DEFAULT_FILTERS = {
-  destination:   'All',
-  minPrice:      0,
-  maxPrice:      99999,
-  starRatings:   [],
-  amenities:     [],
-  propertyTypes: [],
-  popularFilters: [],
+  destination:             'All',
+  landmark:                '',
+  minPrice:                0,
+  maxPrice:                99999,
+  starRatings:             [],
+  amenities:               [],
+  propertyTypes:           [],
+  popularFilters:          [],
+  bookingConditions:       [],
+  mealPlans:               [],
+  maxCityCenterDistanceKm: 'any',
+  maxLandmarkDistanceKm:   'any',
+  accessibilityFeatures:   [],
+  minRating:               0,
 };
 
 // Precompute static lists — these never change during a session
@@ -141,6 +128,7 @@ export default function HotelsPage() {
 
   // Build initial filters from URL params
   const initialDestination = searchParams.get('destination') || 'All';
+  const initialLandmark = searchParams.get('landmark') || '';
   const queryPropertyTypes = searchParams.getAll('propertyType');
   const querySortBy = searchParams.get('sortBy');
 
@@ -148,8 +136,10 @@ export default function HotelsPage() {
   const [filters, setFilters] = useState({
     ...DEFAULT_FILTERS,
     destination: initialDestination,
+    landmark: initialLandmark,
     propertyTypes: queryPropertyTypes,
   });
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'map'
   const [sortBy, setSortBy] = useState(
     SORT_OPTIONS.some((option) => option.value === querySortBy) ? querySortBy : 'recommended'
   );
@@ -287,7 +277,6 @@ export default function HotelsPage() {
   }, [selectedHotel, isFilterDrawerOpen]);
 
   // ── Filter logic ──────────────────────────────────────────────────────────
-  // Update a single filter field
   const handleFilterChange = useCallback((key, value) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
   }, []);
@@ -309,19 +298,25 @@ export default function HotelsPage() {
     setSearchParams(params, { replace: true });
   }, [searchParams, setSearchParams]);
 
-  // Reset every filter to defaults
   const handleClearAll = useCallback(() => {
     setFilters({ ...DEFAULT_FILTERS });
   }, []);
 
-  // Remove one individual filter chip
   const removeFilterChip = (key, value) => {
     if (key === 'destination') {
       handleFilterChange('destination', 'All');
+    } else if (key === 'landmark') {
+      handleFilterChange('landmark', '');
     } else if (key === 'minPrice') {
       handleFilterChange('minPrice', 0);
     } else if (key === 'maxPrice') {
       handleFilterChange('maxPrice', 99999);
+    } else if (key === 'maxCityCenterDistanceKm') {
+      handleFilterChange('maxCityCenterDistanceKm', 'any');
+    } else if (key === 'maxLandmarkDistanceKm') {
+      handleFilterChange('maxLandmarkDistanceKm', 'any');
+    } else if (key === 'minRating') {
+      handleFilterChange('minRating', 0);
     } else if (Array.isArray(filters[key])) {
       handleFilterChange(
         key,
@@ -331,26 +326,15 @@ export default function HotelsPage() {
   };
 
   // Compute filtered + sorted results
-  const filteredHotels = getHotels({ ...filters, sortBy }).filter((hotel) => (
-    filters.popularFilters.every((filter) => {
-      if (filter === 'freeCancellation') {
-        return /free cancellation/i.test(hotel.policies?.cancellation || '');
-      }
-      return false;
-    })
-  ));
-  if (sortBy === 'rating-desc') {
-    filteredHotels.sort((hotelA, hotelB) =>
-      (hotelB.rating ?? 0) - (hotelA.rating ?? 0)
-      || (hotelB.reviewCount ?? 0) - (hotelA.reviewCount ?? 0)
-    );
-  }
+  const filteredHotels = getHotels({ ...filters, sortBy });
 
   // ── Build active filter chips ─────────────────────────────────────────────
-  // Each chip has { label, key, value } and can be dismissed individually
   const activeChips = [];
   if (filters.destination && filters.destination !== 'All') {
     activeChips.push({ label: `📍 ${filters.destination}`, key: 'destination', value: filters.destination });
+  }
+  if (filters.landmark) {
+    activeChips.push({ label: `🏛️ ${filters.landmark}`, key: 'landmark', value: filters.landmark });
   }
   if (filters.minPrice > 0) {
     activeChips.push({ label: `Min ₹${filters.minPrice.toLocaleString()}`, key: 'minPrice', value: filters.minPrice });
@@ -358,8 +342,28 @@ export default function HotelsPage() {
   if (filters.maxPrice < 99999) {
     activeChips.push({ label: `Max ₹${filters.maxPrice.toLocaleString()}`, key: 'maxPrice', value: filters.maxPrice });
   }
+  if (filters.maxCityCenterDistanceKm && filters.maxCityCenterDistanceKm !== 'any' && filters.maxCityCenterDistanceKm !== Infinity) {
+    activeChips.push({ label: `< ${filters.maxCityCenterDistanceKm}km to City Center`, key: 'maxCityCenterDistanceKm', value: filters.maxCityCenterDistanceKm });
+  }
+  if (filters.maxLandmarkDistanceKm && filters.maxLandmarkDistanceKm !== 'any' && filters.maxLandmarkDistanceKm !== Infinity) {
+    activeChips.push({ label: `< ${filters.maxLandmarkDistanceKm}km to Landmark`, key: 'maxLandmarkDistanceKm', value: filters.maxLandmarkDistanceKm });
+  }
+  if (filters.minRating > 0) {
+    activeChips.push({ label: `${filters.minRating}+ ★ Rating`, key: 'minRating', value: filters.minRating });
+  }
   filters.starRatings.forEach((s) => {
     activeChips.push({ label: `${'★'.repeat(s)} ${s}-Star`, key: 'starRatings', value: s });
+  });
+  (filters.bookingConditions || []).forEach((bc) => {
+    const labels = { freeCancellation: 'Free Cancellation', payAtHotel: 'Pay at Hotel' };
+    activeChips.push({ label: labels[bc] || bc, key: 'bookingConditions', value: bc });
+  });
+  (filters.mealPlans || []).forEach((mp) => {
+    const labels = { breakfastIncluded: 'Breakfast Included', halfBoard: 'Half Board', allInclusive: 'All-Inclusive' };
+    activeChips.push({ label: labels[mp] || mp, key: 'mealPlans', value: mp });
+  });
+  (filters.accessibilityFeatures || []).forEach((acc) => {
+    activeChips.push({ label: acc, key: 'accessibilityFeatures', value: acc });
   });
   filters.amenities.forEach((a) => {
     activeChips.push({ label: a, key: 'amenities', value: a });
@@ -372,7 +376,6 @@ export default function HotelsPage() {
     if (option) activeChips.push({ label: option.label, key: 'popularFilters', value: filter });
   });
 
-  // Count of active filters (for the mobile Filters button badge)
   const activeFilterCount = activeChips.length;
 
   return (
@@ -431,13 +434,31 @@ export default function HotelsPage() {
             </div>
           )}
 
-          {/* ── Sort bar ─────────────────────────────────────────────────── */}
+          {/* ── Sort & View bar ─────────────────────────────────────────── */}
           <div className="hotels-sort-bar">
             <p className="hotels-sort-bar__count">
               <strong>{filteredHotels.length}</strong>{' '}
               {filteredHotels.length === 1 ? 'stay' : 'stays'} found
             </p>
             <div className="hotels-sort-bar__right">
+              {/* List / Map View Segmented Control */}
+              <div className="hotels-view-toggle" role="group" aria-label="Catalog view mode">
+                <button
+                  type="button"
+                  className={`hotels-view-btn ${viewMode === 'list' ? 'hotels-view-btn--active' : ''}`}
+                  onClick={() => setViewMode('list')}
+                >
+                  📄 List View
+                </button>
+                <button
+                  type="button"
+                  className={`hotels-view-btn ${viewMode === 'map' ? 'hotels-view-btn--active' : ''}`}
+                  onClick={() => setViewMode('map')}
+                >
+                  🗺️ Map View
+                </button>
+              </div>
+
               <label htmlFor="sort-select" className="hotels-sort-label">Sort by:</label>
               <SelectDropdown
                 id="sort-select"
@@ -470,7 +491,7 @@ export default function HotelsPage() {
               onPopularToggle={handlePopularToggle}
             />
 
-            {/* Results Grid */}
+            {/* Results Area */}
             <section className="hotels-results" aria-label="Hotel search results">
               {filteredHotels.length === 0 ? (
                 <EmptyState
@@ -478,6 +499,11 @@ export default function HotelsPage() {
                   description="Try adjusting your filters or clearing them to see all available stays."
                   onAction={handleClearAll}
                   actionLabel="Clear All Filters"
+                />
+              ) : viewMode === 'map' ? (
+                <CatalogMap
+                  hotels={filteredHotels}
+                  onSelectHotel={handleHotelCardBook}
                 />
               ) : (
                 <div className="hotels-grid">

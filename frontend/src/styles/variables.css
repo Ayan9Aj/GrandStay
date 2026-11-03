@@ -27,6 +27,14 @@
   --color-primary-100: #e5ebf3;
   --color-primary-50:  #f3f6fa;
 
+  /* Aliases & Semantic Tokens */
+  --color-navy: #07111e;
+  --color-navy-dark: #040910;
+  --color-gold: #c59b27;
+  --color-gold-dark: #a8811b;
+  --color-surface: #ffffff;
+  --color-background: #f8fafc;
+
   /* Accent: Warm Gold / Amber (Luxury & Hospitality) */
   --color-accent-800: #8c5d13;
   --color-accent-700: #b87b1c;

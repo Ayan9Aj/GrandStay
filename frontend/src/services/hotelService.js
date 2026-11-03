@@ -123,6 +123,14 @@ export function getHotels(filters = {}) {
     starRatings = [],
     amenities = [],
     propertyTypes = [],
+    popularFilters = [],
+    maxCityCenterDistanceKm = Infinity,
+    landmark = '',
+    maxLandmarkDistanceKm = Infinity,
+    mealPlans = [],
+    bookingConditions = {},
+    accessibilityFeatures = [],
+    minRating = 0,
     sortBy = 'recommended',
   } = filters;
 
@@ -138,7 +146,7 @@ export function getHotels(filters = {}) {
     );
   }
 
-  // 2. Filter by price range (use the hotel's base pricePerNight field)
+  // 2. Filter by price range
   if (minPrice > 0) {
     results = results.filter((h) => h.pricePerNight >= minPrice);
   }
@@ -163,7 +171,63 @@ export function getHotels(filters = {}) {
     results = results.filter((h) => propertyTypes.includes(h.propertyType));
   }
 
-  // 6. Sort results
+  // 6. Filter by popularFilters & bookingConditions
+  const hasFreeCancellationFilter = Array.isArray(bookingConditions)
+    ? bookingConditions.includes('freeCancellation')
+    : (bookingConditions?.freeCancellation || popularFilters.includes('freeCancellation'));
+  const hasPayAtHotelFilter = Array.isArray(bookingConditions)
+    ? bookingConditions.includes('payAtHotel')
+    : (bookingConditions?.payAtHotel || popularFilters.includes('payAtHotel'));
+
+  if (hasFreeCancellationFilter) {
+    results = results.filter((h) => h.bookingConditions?.freeCancellation || /free cancellation/i.test(h.policies?.cancellation || ''));
+  }
+  if (hasPayAtHotelFilter) {
+    results = results.filter((h) => h.bookingConditions?.payAtHotel);
+  }
+
+  // 7. Distance from city center ('any' or Infinity means no limit)
+  if (maxCityCenterDistanceKm && maxCityCenterDistanceKm !== 'any' && maxCityCenterDistanceKm !== Infinity) {
+    const limit = Number(maxCityCenterDistanceKm);
+    if (!Number.isNaN(limit)) {
+      results = results.filter(
+        (h) => (h.distanceFromCityCenterKm ?? 0) <= limit
+      );
+    }
+  }
+
+  // 8. Distance from landmark ('any' or Infinity means no limit)
+  if (landmark && maxLandmarkDistanceKm && maxLandmarkDistanceKm !== 'any' && maxLandmarkDistanceKm !== Infinity) {
+    const limit = Number(maxLandmarkDistanceKm);
+    if (!Number.isNaN(limit)) {
+      const targetLm = normDest(landmark);
+      results = results.filter((h) => {
+        const lmObj = h.nearbyLandmarks?.find((lm) => normDest(lm.name).includes(targetLm) || targetLm.includes(normDest(lm.name)));
+        return lmObj ? lmObj.distanceKm <= limit : true;
+      });
+    }
+  }
+
+  // 9. Meal plans
+  if (mealPlans.length > 0) {
+    results = results.filter((h) =>
+      mealPlans.every((mp) => h.mealPlans?.includes(mp))
+    );
+  }
+
+  // 10. Accessibility features
+  if (accessibilityFeatures.length > 0) {
+    results = results.filter((h) =>
+      accessibilityFeatures.every((af) => h.accessibilityFeatures?.includes(af))
+    );
+  }
+
+  // 11. Minimum rating score
+  if (minRating > 0) {
+    results = results.filter((h) => (h.rating ?? 0) >= minRating);
+  }
+
+  // 12. Sort results
   switch (sortBy) {
     case 'price-asc':
       results.sort((a, b) => a.pricePerNight - b.pricePerNight);
@@ -172,11 +236,10 @@ export function getHotels(filters = {}) {
       results.sort((a, b) => b.pricePerNight - a.pricePerNight);
       break;
     case 'rating-desc':
-      results.sort((a, b) => b.rating - a.rating);
+      results.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0) || (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
       break;
     case 'recommended':
     default:
-      // Default order is the dataset order (editorial / featured)
       break;
   }
 

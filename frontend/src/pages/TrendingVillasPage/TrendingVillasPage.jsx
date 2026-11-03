@@ -34,8 +34,9 @@ export default function TrendingVillasPage() {
 
   const continueBooking = (villa) => {
     const dates = getDefaultRentalDates();
-    navigate(`/villas/${villa.id}/booking`, {
-      state: { booking: { villaId: villa.id, ...dates, guests: Math.min(2, villa.guestCapacity) }, returnTo: `${location.pathname}${location.search}` },
+    const guests = Math.min(2, villa.guestCapacity);
+    navigate(`/villas/${villa.id}/booking?checkIn=${encodeURIComponent(dates.checkIn)}&checkOut=${encodeURIComponent(dates.checkOut)}&guests=${guests}`, {
+      state: { booking: { villaId: villa.id, ...dates, guests }, returnTo: `${location.pathname}${location.search}` },
     });
   };
   const bookVilla = (villa) => {
@@ -76,10 +77,16 @@ export default function TrendingVillasPage() {
                 hotel={villa}
                 layout="horizontal"
                 showPreview={false}
-                showDetails={false}
+                showDetails={true}
+                showBookNow={true}
                 pricePrefix="Whole property from"
                 pricePeriod="/ night"
-                onBook={bookVilla}
+                onBookNow={bookVilla}
+                onBook={(selected) =>
+                  navigate(`/villas/${selected.id}${location.search}`, {
+                    state: { from: `${location.pathname}${location.search}` },
+                  })
+                }
               />
             ))}
           </section>

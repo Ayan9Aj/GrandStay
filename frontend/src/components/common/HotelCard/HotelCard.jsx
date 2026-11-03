@@ -123,6 +123,12 @@ export default function HotelCard({
             <span>{location}</span>
           </div>
 
+          {hotel.availabilityStatus?.note && (
+            <span className="hotel-card__availability-note">
+              ✓ {hotel.availabilityStatus.note}
+            </span>
+          )}
+
           {layout !== 'horizontal' && (
             <div className="hotel-card__rating" title={`Rated ${rating} out of 5 stars`}>
               <StarIcon size={14} className="hotel-card__star-icon" fill="var(--color-accent-600)" />

@@ -5,16 +5,19 @@ import Button from '../../common/Button/Button';
 import { SearchIcon, MapPinIcon, CalendarIcon, AlertCircleIcon, CompassIcon } from '../../common/Icons';
 import DateRangePicker from '../../common/DateRangePicker/DateRangePicker';
 import GuestRoomSelector from '../../common/GuestRoomSelector/GuestRoomSelector';
-import { getDestinations } from '../../../services/hotelService';
 import heroBackground from '../../../assets/brand/donald-teel-CFyJZMDyJJY-unsplash.jpg';
 import './HeroSection.css';
 
+import { DESTINATION_SUGGESTIONS } from '../../../data/sampleDestinations';
+
 const MAX_ROOMS = 10;
-const DESTINATIONS = getDestinations();
-const DESTINATION_OPTIONS = [
-  { value: 'All', label: 'All Destinations (India)' },
-  ...DESTINATIONS.map((city) => ({ value: city, label: city }))
+
+const ALL_OPTION = { id: 'all', name: 'All Destinations (India)', category: 'Cities', type: 'city', parentCity: 'All', subtitle: 'All locations' };
+const SUGGESTION_POOL = [
+  ALL_OPTION,
+  ...DESTINATION_SUGGESTIONS
 ];
+
 const getDefaultDates = () => {
   const today = new Date();
   today.setHours(12, 0, 0, 0);
@@ -28,7 +31,18 @@ const getDefaultDates = () => {
 
 function DestinationPanel({ panelRef, searchRef, query, selected, onQueryChange, onSelect, onNearMe, nearbyMessage }) {
   const normalizedQuery = query.trim().toLowerCase();
-  const matches = DESTINATION_OPTIONS.filter((option) => option.label.toLowerCase().includes(normalizedQuery));
+  const matches = SUGGESTION_POOL.filter((item) =>
+    item.name.toLowerCase().includes(normalizedQuery) ||
+    (item.subtitle && item.subtitle.toLowerCase().includes(normalizedQuery)) ||
+    item.parentCity.toLowerCase().includes(normalizedQuery)
+  );
+
+  const categories = ['Cities', 'Regions', 'Landmarks', 'Airports & Transit'];
+  const groupedMatches = categories.reduce((acc, cat) => {
+    const items = matches.filter((m) => m.category === cat);
+    if (items.length > 0) acc[cat] = items;
+    return acc;
+  }, {});
 
   return (
     <div id="hero-destination-panel" ref={panelRef} className="hero-destination-panel" role="dialog" aria-label="Choose a destination">
@@ -41,7 +55,7 @@ function DestinationPanel({ panelRef, searchRef, query, selected, onQueryChange,
       </button>
       {nearbyMessage && <p className="hero-destination-panel__message" role="status">Nearby property search is coming soon.</p>}
 
-      <label className="hero-destination-panel__search-label" htmlFor="hero-destination-search">Search destinations</label>
+      <label className="hero-destination-panel__search-label" htmlFor="hero-destination-search">Search destinations, landmarks or airports</label>
       <input
         ref={searchRef}
         id="hero-destination-search"
@@ -49,16 +63,35 @@ function DestinationPanel({ panelRef, searchRef, query, selected, onQueryChange,
         type="search"
         value={query}
         onChange={(event) => onQueryChange(event.target.value)}
-        placeholder="Search cities"
+        placeholder="Search cities, landmarks, airports..."
         autoComplete="off"
       />
       <div className="hero-destination-panel__results" role="listbox" aria-label="Available destinations">
-        {matches.length ? matches.map((option) => (
-          <button type="button" role="option" aria-selected={selected === option.value} key={option.value} onClick={() => onSelect(option.value)}>
-            <MapPinIcon size={16} />
-            <span>{option.label}</span>
-          </button>
-        )) : <p className="hero-destination-panel__empty">No matching destinations in the current catalog.</p>}
+        {Object.keys(groupedMatches).length ? (
+          Object.entries(groupedMatches).map(([category, items]) => (
+            <div key={category} className="hero-destination-panel__group">
+              <span className="hero-destination-panel__group-header">{category}</span>
+              {items.map((item) => (
+                <button
+                  type="button"
+                  role="option"
+                  aria-selected={selected === item.parentCity || selected === item.name}
+                  key={item.id}
+                  onClick={() => onSelect(item)}
+                  className="hero-destination-panel__option-btn"
+                >
+                  <MapPinIcon size={16} />
+                  <div className="hero-destination-panel__option-text">
+                    <strong>{item.name}</strong>
+                    {item.subtitle && <small>{item.subtitle}</small>}
+                  </div>
+                </button>
+              ))}
+            </div>
+          ))
+        ) : (
+          <p className="hero-destination-panel__empty">No matching destinations in the current catalog.</p>
+        )}
       </div>
     </div>
   );
@@ -68,6 +101,8 @@ export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
   const [searchType, setSearchType] = useState('hotel');
   const [dates, setDates] = useState(() => getDefaultDates());
   const [destination, setDestination] = useState(selectedDestination || 'All');
+  const [selectedLandmark, setSelectedLandmark] = useState('');
+  const [displayLabel, setDisplayLabel] = useState(selectedDestination || 'All');
   const [prevPropDestination, setPrevPropDestination] = useState(selectedDestination);
   const [rooms, setRooms] = useState(1);
   const [dateError, setDateError] = useState('');
@@ -82,6 +117,7 @@ export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
   if (selectedDestination !== prevPropDestination) {
     setPrevPropDestination(selectedDestination);
     setDestination(selectedDestination || 'All');
+    setDisplayLabel(selectedDestination || 'All');
   }
 
   useEffect(() => {
@@ -122,8 +158,6 @@ export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
     };
   }, [destinationOpen]);
 
-  const handleCitySelect = (city) => setDestination(city);
-
   const openDestinationPicker = (event) => {
     destinationTriggerRef.current = event.currentTarget;
     setDestinationQuery('');
@@ -131,8 +165,17 @@ export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
     setDestinationOpen(true);
   };
 
-  const selectDestination = (city) => {
-    handleCitySelect(city);
+  const selectDestinationItem = (item) => {
+    // Resolve landmark or airport to parentCity while keeping landmark parameter
+    if (item.type === 'landmark' || item.type === 'airport') {
+      setDestination(item.parentCity);
+      setSelectedLandmark(item.name);
+      setDisplayLabel(`${item.name} (${item.parentCity})`);
+    } else {
+      setDestination(item.parentCity);
+      setSelectedLandmark('');
+      setDisplayLabel(item.name);
+    }
     setDestinationOpen(false);
     setDestinationQuery('');
     setNearbyMessage(false);
@@ -149,7 +192,14 @@ export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
       return;
     }
     setDateError('');
-    onSearch?.({ searchType, destination, checkIn: dates.checkIn, checkOut: dates.checkOut, guests: String(rooms) });
+    onSearch?.({
+      searchType,
+      destination,
+      landmark: selectedLandmark,
+      checkIn: dates.checkIn,
+      checkOut: dates.checkOut,
+      guests: String(rooms)
+    });
   };
 
   const destinationPanel = destinationOpen && createPortal(
@@ -160,7 +210,7 @@ export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
         query={destinationQuery}
         selected={destination}
         onQueryChange={setDestinationQuery}
-        onSelect={selectDestination}
+        onSelect={selectDestinationItem}
         onNearMe={() => setNearbyMessage(true)}
         nearbyMessage={nearbyMessage}
       />
@@ -221,7 +271,7 @@ export default function HeroSection({ onSearch, selectedDestination = 'All' }) {
                       aria-expanded={destinationOpen}
                       onClick={openDestinationPicker}
                     >
-                      {DESTINATION_OPTIONS.find((option) => option.value === destination)?.label || destination}
+                      {displayLabel}
                     </button>
                   </div>
                 </div>

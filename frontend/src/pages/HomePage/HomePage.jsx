@@ -104,8 +104,9 @@ export default function HomePage() {
 
   const continueVillaBooking = (villa) => {
     const dates = getDefaultRentalDates();
-    navigate(`/villas/${villa.id}/booking`, {
-      state: { booking: { villaId: villa.id, ...dates, guests: Math.min(2, villa.guestCapacity) }, returnTo: '/' },
+    const guests = Math.min(2, villa.guestCapacity);
+    navigate(`/villas/${villa.id}/booking?checkIn=${encodeURIComponent(dates.checkIn)}&checkOut=${encodeURIComponent(dates.checkOut)}&guests=${guests}`, {
+      state: { booking: { villaId: villa.id, ...dates, guests }, returnTo: '/' },
     });
   };
 

@@ -24,6 +24,25 @@ import './HotelFilterSidebar.css';
  *   isDrawerOpen    : bool  — controls mobile drawer visibility
  *   onCloseDrawer   : fn()  — closes the mobile drawer
  */
+function CircularControl({ label, isSelected, onSelect }) {
+  return (
+    <button
+      type="button"
+      className={`filter-circular-option ${isSelected ? 'filter-circular-option--selected' : ''}`}
+      onClick={onSelect}
+    >
+      <span className="filter-circular-indicator" aria-hidden="true">
+        {isSelected && (
+          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        )}
+      </span>
+      <span className="filter-circular-text">{label}</span>
+    </button>
+  );
+}
+
 export default function HotelFilterSidebar({
   filters,
   onFilterChange,
@@ -34,11 +53,11 @@ export default function HotelFilterSidebar({
   destinations,
   amenityFilterOptions,
   propertyTypeOptions,
-  popularFilterOptions,
+  _popularFilterOptions,
   travelDates,
   onTravelDateChange,
-  popularFilters,
-  onPopularToggle,
+  _popularFilters,
+  _onPopularToggle,
   catalogName = 'Hotel',
   maxPriceLimit = 99999,
   currencySymbol = '₹',
@@ -48,9 +67,16 @@ export default function HotelFilterSidebar({
   // Count how many filters are currently active (for the badge)
   const activeCount = [
     filters.destination && filters.destination !== 'All' ? 1 : 0,
+    filters.landmark ? 1 : 0,
     filters.minPrice > 0 ? 1 : 0,
     filters.maxPrice < maxPriceLimit ? 1 : 0,
+    filters.maxCityCenterDistanceKm && filters.maxCityCenterDistanceKm !== 'any' && filters.maxCityCenterDistanceKm !== Infinity ? 1 : 0,
+    filters.maxLandmarkDistanceKm && filters.maxLandmarkDistanceKm !== 'any' && filters.maxLandmarkDistanceKm !== Infinity ? 1 : 0,
+    filters.minRating > 0 ? 1 : 0,
     filters.starRatings.length,
+    (filters.bookingConditions || []).length,
+    (filters.mealPlans || []).length,
+    (filters.accessibilityFeatures || []).length,
     filters.amenities.length,
     filters.propertyTypes.length,
     filters.popularFilters.length,
@@ -77,6 +103,14 @@ export default function HotelFilterSidebar({
 
   const handleAmenityToggle = (values) => toggleFilterValues('amenities', values);
   const handlePropertyTypeToggle = (values) => toggleFilterValues('propertyTypes', values);
+
+  const toggleArrayFilter = (key, value) => {
+    const current = filters[key] || [];
+    const updated = current.includes(value)
+      ? current.filter((v) => v !== value)
+      : [...current, value];
+    onFilterChange(key, updated);
+  };
 
   // The panel content is the same for both desktop sidebar and mobile drawer
   const panelContent = (
@@ -137,26 +171,135 @@ export default function HotelFilterSidebar({
         />
       </div>
 
+      {/* ── 2. Booking Conditions ────────────────────────────────────── */}
       <div className="filter-section">
-        <h3 className="filter-section__title">Popular</h3>
-        {popularFilterOptions.map((option) => (
-          <label key={option.value} className={`filter-checkbox-label ${option.available ? '' : 'filter-checkbox-label--unavailable'}`} title={option.available ? undefined : 'Not listed for the current hotel data'}>
-            <input
-              type="checkbox"
-              className="filter-checkbox"
-              checked={popularFilters.includes(option.value)}
-              disabled={!option.available}
-              onChange={() => onPopularToggle(option.value)}
+        <h3 className="filter-section__title">Booking Conditions</h3>
+        {[
+          { label: 'Free Cancellation', value: 'freeCancellation' },
+          { label: 'Pay at Hotel', value: 'payAtHotel' },
+        ].map((bc) => {
+          const isSelected = (filters.bookingConditions || []).includes(bc.value);
+          return (
+            <CircularControl
+              key={bc.value}
+              label={bc.label}
+              isSelected={isSelected}
+              onSelect={() => toggleArrayFilter('bookingConditions', bc.value)}
             />
-            <span className="filter-checkbox-text">{option.label}</span>
-          </label>
-        ))}
-        {popularFilterOptions.some((option) => !option.available) && (
-          <p className="filter-section__note">Some options are unavailable for these listings.</p>
-        )}
+          );
+        })}
       </div>
 
-      {/* ── 2. Price Range ───────────────────────────────────────────── */}
+      {/* ── 3. Distance from City Center ───────────────────────────── */}
+      <div className="filter-section">
+        <h3 className="filter-section__title">Distance from City Center</h3>
+        {[
+          { label: 'Any distance', value: 'any' },
+          { label: 'Less than 2 km', value: 2 },
+          { label: 'Less than 5 km', value: 5 },
+          { label: 'Less than 10 km', value: 10 },
+        ].map((opt) => {
+          const currentVal = filters.maxCityCenterDistanceKm ?? 'any';
+          const isSelected = String(currentVal) === String(opt.value);
+          return (
+            <CircularControl
+              key={opt.label}
+              label={opt.label}
+              isSelected={isSelected}
+              onSelect={() => onFilterChange('maxCityCenterDistanceKm', opt.value)}
+            />
+          );
+        })}
+      </div>
+
+      {/* ── 4. Distance from Landmark (if active) ───────────────────── */}
+      {filters.landmark && (
+        <div className="filter-section">
+          <h3 className="filter-section__title">Distance from {filters.landmark}</h3>
+          {[
+            { label: 'Any distance', value: 'any' },
+            { label: 'Within 2 km', value: 2 },
+            { label: 'Within 5 km', value: 5 },
+            { label: 'Within 15 km', value: 15 },
+          ].map((opt) => {
+            const currentVal = filters.maxLandmarkDistanceKm ?? 'any';
+            const isSelected = String(currentVal) === String(opt.value);
+            return (
+              <CircularControl
+                key={opt.label}
+                label={opt.label}
+                isSelected={isSelected}
+                onSelect={() => onFilterChange('maxLandmarkDistanceKm', opt.value)}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── 5. Meal Plans ────────────────────────────────────────────── */}
+      <div className="filter-section">
+        <h3 className="filter-section__title">Meal Plans</h3>
+        {[
+          { label: 'Breakfast Included', value: 'breakfastIncluded' },
+          { label: 'Half Board (Breakfast + Dinner)', value: 'halfBoard' },
+          { label: 'All-Inclusive', value: 'allInclusive' },
+        ].map((mp) => {
+          const isSelected = (filters.mealPlans || []).includes(mp.value);
+          return (
+            <CircularControl
+              key={mp.value}
+              label={mp.label}
+              isSelected={isSelected}
+              onSelect={() => toggleArrayFilter('mealPlans', mp.value)}
+            />
+          );
+        })}
+      </div>
+
+      {/* ── 6. Accessibility Features ────────────────────────────────── */}
+      <div className="filter-section">
+        <h3 className="filter-section__title">Accessibility Features</h3>
+        {[
+          'Wheelchair Accessible',
+          'Accessible Bathrooms',
+          'Roll-in Shower',
+          'Step-free Entrance',
+        ].map((acc) => {
+          const isSelected = (filters.accessibilityFeatures || []).includes(acc);
+          return (
+            <CircularControl
+              key={acc}
+              label={acc}
+              isSelected={isSelected}
+              onSelect={() => toggleArrayFilter('accessibilityFeatures', acc)}
+            />
+          );
+        })}
+      </div>
+
+      {/* ── 7. Minimum Guest Rating ─────────────────────────────────── */}
+      <div className="filter-section">
+        <h3 className="filter-section__title">Guest Review Rating</h3>
+        {[
+          { label: 'Any Rating', value: 0 },
+          { label: '4.5+ ★ Exceptional', value: 4.5 },
+          { label: '4.0+ ★ Very Good', value: 4.0 },
+          { label: '3.5+ ★ Good', value: 3.5 },
+        ].map((rate) => {
+          const currentVal = filters.minRating ?? 0;
+          const isSelected = Number(currentVal) === Number(rate.value);
+          return (
+            <CircularControl
+              key={rate.label}
+              label={rate.label}
+              isSelected={isSelected}
+              onSelect={() => onFilterChange('minRating', rate.value)}
+            />
+          );
+        })}
+      </div>
+
+      {/* ── 8. Price Range ───────────────────────────────────────────── */}
       <div className="filter-section">
         <h3 className="filter-section__title">{budgetTitle}</h3>
         <div className="filter-price-row">
@@ -190,7 +333,6 @@ export default function HotelFilterSidebar({
             />
           </div>
         </div>
-        {/* Validation: show a hint if min > max */}
         {filters.minPrice > 0 &&
           filters.maxPrice < maxPriceLimit &&
           filters.minPrice > filters.maxPrice && (
@@ -198,7 +340,7 @@ export default function HotelFilterSidebar({
           )}
       </div>
 
-      {/* ── 3. Star Rating ───────────────────────────────────────────── */}
+      {/* ── 9. Star Rating ───────────────────────────────────────────── */}
       <div className="filter-section">
         <h3 className="filter-section__title">Star Rating</h3>
         {starRatingOptions.map((star) => (
@@ -216,7 +358,7 @@ export default function HotelFilterSidebar({
         ))}
       </div>
 
-      {/* ── 4. Amenities ─────────────────────────────────────────────── */}
+      {/* ── 10. Property Type ─────────────────────────────────────────── */}
       <div className="filter-section">
         <h3 className="filter-section__title">Property Type</h3>
         {propertyTypeOptions.map((option) => (
@@ -236,7 +378,7 @@ export default function HotelFilterSidebar({
         )}
       </div>
 
-      {/* ── 5. Property Type ─────────────────────────────────────────── */}
+      {/* ── 11. Amenities ─────────────────────────────────────────────── */}
       <div className="filter-section">
         <h3 className="filter-section__title">Amenities</h3>
         {amenityFilterOptions.map((option) => (

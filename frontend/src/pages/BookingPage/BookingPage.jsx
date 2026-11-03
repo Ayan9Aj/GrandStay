@@ -6,6 +6,7 @@ import EmptyState from '../../components/common/EmptyState/EmptyState';
 import Input from '../../components/common/Input/Input';
 import DateRangePicker from '../../components/common/DateRangePicker/DateRangePicker';
 import GuestRoomSelector from '../../components/common/GuestRoomSelector/GuestRoomSelector';
+import SelectDropdown from '../../components/common/SelectDropdown/SelectDropdown';
 import Container from '../../components/layout/Container/Container';
 import Footer from '../../components/layout/Footer/Footer';
 import Header from '../../components/layout/Header/Header';
@@ -20,6 +21,27 @@ import { SAMPLE_TOURS } from '../../data/sampleTours';
 import { clearActiveUserSession, getActiveUserSession } from '../../data/authSession';
 import { getHotelById } from '../../services/hotelService';
 import './BookingPage.css';
+
+const HOTEL_BED_OPTIONS = [
+  { value: 'no_preference', label: 'No preference (Hotel assigns)' },
+  { value: 'king', label: '1 Large King Bed' },
+  { value: 'twin', label: '2 Twin / Single Beds' },
+];
+
+const HOTEL_ARRIVAL_OPTIONS = [
+  { value: 'flexible', label: "I don't know yet" },
+  { value: '12:00 - 14:00', label: '12:00 PM – 2:00 PM (Early check-in subject to availability)' },
+  { value: '14:00 - 16:00', label: '2:00 PM – 4:00 PM (Standard check-in)' },
+  { value: '16:00 - 18:00', label: '4:00 PM – 6:00 PM' },
+  { value: '18:00 - 20:00', label: '6:00 PM – 8:00 PM' },
+  { value: 'after_20:00', label: 'After 8:00 PM (Late arrival)' },
+];
+
+const HOTEL_SMOKING_OPTIONS = [
+  { value: 'non_smoking', label: 'Non-Smoking Room (Recommended)' },
+  { value: 'smoking', label: 'Smoking Room (Subject to hotel policy)' },
+];
+
 
 // ── Date and Money helpers ────────────────────────────────────────────────────
 const isDateOnly = (value) =>
@@ -901,46 +923,35 @@ TOTAL AMOUNT DUE  : ${money(res.priceBreakdown.currency, res.priceBreakdown.esti
                     <div className="special-requests-grid">
                       <div className="special-request-item">
                         <label htmlFor="bed-preference">Bed Preference</label>
-                        <select
+                        <SelectDropdown
                           id="bed-preference"
-                          className="booking-select-field"
                           value={specialRequests.bedPreference}
-                          onChange={(e) => updateSpecialRequests('bedPreference', e.target.value)}
-                        >
-                          <option value="no_preference">No preference (Hotel assigns)</option>
-                          <option value="king">1 Large King Bed</option>
-                          <option value="twin">2 Twin / Single Beds</option>
-                        </select>
+                          options={HOTEL_BED_OPTIONS}
+                          onChange={(val) => updateSpecialRequests('bedPreference', val)}
+                          ariaLabel="Bed Preference"
+                        />
                       </div>
 
                       <div className="special-request-item">
                         <label htmlFor="arrival-time">Estimated Arrival Time</label>
-                        <select
+                        <SelectDropdown
                           id="arrival-time"
-                          className="booking-select-field"
                           value={specialRequests.arrivalTime}
-                          onChange={(e) => updateSpecialRequests('arrivalTime', e.target.value)}
-                        >
-                          <option value="flexible">I don't know yet</option>
-                          <option value="12:00 - 14:00">12:00 PM – 2:00 PM (Early check-in subject to availability)</option>
-                          <option value="14:00 - 16:00">2:00 PM – 4:00 PM (Standard check-in)</option>
-                          <option value="16:00 - 18:00">4:00 PM – 6:00 PM</option>
-                          <option value="18:00 - 20:00">6:00 PM – 8:00 PM</option>
-                          <option value="after_20:00">After 8:00 PM (Late arrival)</option>
-                        </select>
+                          options={HOTEL_ARRIVAL_OPTIONS}
+                          onChange={(val) => updateSpecialRequests('arrivalTime', val)}
+                          ariaLabel="Estimated Arrival Time"
+                        />
                       </div>
 
                       <div className="special-request-item">
                         <label htmlFor="smoking-preference">Room Smoking Policy</label>
-                        <select
+                        <SelectDropdown
                           id="smoking-preference"
-                          className="booking-select-field"
                           value={specialRequests.smokingPreference}
-                          onChange={(e) => updateSpecialRequests('smokingPreference', e.target.value)}
-                        >
-                          <option value="non_smoking">Non-Smoking Room (Recommended)</option>
-                          <option value="smoking">Smoking Room (Subject to hotel policy)</option>
-                        </select>
+                          options={HOTEL_SMOKING_OPTIONS}
+                          onChange={(val) => updateSpecialRequests('smokingPreference', val)}
+                          ariaLabel="Room Smoking Policy"
+                        />
                       </div>
 
                       <div className="special-request-item special-request-full">

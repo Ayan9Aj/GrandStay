@@ -116,31 +116,45 @@
 .hotels-chip {
   display: inline-flex;
   align-items: center;
-  gap: var(--space-1);
-  padding: var(--space-1) var(--space-3);
-  background: var(--color-navy);
-  color: #fff;
-  border: none;
+  gap: 6px;
+  padding: 6px 14px;
+  background: var(--color-navy, #07111e);
+  color: #ffffff;
+  border: 1px solid var(--color-navy, #07111e);
   border-radius: var(--radius-full);
   font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
+  font-weight: 600;
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: background var(--transition-fast), border-color var(--transition-fast);
   white-space: nowrap;
 }
+
 .hotels-chip:hover {
-  background: var(--color-navy-dark, #0f1f3d);
+  background: var(--color-primary-800, #0c1a2e);
+  border-color: var(--color-primary-800, #0c1a2e);
 }
 
-/* "Clear All" chip has a different style */
-.hotels-chip--clear {
-  background: transparent;
-  color: var(--color-gold);
-  border: 1px solid var(--color-gold);
+.hotels-chip svg {
+  color: #ffffff;
+  opacity: 0.9;
+  flex-shrink: 0;
 }
+
+.hotels-chip:hover svg {
+  opacity: 1;
+}
+
+/* "Clear All" chip has a distinct warm outline style */
+.hotels-chip--clear {
+  background: #ffffff;
+  color: #8c5d13;
+  border: 1px solid #d49128;
+}
+
 .hotels-chip--clear:hover {
-  background: var(--color-gold);
-  color: var(--color-navy);
+  background: #fef4e2;
+  color: #8c5d13;
+  border-color: #b87b1c;
 }
 
 /* ─── Sort Bar ─────────────────────────────────────────────────────────────── */
@@ -164,7 +178,39 @@
 .hotels-sort-bar__right {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
+}
+
+/* List / Map view segmented toggle */
+.hotels-view-toggle {
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+}
+
+.hotels-view-btn {
+  padding: 5px 12px;
+  border: 0;
+  border-radius: calc(var(--radius-md) - 3px);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.hotels-view-btn:hover {
+  color: var(--color-navy);
+}
+
+.hotels-view-btn--active {
+  background: var(--color-navy);
+  color: #fff;
 }
 
 .hotels-sort-label {
