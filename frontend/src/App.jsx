@@ -11,6 +11,7 @@ import VillasPage from './pages/VillasPage/VillasPage';
 import BookingPage from './pages/BookingPage/BookingPage';
 import WishlistPage from './pages/WishlistPage/WishlistPage';
 import MyStaysPage from './pages/MyStaysPage/MyStaysPage';
+import AboutPage from './pages/AboutPage/AboutPage';
 import PlaceholderPage from './pages/PlaceholderPage/PlaceholderPage';
 import SignInModal from './components/home/SignInModal/SignInModal';
 import { clearActiveUserSession, getActiveUserSession } from './data/authSession';
@@ -376,7 +377,7 @@ export default function App() {
         <Route path="/my-stays" element={<MyStaysPage />} />
         <Route path="/history" element={<PlaceholderRoute title="History" requiresAuth />} />
         <Route path="/settings" element={<PlaceholderRoute title="Settings" />} />
-        <Route path="/about" element={<PlaceholderRoute title="About" />} />
+        <Route path="/about" element={<AboutPage />} />
       </Routes>
     </BrowserRouter>
   );
