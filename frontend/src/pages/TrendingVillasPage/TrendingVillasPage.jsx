@@ -6,6 +6,7 @@ import Header from '../../components/layout/Header/Header';
 import HotelCard from '../../components/common/HotelCard/HotelCard';
 import SelectDropdown from '../../components/common/SelectDropdown/SelectDropdown';
 import SignInModal from '../../components/home/SignInModal/SignInModal';
+import { CheckCircleIcon } from '../../components/common/Icons';
 import { clearActiveUserSession, getActiveUserSession } from '../../data/authSession';
 import { getTrendingVillas } from '../../services/villaService';
 import { getDefaultRentalDates } from '../../utils/rentalDates';
@@ -57,6 +58,15 @@ export default function TrendingVillasPage() {
   const openRegister = () => { setAuthMode('register'); setSignInOpen(true); };
   const signOut = () => { clearActiveUserSession(); setCurrentUser(null); };
 
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const handleFavoriteToggle = (villa, isFav) => {
+    setToastMessage(
+      `${isFav ? 'Saved' : 'Removed'} "${villa.name}" ${isFav ? 'to' : 'from'} your Wishlist`
+    );
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
   return (
     <div className="trending-hotels-page">
       <Header currentUser={currentUser} onOpenSignIn={openSignIn} onOpenRegister={openRegister} onSignOut={signOut} />
@@ -87,6 +97,7 @@ export default function TrendingVillasPage() {
                     state: { from: `${location.pathname}${location.search}` },
                   })
                 }
+                onFavoriteToggle={handleFavoriteToggle}
               />
             ))}
           </section>
@@ -94,6 +105,12 @@ export default function TrendingVillasPage() {
       </main>
       <Footer />
       <SignInModal key={authMode} isOpen={isSignInOpen} onClose={() => setSignInOpen(false)} onLoginSuccess={handleLoginSuccess} initialMode={authMode} />
+      {toastMessage && (
+        <div className="hotels-toast" role="status" aria-live="polite">
+          <CheckCircleIcon size={18} className="hotels-toast__icon" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }

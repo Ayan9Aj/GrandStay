@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StarIcon, MapPinIcon, HeartIcon, WifiIcon, PoolIcon, CoffeeIcon } from '../Icons';
 import Badge from '../Badge/Badge';
 import Button from '../Button/Button';
+import { isItemInWishlist, toggleWishlistItem, subscribeToWishlist } from '../../../services/wishlistService';
 import './HotelCard.css';
 
 /**
@@ -42,8 +43,17 @@ export default function HotelCard({
   pricePeriod = '/ night',
   priceSummary,
 }) {
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(() => (hotel ? isItemInWishlist(hotel.id) : false));
   const [imgError, setImgError] = useState(false);
+
+  // Keep favorite state synced when wishlist changes across any component
+  useEffect(() => {
+    if (!hotel?.id) return undefined;
+    const unsubscribe = subscribeToWishlist(() => {
+      setIsFavorite(isItemInWishlist(hotel.id));
+    });
+    return unsubscribe;
+  }, [hotel?.id]);
 
   if (!hotel) return null;
 
@@ -63,9 +73,10 @@ export default function HotelCard({
 
   const handleFavoriteClick = (e) => {
     e.stopPropagation();
-    setIsFavorite(!isFavorite);
+    const nextSaved = toggleWishlistItem(hotel);
+    setIsFavorite(nextSaved);
     if (onFavoriteToggle) {
-      onFavoriteToggle(hotel, !isFavorite);
+      onFavoriteToggle(hotel, nextSaved);
     }
   };
 

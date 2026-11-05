@@ -76,8 +76,30 @@
 }
 
 .site-header__utility:hover { background: var(--color-bg-subtle); }
-.site-header__utility:focus-visible { outline: 2px solid var(--color-primary-500); outline-offset: 2px; }
-.site-header__utility--wishlist > svg { flex: none; color: #e76f73; }
+.site-header__utility--wishlist svg { flex: none; color: #e76f73; }
+.site-header__wishlist-icon-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.site-header__wishlist-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #0284c7;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 17px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(2, 132, 199, 0.35);
+}
 .site-header__utility-copy { display: flex; min-width: 0; flex-direction: column; gap: 2px; line-height: 1.1; }
 .site-header__utility-copy > span { color: #424b58; font-size: 13px; font-weight: var(--font-weight-medium); }
 .site-header__utility-copy > strong { color: #283342; font-size: 15px; font-weight: var(--font-weight-semibold); }

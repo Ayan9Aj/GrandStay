@@ -20,6 +20,7 @@ import {
 import { SAMPLE_TOURS } from '../../data/sampleTours';
 import { clearActiveUserSession, getActiveUserSession } from '../../data/authSession';
 import { getHotelById } from '../../services/hotelService';
+import { addBooking } from '../../services/bookingService';
 import './BookingPage.css';
 
 const HOTEL_BED_OPTIONS = [
@@ -40,6 +41,14 @@ const HOTEL_ARRIVAL_OPTIONS = [
 const HOTEL_SMOKING_OPTIONS = [
   { value: 'non_smoking', label: 'Non-Smoking Room (Recommended)' },
   { value: 'smoking', label: 'Smoking Room (Subject to hotel policy)' },
+];
+
+const CHILD_AGE_OPTIONS = [
+  { value: '0', label: 'Under 1 year (Infant)' },
+  ...Array.from({ length: 17 }).map((_, a) => ({
+    value: String(a + 1),
+    label: `${a + 1} ${a + 1 === 1 ? 'year old' : 'years old'}`,
+  })),
 ];
 
 
@@ -401,8 +410,9 @@ export default function BookingPage() {
           currency: hotel.currency || '₹',
         },
         timestamp: getFormattedBookingTimestamp(),
-        status: 'Reservation Confirmed',
+        status: 'Confirmed',
       };
+      addBooking(reservationData);
       setConfirmedReservation(reservationData);
       setSubmitted(true);
     }
@@ -544,6 +554,9 @@ TOTAL AMOUNT DUE  : ${money(res.priceBreakdown.currency, res.priceBreakdown.esti
                 <div className="booking-confirmation-actions">
                   <Button variant="primary" size="md" onClick={handlePrintVoucher} className="booking-print-btn">
                     🖨️ Print / Save Voucher as PDF
+                  </Button>
+                  <Button variant="accent" size="md" onClick={() => navigate('/my-stays')}>
+                    📋 View in My Stays
                   </Button>
                   <Button variant="outline" size="md" onClick={handleDownloadTextVoucher}>
                     📄 Download Voucher (Text)
@@ -817,19 +830,13 @@ TOTAL AMOUNT DUE  : ${money(res.priceBreakdown.currency, res.priceBreakdown.esti
                           {Array.from({ length: children }).map((_, idx) => (
                             <div key={idx} className="child-age-item">
                               <label htmlFor={`child-age-${idx}`}>Child {idx + 1} Age</label>
-                              <select
+                              <SelectDropdown
                                 id={`child-age-${idx}`}
-                                className="booking-select-field"
-                                value={childAges[idx] ?? 7}
-                                onChange={(e) => updateChildAge(idx, e.target.value)}
-                              >
-                                <option value={0}>Under 1 year (Infant)</option>
-                                {Array.from({ length: 17 }).map((_, a) => (
-                                  <option key={a + 1} value={a + 1}>
-                                    {a + 1} {a + 1 === 1 ? 'year old' : 'years old'}
-                                  </option>
-                                ))}
-                              </select>
+                                value={String(childAges[idx] ?? 7)}
+                                options={CHILD_AGE_OPTIONS}
+                                onChange={(val) => updateChildAge(idx, Number(val))}
+                                ariaLabel={`Child ${idx + 1} Age`}
+                              />
                             </div>
                           ))}
                         </div>

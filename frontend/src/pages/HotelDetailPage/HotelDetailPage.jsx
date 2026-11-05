@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Badge from '../../components/common/Badge/Badge';
 import Button from '../../components/common/Button/Button';
@@ -14,6 +14,8 @@ import DateRangePicker from '../../components/common/DateRangePicker/DateRangePi
 import GuestRoomSelector from '../../components/common/GuestRoomSelector/GuestRoomSelector';
 import PropertyMap from '../../components/common/PropertyMap/PropertyMap';
 import RoomGalleryModal from '../../components/common/RoomGalleryModal/RoomGalleryModal';
+import { HeartIcon, CheckCircleIcon } from '../../components/common/Icons';
+import { isItemInWishlist, toggleWishlistItem, subscribeToWishlist } from '../../services/wishlistService';
 import './HotelDetailPage.css';
 
 const formatPrice = (currency, amount) =>
@@ -31,6 +33,26 @@ export default function HotelDetailPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const hotel = getHotelById(hotelId);
+
+  const [isFavorite, setIsFavorite] = useState(() => (hotel ? isItemInWishlist(hotel.id) : false));
+  const [toastMessage, setToastMessage] = useState(null);
+
+  // Sync favorite state with wishlist service
+  useEffect(() => {
+    if (!hotel?.id) return undefined;
+    const unsubscribe = subscribeToWishlist(() => {
+      setIsFavorite(isItemInWishlist(hotel.id));
+    });
+    return unsubscribe;
+  }, [hotel?.id]);
+
+  const handleWishlistToggle = () => {
+    if (!hotel) return;
+    const nextSaved = toggleWishlistItem(hotel);
+    setIsFavorite(nextSaved);
+    setToastMessage(`${nextSaved ? 'Saved' : 'Removed'} "${hotel.name}" ${nextSaved ? 'to' : 'from'} your Wishlist`);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
   const [selectedTours, setSelectedTours] = useState(() =>
     Array.isArray(location.state?.selectedTourIds) ? location.state.selectedTourIds : []
@@ -265,6 +287,16 @@ export default function HotelDetailPage() {
               </p>
             </div>
             <div className="hotel-detail-heading__actions">
+              <button
+                type="button"
+                className={`hotel-detail-wishlist-btn ${isFavorite ? 'hotel-detail-wishlist-btn--active' : ''}`}
+                onClick={handleWishlistToggle}
+                aria-label={isFavorite ? `Remove ${hotel.name} from Wishlist` : `Save ${hotel.name} to Wishlist`}
+                title={isFavorite ? 'Saved in Wishlist' : 'Add to Wishlist'}
+              >
+                <HeartIcon size={18} filled={isFavorite} />
+                <span>{isFavorite ? 'Saved to Wishlist' : 'Save to Wishlist'}</span>
+              </button>
               <Link className="hotel-detail-back-link" to={backTo}>Back to results</Link>
             </div>
           </section>
@@ -994,6 +1026,14 @@ export default function HotelDetailPage() {
         onLoginSuccess={handleLoginSuccess}
         initialMode={authMode}
       />
+
+      {/* Wishlist Toast Notification */}
+      {toastMessage && (
+        <div className="hotels-toast" role="status" aria-live="polite">
+          <CheckCircleIcon size={18} className="hotels-toast__icon" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }

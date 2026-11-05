@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import Button from '../../common/Button/Button';
 import Logo from '../../common/Logo/Logo';
 import { ChevronDownIcon, HeartIcon, SearchIcon, UsersIcon } from '../../common/Icons';
+import { getWishlistCount, subscribeToWishlist } from '../../../services/wishlistService';
 import './Header.css';
 
 const LANGUAGE_STORAGE_KEY = 'grandstay_language_preference';
@@ -202,6 +203,7 @@ function LanguageSelector({ selectedLanguage, onSelect }) {
 export default function Header({ currentUser, onOpenSignIn, onOpenRegister, onSignOut }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState(getInitialLanguage);
+  const [wishlistCount, setWishlistCount] = useState(() => getWishlistCount());
   const navigate = useNavigate();
   const location = useLocation();
   const menuButtonRef = useRef(null);
@@ -210,10 +212,23 @@ export default function Header({ currentUser, onOpenSignIn, onOpenRegister, onSi
     ? currentUser.name
     : currentUser;
 
+  useEffect(() => {
+    const unsubscribe = subscribeToWishlist(({ count }) => {
+      setWishlistCount(count);
+    });
+    return unsubscribe;
+  }, []);
+
   const closeMenu = useCallback(() => {
     setMenuOpen(false);
     menuButtonRef.current?.focus();
   }, []);
+
+  const openWishlist = () => {
+    if (menuOpen) closeMenu();
+    navigate('/wishlist');
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  };
 
   const navigateToCatalog = (options = {}) => {
     const params = new URLSearchParams(location.search);
@@ -375,11 +390,23 @@ export default function Header({ currentUser, onOpenSignIn, onOpenRegister, onSi
 
         <div className="site-header__right">
           <div className="site-header__utilities">
-            <button type="button" className="site-header__utility site-header__utility--wishlist" aria-label="Wishlist, coming soon" title="Wishlist feature coming soon">
-              <HeartIcon size={20} />
+            <button
+              type="button"
+              className="site-header__utility site-header__utility--wishlist"
+              aria-label={`Wishlist, ${wishlistCount} saved stay${wishlistCount === 1 ? '' : 's'}`}
+              onClick={openWishlist}
+            >
+              <span className="site-header__wishlist-icon-wrap">
+                <HeartIcon size={20} />
+                {wishlistCount > 0 && (
+                  <span className="site-header__wishlist-badge" aria-hidden="true">
+                    {wishlistCount}
+                  </span>
+                )}
+              </span>
               <span className="site-header__utility-copy">
                 <strong>Wishlist</strong>
-                <small>Save favourites</small>
+                <small>{wishlistCount > 0 ? `${wishlistCount} saved` : 'Save favourites'}</small>
               </span>
             </button>
             <div className="site-header__account-actions">
@@ -431,13 +458,6 @@ export default function Header({ currentUser, onOpenSignIn, onOpenRegister, onSi
           </div>
 
           <div className="site-header__menu-utilities" aria-label="Guest services">
-            <button type="button" className="site-header__utility site-header__utility--wishlist" aria-label="Wishlist, coming soon" title="Wishlist feature coming soon">
-              <HeartIcon size={20} />
-              <span className="site-header__utility-copy">
-                <strong>Wishlist</strong>
-                <small>Save favourites</small>
-              </span>
-            </button>
             <LanguageSelector selectedLanguage={selectedLanguage} onSelect={handleLanguageSelect} />
           </div>
 
@@ -445,7 +465,7 @@ export default function Header({ currentUser, onOpenSignIn, onOpenRegister, onSi
             <li><Link to="/" onClick={handleHomeClick}>Home</Link></li>
             <li><button type="button" onClick={openTrendingHotels}>Trending Hotels &amp; Resorts</button></li>
             <li><button type="button" onClick={openTrendingVillas}>Trending Villas &amp; Bungalows</button></li>
-            <li><button type="button" onClick={() => handleMenuRoute('/my-stays', { requiresAuth: true })}>My Stays</button></li>
+            <li><button type="button" onClick={() => handleMenuRoute('/my-stays')}>My Stays</button></li>
             <li><button type="button" onClick={() => handleMenuRoute('/history', { requiresAuth: true })}>History</button></li>
             <li><button type="button" onClick={() => handleMenuRoute('/settings')}>Settings</button></li>
             <li><button type="button" onClick={() => handleMenuRoute('/about')}>About</button></li>

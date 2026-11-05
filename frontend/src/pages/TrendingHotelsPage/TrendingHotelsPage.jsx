@@ -6,6 +6,7 @@ import Header from '../../components/layout/Header/Header';
 import HotelCard from '../../components/common/HotelCard/HotelCard';
 import SelectDropdown from '../../components/common/SelectDropdown/SelectDropdown';
 import SignInModal from '../../components/home/SignInModal/SignInModal';
+import { CheckCircleIcon } from '../../components/common/Icons';
 import { clearActiveUserSession, getActiveUserSession } from '../../data/authSession';
 import { getTrendingHotels } from '../../services/hotelService';
 import './TrendingHotelsPage.css';
@@ -83,6 +84,15 @@ export default function TrendingHotelsPage() {
     navigate('/booking', { state });
   };
 
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const handleFavoriteToggle = (hotel, isFav) => {
+    setToastMessage(
+      `${isFav ? 'Saved' : 'Removed'} "${hotel.name}" ${isFav ? 'to' : 'from'} your Wishlist`
+    );
+    setTimeout(() => setToastMessage(null), 3500);
+  };
+
   const signOut = () => {
     clearActiveUserSession();
     setCurrentUser(null);
@@ -129,6 +139,7 @@ export default function TrendingHotelsPage() {
                 pricePeriod="/ per night"
                 onBookNow={bookHotelDirect}
                 onBook={viewHotelDetails}
+                onFavoriteToggle={handleFavoriteToggle}
               />
             ))}
           </section>
@@ -144,6 +155,12 @@ export default function TrendingHotelsPage() {
         onLoginSuccess={handleLoginSuccess}
         initialMode={authMode}
       />
+      {toastMessage && (
+        <div className="hotels-toast" role="status" aria-live="polite">
+          <CheckCircleIcon size={18} className="hotels-toast__icon" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }

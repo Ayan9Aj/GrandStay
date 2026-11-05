@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom';
 import Badge from '../../components/common/Badge/Badge';
 import Button from '../../components/common/Button/Button';
@@ -12,7 +12,8 @@ import { getVillaById } from '../../services/villaService';
 import { getDefaultRentalDates, getRentalNights } from '../../utils/rentalDates';
 import DateRangePicker from '../../components/common/DateRangePicker/DateRangePicker';
 import GuestRoomSelector from '../../components/common/GuestRoomSelector/GuestRoomSelector';
-import { UsersIcon } from '../../components/common/Icons';
+import { UsersIcon, HeartIcon, CheckCircleIcon } from '../../components/common/Icons';
+import { isItemInWishlist, toggleWishlistItem, subscribeToWishlist } from '../../services/wishlistService';
 import './VillaDetailPage.css';
 
 const formatMoney = (currency, amount) => `${currency || ''}${amount.toLocaleString('en-IN')}`;
@@ -32,10 +33,28 @@ export default function VillaDetailPage() {
   const [currentUser, setCurrentUser] = useState(() => getActiveUserSession());
   const [isSignInOpen, setSignInOpen] = useState(false);
   const [authMode, setAuthMode] = useState('signin');
+  const [isFavorite, setIsFavorite] = useState(() => (villa ? isItemInWishlist(villa.id) : false));
+  const [toastMessage, setToastMessage] = useState(null);
   const pendingBooking = useRef(false);
   const nights = getRentalNights(checkIn, checkOut);
   const subtotal = nights ? nights * (villa?.pricePerNight || 0) : null;
   const gallery = (Array.isArray(villa?.gallery) && villa.gallery.length ? villa.gallery : [villa?.image]).filter(Boolean);
+
+  useEffect(() => {
+    if (!villa?.id) return undefined;
+    const unsubscribe = subscribeToWishlist(() => {
+      setIsFavorite(isItemInWishlist(villa.id));
+    });
+    return unsubscribe;
+  }, [villa?.id]);
+
+  const handleWishlistToggle = () => {
+    if (!villa) return;
+    const nextSaved = toggleWishlistItem(villa);
+    setIsFavorite(nextSaved);
+    setToastMessage(`${nextSaved ? 'Saved' : 'Removed'} "${villa.name}" ${nextSaved ? 'to' : 'from'} your Wishlist`);
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
   const openSignIn = () => { setAuthMode('signin'); setSignInOpen(true); };
   const openRegister = () => { setAuthMode('register'); setSignInOpen(true); };
@@ -93,7 +112,19 @@ export default function VillaDetailPage() {
               <p className="hotel-detail-rating">{villa.rating} / 5 <span aria-label={`${villa.reviewCount} reviews`}>★</span> ({villa.reviewCount} reviews)</p>
               <p className="hotel-detail-location"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12Z"/><circle cx="12" cy="9" r="2.2"/></svg>{villa.location}</p>
             </div>
-            <div className="hotel-detail-heading__actions"><Link className="hotel-detail-back-link" to="/villas">Back to private stays</Link></div>
+            <div className="hotel-detail-heading__actions">
+              <button
+                type="button"
+                className={`hotel-detail-wishlist-btn ${isFavorite ? 'hotel-detail-wishlist-btn--active' : ''}`}
+                onClick={handleWishlistToggle}
+                aria-label={isFavorite ? `Remove ${villa.name} from Wishlist` : `Save ${villa.name} to Wishlist`}
+                title={isFavorite ? 'Saved in Wishlist' : 'Add to Wishlist'}
+              >
+                <HeartIcon size={18} filled={isFavorite} />
+                <span>{isFavorite ? 'Saved to Wishlist' : 'Save to Wishlist'}</span>
+              </button>
+              <Link className="hotel-detail-back-link" to="/villas">Back to private stays</Link>
+            </div>
           </section>
 
           <div className="property-detail-layout villa-detail-layout">
@@ -271,6 +302,12 @@ export default function VillaDetailPage() {
       </main>
       <Footer />
       <SignInModal key={authMode} isOpen={isSignInOpen} onClose={() => setSignInOpen(false)} onLoginSuccess={handleLoginSuccess} initialMode={authMode} />
+      {toastMessage && (
+        <div className="hotels-toast" role="status" aria-live="polite">
+          <CheckCircleIcon size={18} className="hotels-toast__icon" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }

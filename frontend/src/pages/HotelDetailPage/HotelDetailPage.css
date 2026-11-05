@@ -71,6 +71,43 @@
   flex-shrink: 0;
 }
 
+.hotel-detail-wishlist-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-body);
+  background: var(--color-bg-surface);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hotel-detail-wishlist-btn svg {
+  color: #ef4444;
+  transition: transform 0.15s ease;
+}
+
+.hotel-detail-wishlist-btn:hover {
+  background: var(--color-bg-subtle);
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.hotel-detail-wishlist-btn:hover svg {
+  transform: scale(1.15);
+}
+
+.hotel-detail-wishlist-btn--active {
+  background: #fef2f2;
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
 .hotel-detail-back-link {
   display: inline-flex;
   align-items: center;

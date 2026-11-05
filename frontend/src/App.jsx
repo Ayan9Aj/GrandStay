@@ -9,6 +9,8 @@ import VillaDetailPage from './pages/VillaDetailPage/VillaDetailPage';
 import VillaBookingPage from './pages/VillaBookingPage/VillaBookingPage';
 import VillasPage from './pages/VillasPage/VillasPage';
 import BookingPage from './pages/BookingPage/BookingPage';
+import WishlistPage from './pages/WishlistPage/WishlistPage';
+import MyStaysPage from './pages/MyStaysPage/MyStaysPage';
 import PlaceholderPage from './pages/PlaceholderPage/PlaceholderPage';
 import SignInModal from './components/home/SignInModal/SignInModal';
 import { clearActiveUserSession, getActiveUserSession } from './data/authSession';
@@ -368,9 +370,10 @@ export default function App() {
         <Route path="/trending-villas" element={<TrendingVillasPage />} />
         <Route path="/hotels/:hotelId" element={<HotelDetailPage />} />
         <Route path="/booking" element={<BookingPage />} />
+        <Route path="/wishlist" element={<WishlistPage />} />
         {/* Preserved Stage 1 Design System showcase for direct academic evaluation URL */}
         <Route path="/design-system" element={<DesignSystemShowcase />} />
-        <Route path="/my-stays" element={<PlaceholderRoute title="My Stays" requiresAuth />} />
+        <Route path="/my-stays" element={<MyStaysPage />} />
         <Route path="/history" element={<PlaceholderRoute title="History" requiresAuth />} />
         <Route path="/settings" element={<PlaceholderRoute title="Settings" />} />
         <Route path="/about" element={<PlaceholderRoute title="About" />} />

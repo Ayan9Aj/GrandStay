@@ -4,7 +4,7 @@ import Button from '../../common/Button/Button';
 import { getAllVillas } from '../../../services/villaService';
 import './VillasSection.css';
 
-export default function VillasSection({ onViewDetails, onBookNow, onBrowseAll }) {
+export default function VillasSection({ onViewDetails, onBookNow, onBrowseAll, onFavoriteToggle }) {
   const villas = getAllVillas().slice(0, 6);
 
   return (
@@ -30,6 +30,7 @@ export default function VillasSection({ onViewDetails, onBookNow, onBrowseAll })
               showPreview={false}
               onBookNow={onBookNow}
               onBook={onViewDetails}
+              onFavoriteToggle={onFavoriteToggle}
             />
           ))}
         </div>

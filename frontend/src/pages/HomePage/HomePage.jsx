@@ -257,6 +257,7 @@ export default function HomePage() {
             navigate('/villas');
             window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
           }}
+          onFavoriteToggle={handleFavoriteToggle}
         />
 
         {/* 5. Optional Sightseeing Tour Packages Preview */}

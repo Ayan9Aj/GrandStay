@@ -1,0 +1,800 @@
+/* ==============================================================================
+   MY STAYS & RESERVATIONS PAGE STYLES
+   Project: GrandStay - Multi-Hotel & Villa Booking Platform
+   ============================================================================== */
+
+.my-stays-page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  background-color: var(--color-bg-page, #f8fafc);
+  color: var(--color-text-body, #334155);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.my-stays-page__main {
+  flex: 1 0 auto;
+  padding: var(--space-6, 24px) 0 var(--space-12, 48px);
+}
+
+/* Breadcrumb */
+.my-stays-page__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  margin-bottom: var(--space-4, 16px);
+  font-size: var(--font-size-sm, 14px);
+  color: var(--color-text-muted, #64748b);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.my-stays-page__breadcrumb a {
+  color: var(--color-text-muted, #64748b);
+  text-decoration: none;
+  transition: color var(--transition-fast, 150ms ease);
+}
+
+.my-stays-page__breadcrumb a:hover {
+  color: var(--color-primary-600, #0284c7);
+}
+
+.my-stays-page__breadcrumb-separator {
+  color: var(--color-text-subtle, #94a3b8);
+  user-select: none;
+}
+
+.my-stays-page__breadcrumb-current {
+  color: var(--color-text-heading, #0f172a);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+/* Hero / Header Banner - Light Blue matching search button (#d9f0ff) */
+.my-stays-hero {
+  position: relative;
+  background: #d9f0ff;
+  color: #0c3152;
+  border: 1px solid #c6e6f8;
+  border-radius: var(--radius-xl, 16px);
+  padding: clamp(20px, 3.5vw, 32px);
+  margin-bottom: var(--space-6, 24px);
+  box-shadow: 0 4px 14px rgba(12, 49, 82, 0.08);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.my-stays-hero__top {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.my-stays-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #0369a1;
+  margin-bottom: 4px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.my-stays-hero__title {
+  margin: 0 0 6px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: clamp(1.75rem, 3.5vw, 2.3rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: #0c3152;
+  letter-spacing: -0.01em;
+}
+
+.my-stays-hero__subtitle {
+  margin: 0;
+  font-size: 15px;
+  color: #2d4a68;
+  max-width: 680px;
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Stats Ribbon */
+.my-stays-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(12, 49, 82, 0.14);
+}
+
+@media (min-width: 640px) {
+  .my-stays-stats {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+}
+
+.my-stays-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.my-stays-stat-num {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0c3152;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.my-stays-stat-label {
+  font-size: 12px;
+  color: #3d5a77;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Controls Bar (Tabs & Search) */
+.my-stays-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 840px) {
+  .my-stays-controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.my-stays-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  padding: 4px;
+  border: 1px solid var(--color-border-subtle, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+.my-stays-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-md, 8px);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted, #64748b);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-fast, 150ms ease);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.my-stays-tab:hover {
+  color: var(--color-text-heading, #0f172a);
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.my-stays-tab--active {
+  background: var(--color-navy, #07111e);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.my-stays-tab--active:hover {
+  background: var(--color-navy, #07111e);
+  color: #ffffff;
+}
+
+.my-stays-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.07);
+  color: inherit;
+}
+
+.my-stays-tab--active .my-stays-tab-count {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+}
+
+.my-stays-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #ffffff;
+  border: 1px solid var(--color-border-subtle, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  padding: 0 14px;
+  height: 42px;
+  min-width: min(320px, 100%);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  color: var(--color-text-muted, #64748b);
+}
+
+.my-stays-search input {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  width: 100%;
+  font-size: 14px;
+  color: var(--color-text-heading, #0f172a);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.my-stays-search input::placeholder {
+  color: #94a3b8;
+}
+
+/* Stays List Grid */
+.my-stays-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Individual Stay Card */
+.stay-card {
+  background: #ffffff;
+  border: 1px solid var(--color-border-subtle, #e2e8f0);
+  border-radius: var(--radius-xl, 16px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: transform var(--transition-fast, 150ms ease), box-shadow var(--transition-fast, 150ms ease);
+}
+
+.stay-card:hover {
+  box-shadow: 0 8px 24px rgba(7, 17, 30, 0.08);
+}
+
+/* Stay Card Header */
+.stay-card__header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--color-border-subtle, #f1f5f9);
+}
+
+@media (min-width: 768px) {
+  .stay-card__header {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.stay-card__thumbnail-wrap {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: var(--radius-lg, 12px);
+  overflow: hidden;
+  flex: none;
+}
+
+@media (min-width: 768px) {
+  .stay-card__thumbnail-wrap {
+    width: 220px;
+    height: 140px;
+  }
+}
+
+.stay-card__thumbnail {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 300ms ease;
+}
+
+.stay-card:hover .stay-card__thumbnail {
+  transform: scale(1.04);
+}
+
+.stay-card__type-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(7, 17, 30, 0.82);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.03em;
+}
+
+.stay-card__primary-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1 1 auto;
+}
+
+.stay-card__title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.stay-card__title {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-navy, #07111e);
+  line-height: 1.25;
+}
+
+.stay-card__location {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-text-muted, #64748b);
+}
+
+.stay-card__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #b45309;
+}
+
+.stay-card__rating svg {
+  color: #f59e0b;
+}
+
+.stay-card__status-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+@media (min-width: 768px) {
+  .stay-card__status-wrap {
+    align-items: flex-end;
+    flex: none;
+  }
+}
+
+/* Status Badges */
+.stay-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.stay-status-badge--confirmed {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.stay-status-badge--completed {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.stay-status-badge--cancelled {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+/* Reference Code Chip */
+.stay-ref-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-family: var(--font-mono, monospace);
+  font-weight: 600;
+  color: #475569;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.stay-ref-chip:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Stay Specs Grid */
+.stay-card__details {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 16px;
+  padding: 20px;
+  background: #fbfcfe;
+  border-bottom: 1px solid var(--color-border-subtle, #f1f5f9);
+}
+
+@media (min-width: 640px) {
+  .stay-card__details {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stay-card__details {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.stay-card__detail-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stay-card__detail-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.stay-card__detail-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.stay-card__detail-time-highlight {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 2px;
+  width: fit-content;
+}
+
+.stay-card__detail-sub {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* Inclusions & Highlights */
+.stay-card__inclusions {
+  padding: 16px 20px;
+  background: #ffffff;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--color-border-subtle, #f1f5f9);
+}
+
+.stay-card__inclusion-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.stay-card__tour-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Policy Bar */
+.stay-card__policy-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  font-size: 13px;
+  background: #f8fafc;
+  color: #475569;
+}
+
+.stay-card__policy-bar--eligible {
+  color: #047857;
+  background: #f0fdf4;
+}
+
+.stay-card__policy-bar--cancelled {
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+/* Stay Card Actions Footer */
+.stay-card__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px;
+  background: #ffffff;
+}
+
+@media (min-width: 640px) {
+  .stay-card__footer {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.stay-card__actions-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stay-card__actions-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.stay-cancel-btn {
+  background: transparent;
+  border: 0;
+  color: #dc2626;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  transition: all 150ms ease;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.stay-cancel-btn:hover {
+  background: #fee2e2;
+}
+
+/* Empty State */
+.my-stays-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  background: #ffffff;
+  border: 1px solid var(--color-border-subtle, #e2e8f0);
+  border-radius: var(--radius-xl, 16px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  max-width: 640px;
+  margin: 32px auto;
+}
+
+.my-stays-empty__icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #0284c7;
+  margin-bottom: 16px;
+}
+
+.my-stays-empty__title {
+  margin: 0 0 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--color-navy, #07111e);
+}
+
+.my-stays-empty__desc {
+  margin: 0 0 24px;
+  font-size: 15px;
+  color: var(--color-text-muted, #64748b);
+  max-width: 440px;
+  line-height: 1.5;
+}
+
+.my-stays-empty__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Dialog Overlays */
+.my-stays-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal, 1000);
+  background: rgba(7, 17, 30, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.my-stays-dialog {
+  background: #ffffff;
+  border-radius: var(--radius-xl, 16px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+  max-width: 560px;
+  width: 100%;
+  padding: 28px;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.my-stays-dialog--wide {
+  max-width: 740px;
+}
+
+.my-stays-dialog__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: transparent;
+  border: 0;
+  color: #64748b;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms ease;
+}
+
+.my-stays-dialog__close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.my-stays-dialog__header {
+  margin-bottom: 20px;
+}
+
+.my-stays-dialog__title {
+  margin: 0 0 6px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-navy, #07111e);
+}
+
+.my-stays-dialog__desc {
+  margin: 0;
+  font-size: 14px;
+  color: #64748b;
+}
+
+/* Voucher Details Inside Modal */
+.voucher-modal-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  background: #fafaf9;
+  margin-bottom: 20px;
+}
+
+.voucher-modal-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-bottom: 1px dashed #e2e8f0;
+  font-size: 14px;
+}
+
+.voucher-modal-row:last-child {
+  border-bottom: 0;
+}
+
+.voucher-modal-label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.voucher-modal-val {
+  color: #0f172a;
+  font-weight: 600;
+  text-align: right;
+}
+
+.voucher-modal-total {
+  font-size: 16px;
+  font-weight: 700;
+  color: #07111e;
+}
+
+/* Concierge Info Box */
+.concierge-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.concierge-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.concierge-icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #e0f2fe;
+  color: #0369a1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}

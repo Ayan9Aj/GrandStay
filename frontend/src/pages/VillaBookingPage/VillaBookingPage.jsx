@@ -20,6 +20,7 @@ import { SAMPLE_TOURS } from '../../data/sampleTours';
 import { clearActiveUserSession, getActiveUserSession } from '../../data/authSession';
 import { getVillaById } from '../../services/villaService';
 import { getDefaultRentalDates, getRentalNights } from '../../utils/rentalDates';
+import { addBooking } from '../../services/bookingService';
 import './VillaBookingPage.css';
 
 const VILLA_ARRIVAL_OPTIONS = [
@@ -33,6 +34,14 @@ const VILLA_HOUSEKEEPING_OPTIONS = [
   { value: 'daily', label: 'Daily Housekeeping Service' },
   { value: 'alternate_days', label: 'Alternate Days Service' },
   { value: 'privacy', label: 'On-Request Only (Maximum privacy)' },
+];
+
+const CHILD_AGE_OPTIONS = [
+  { value: '0', label: 'Under 1 year (Infant)' },
+  ...Array.from({ length: 17 }).map((_, a) => ({
+    value: String(a + 1),
+    label: `${a + 1} ${a + 1 === 1 ? 'year old' : 'years old'}`,
+  })),
 ];
 
 
@@ -317,7 +326,7 @@ export default function VillaBookingPage() {
 
     const reservationData = {
       referenceNumber: generateBookingReference(),
-      status: 'Reservation Confirmed',
+      status: 'Confirmed',
       timestamp: getFormattedBookingTimestamp(),
       villa,
       checkIn,
@@ -353,6 +362,7 @@ export default function VillaBookingPage() {
       selectedBank: paymentMethod === 'netbanking' ? selectedBank : null,
     };
 
+    addBooking(reservationData);
     setConfirmedReservation(reservationData);
     setSubmitted(true);
   };
@@ -493,6 +503,9 @@ HOUSE POLICIES & KEY HANDOVER:
                 <div className="villa-confirmation-actions">
                   <Button variant="primary" size="md" onClick={handlePrintVoucher} className="villa-print-btn">
                     🖨️ Print / Save Voucher as PDF
+                  </Button>
+                  <Button variant="accent" size="md" onClick={() => navigate('/my-stays')}>
+                    📋 View in My Stays
                   </Button>
                   <Button variant="outline" size="md" onClick={handleDownloadTextVoucher}>
                     📄 Download Voucher (Text)
@@ -761,19 +774,13 @@ HOUSE POLICIES & KEY HANDOVER:
                           {Array.from({ length: children }).map((_, idx) => (
                             <div key={idx} className="villa-child-age-field">
                               <label htmlFor={`villa-child-age-${idx}`}>Child {idx + 1} Age</label>
-                              <select
+                              <SelectDropdown
                                 id={`villa-child-age-${idx}`}
-                                className="villa-select-field"
-                                value={childAges[idx] ?? 7}
-                                onChange={(e) => updateChildAge(idx, e.target.value)}
-                              >
-                                <option value={0}>Under 1 year (Infant)</option>
-                                {Array.from({ length: 17 }).map((_, a) => (
-                                  <option key={a + 1} value={a + 1}>
-                                    {a + 1} {a + 1 === 1 ? 'year old' : 'years old'}
-                                  </option>
-                                ))}
-                              </select>
+                                value={String(childAges[idx] ?? 7)}
+                                options={CHILD_AGE_OPTIONS}
+                                onChange={(val) => updateChildAge(idx, Number(val))}
+                                ariaLabel={`Child ${idx + 1} Age`}
+                              />
                             </div>
                           ))}
                         </div>

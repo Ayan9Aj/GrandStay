@@ -8,7 +8,7 @@ import SelectDropdown from '../../components/common/SelectDropdown/SelectDropdow
 import EmptyState from '../../components/common/EmptyState/EmptyState';
 import HotelFilterSidebar from '../../components/catalog/HotelFilterSidebar/HotelFilterSidebar';
 import SignInModal from '../../components/home/SignInModal/SignInModal';
-import { FilterIcon, CloseIcon } from '../../components/common/Icons';
+import { FilterIcon, CloseIcon, CheckCircleIcon } from '../../components/common/Icons';
 import { clearActiveUserSession, getActiveUserSession } from '../../data/authSession';
 import { getAllVillas } from '../../services/villaService';
 import { getDefaultRentalDates, getRentalDatesFromSearch, getRentalNights } from '../../utils/rentalDates';
@@ -71,8 +71,16 @@ export default function VillasPage() {
   const [isSignInOpen, setSignInOpen] = useState(false);
   const [authMode, setAuthMode] = useState('signin');
   const [pendingVilla, setPendingVilla] = useState(null);
+  const [toastMessage, setToastMessage] = useState(null);
   const travelDates = getRentalDatesFromSearch(searchParams);
   const nights = getRentalNights(travelDates.checkIn, travelDates.checkOut) || 1;
+
+  const handleFavoriteToggle = (villa, isFav) => {
+    setToastMessage(
+      `${isFav ? 'Saved' : 'Removed'} "${villa.name}" ${isFav ? 'to' : 'from'} your Wishlist`
+    );
+    setTimeout(() => setToastMessage(null), 3500);
+  };
 
   const queryCheckIn = searchParams.get('checkIn') || '';
   const queryCheckOut = searchParams.get('checkOut') || '';
@@ -230,6 +238,7 @@ export default function VillasPage() {
                       onBookNow={bookVilla}
                       onBook={(selected) => navigate(`/villas/${selected.id}${location.search}`, { state: { from: `${location.pathname}${location.search}`, booking: { villaId: selected.id, ...travelDates, guests: Math.min(2, selected.guestCapacity) } } })}
                       onPreview={openVillaPreview}
+                      onFavoriteToggle={handleFavoriteToggle}
                     />
                   ))}
                 </div>
@@ -243,6 +252,12 @@ export default function VillasPage() {
         <FilterIcon size={16} />Filters{activeChips.length > 0 && <span className="hotels-filter-fab__badge">{activeChips.length}</span>}
       </button>
       <SignInModal key={authMode} isOpen={isSignInOpen} onClose={() => setSignInOpen(false)} onLoginSuccess={handleLoginSuccess} initialMode={authMode} />
+      {toastMessage && (
+        <div className="hotels-toast" role="status" aria-live="polite">
+          <CheckCircleIcon size={18} className="hotels-toast__icon" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
     </div>
   );
 }
